@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>InvoiceForm</class>
+ <widget class="QWidget" name="InvoiceForm">
+  <layout class="QVBoxLayout" name="verticalLayout_root">
+   <property name="spacing"><number>10</number></property>
+   <property name="margin"><number>0</number></property>
+
+   <!-- Top info cards -->
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_topCards">
+     <property name="spacing"><number>10</number></property>
+
+     <item>
+      <widget class="QFrame" name="frameInvoiceInfo">
+       <layout class="QFormLayout" name="formLayout_invoice">
+        <property name="margin"><number>10</number></property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelInvoiceNo">
+          <property name="text"><string>Invoice No:</string></property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="leInvoiceNo"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="labelDate">
+          <property name="text"><string>Date:</string></property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="leDate"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+
+     <item>
+      <widget class="QFrame" name="frameCustomer">
+       <layout class="QVBoxLayout" name="verticalLayout_customer">
+        <property name="margin"><number>10</number></property>
+        <item>
+         <widget class="QLabel" name="labelBillTo">
+          <property name="text"><string>Bill To</string></property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="teBillTo"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+
+     <item>
+      <widget class="QFrame" name="frameConsignee">
+       <layout class="QVBoxLayout" name="verticalLayout_consignee">
+        <property name="margin"><number>10</number></property>
+        <item>
+         <widget class="QLabel" name="labelConsignee">
+          <property name="text"><string>Consignee</string></property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="teConsignee"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+
+    </layout>
+   </item>
+
+   <!-- Table card -->
+   <item>
+    <widget class="QFrame" name="frameTable">
+     <layout class="QVBoxLayout" name="verticalLayout_items">
+      <property name="margin"><number>10</number></property>
+      <item>
+       <widget class="QTableWidget" name="tableItems">
+        <property name="columnCount"><number>13</number></property>
+        <property name="rowCount"><number>0</number></property>
+        <property name="sortingEnabled"><bool>false</bool></property>
+        <column><property name="text"><string>Sr</string></property></column>
+        <column><property name="text"><string>Charges Details</string></property></column>
+        <column><property name="text"><string>HSN/SAC</string></property></column>
+        <column><property name="text"><string>CUR</string></property></column>
+        <column><property name="text"><string>Rate</string></property></column>
+        <column><property name="text"><string>Qty</string></property></column>
+        <column><property name="text"><string>Amount</string></property></column>
+        <column><property name="text"><string>Taxable</string></property></column>
+        <column><property name="text"><string>CGST %</string></property></column>
+        <column><property name="text"><string>CGST Amt</string></property></column>
+        <column><property name="text"><string>SGST %</string></property></column>
+        <column><property name="text"><string>SGST Amt</string></property></column>
+        <column><property name="text"><string>Total</string></property></column>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+
+   <!-- Bottom buttons -->
+   <item>
+    <widget class="QFrame" name="frameButtons">
+     <layout class="QHBoxLayout" name="horizontalLayout_buttons">
+      <property name="margin"><number>10</number></property>
+      <item>
+       <widget class="QPushButton" name="btnAddRow">
+        <property name="text"><string>Add Row</string></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnDelRow">
+        <property name="text"><string>Delete Row</string></property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation"><enum>Qt::Horizontal</enum></property>
+        <property name="sizeHint" stdset="0">
+         <size><width>40</width><height>20</height></size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnSave">
+        <property name="text"><string>Save</string></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnExportPDF">
+        <property name="text"><string>Export PDF</string></property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

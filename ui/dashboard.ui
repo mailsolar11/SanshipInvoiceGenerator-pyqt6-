@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dashboard</class>
+ <widget class="QWidget" name="Dashboard">
+  <layout class="QVBoxLayout" name="verticalLayout_main">
+   <property name="spacing"><number>10</number></property>
+   <property name="margin"><number>0</number></property>
+
+   <item>
+    <widget class="QFrame" name="frameSearch">
+     <layout class="QHBoxLayout" name="horizontalLayout_search">
+      <property name="margin"><number>10</number></property>
+
+      <item>
+       <widget class="QLineEdit" name="leSearch">
+        <property name="placeholderText">
+         <string>Search invoice number, type, date...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnSearch">
+        <property name="text"><string>Search</string></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnRefresh">
+        <property name="text"><string>Refresh</string></property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+
+   <item>
+    <widget class="QFrame" name="frameTable">
+     <layout class="QVBoxLayout" name="verticalLayout_table">
+      <property name="margin"><number>10</number></property>
+      <item>
+       <widget class="QTableWidget" name="tableInvoices">
+        <property name="columnCount"><number>4</number></property>
+        <property name="rowCount"><number>0</number></property>
+        <property name="sortingEnabled"><bool>true</bool></property>
+        <column><property name="text"><string>Invoice No.</string></property></column>
+        <column><property name="text"><string>Type</string></property></column>
+        <column><property name="text"><string>Date</string></property></column>
+        <column><property name="text"><string>Total</string></property></column>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+
+   <item>
+    <widget class="QFrame" name="frameButtons">
+     <layout class="QHBoxLayout" name="horizontalLayout_buttons">
+      <property name="margin"><number>10</number></property>
+      <property name="spacing"><number>12</number></property>
+      <item>
+       <spacer name="horizontalSpacerBottom">
+        <property name="orientation"><enum>Qt::Horizontal</enum></property>
+        <property name="sizeHint" stdset="0">
+         <size><width>40</width><height>20</height></size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnOpen">
+        <property name="text"><string>Open</string></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnDelete">
+        <property name="text"><string>Delete</string></property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

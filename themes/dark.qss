@@ -1,0 +1,100 @@
+/* Global */
+* {
+    font-family: "Segoe UI", "Roboto", sans-serif;
+    font-size: 11pt;
+}
+
+QWidget {
+    background-color: #101010;
+    color: #f3f3f3;
+}
+
+/* Top bar */
+#topBar {
+    background-color: #202020;
+    border-bottom: 1px solid #333333;
+}
+#label_companyName {
+    font-size: 15pt;
+    font-weight: 600;
+}
+
+/* Sidebar */
+#sidebar {
+    background-color: #111111;
+}
+#sidebar QPushButton {
+    background-color: transparent;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    margin: 4px 4px 4px 4px;
+}
+#sidebar QPushButton:hover {
+    background-color: #2a2a2a;
+}
+#sidebar QPushButton:checked {
+    background-color: #3a6cff;
+}
+
+/* Frames as Fluent cards */
+QFrame {
+    background-color: #181818;
+    border-radius: 14px;
+}
+
+/* Buttons */
+QPushButton {
+    background-color: #3a6cff;
+    border-radius: 8px;
+    padding: 8px 16px;
+}
+QPushButton:hover {
+    background-color: #547fff;
+}
+QPushButton:disabled {
+    background-color: #404040;
+}
+
+/* Line edits / text edits */
+QLineEdit, QTextEdit {
+    background-color: #202020;
+    border: 1px solid #373737;
+    border-radius: 6px;
+    padding: 4px;
+}
+QLineEdit:focus, QTextEdit:focus {
+    border: 1px solid #3a6cff;
+}
+
+/* Table */
+QTableWidget {
+    background-color: #181818;
+    gridline-color: #303030;
+    alternate-background-color: #202020;
+    selection-background-color: #3a6cff;
+    selection-color: #ffffff;
+}
+QHeaderView::section {
+    background-color: #202020;
+    color: #f3f3f3;
+    padding: 6px;
+    border: 0px;
+    border-right: 1px solid #333333;
+}
+QTableCornerButton::section {
+    background-color: #202020;
+}
+
+/* Scrollbars (simple) */
+QScrollBar:vertical, QScrollBar:horizontal {
+    background: #101010;
+    margin: 0px;
+}
+QScrollBar::handle {
+    background: #2b2b2b;
+    border-radius: 4px;
+}
+QScrollBar::handle:hover {
+    background: #3a3a3a;
+}
