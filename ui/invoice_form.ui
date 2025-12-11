@@ -2,67 +2,454 @@
 <ui version="4.0">
  <class>InvoiceForm</class>
  <widget class="QWidget" name="InvoiceForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1200</width>
+    <height>900</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>InvoiceForm</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_root">
-   <property name="spacing"><number>10</number></property>
-   <property name="margin"><number>0</number></property>
+   <property name="spacing">
+    <number>8</number>
+   </property>
+   <property name="margin">
+    <number>8</number>
+   </property>
 
-   <!-- Top info cards -->
+   <!-- Top row: invoice basic info -->
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_topCards">
-     <property name="spacing"><number>10</number></property>
+    <widget class="QFrame" name="frameTopInfo">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_topinfo">
+      <property name="spacing"><number>10</number></property>
+      <property name="margin"><number>8</number></property>
 
+      <!-- Logo placeholder -->
+      <item>
+       <widget class="QLabel" name="labelLogo">
+        <property name="minimumSize">
+         <size>
+          <width>140</width>
+          <height>90</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
+        <property name="text">
+         <string>LOGO</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+
+      <!-- Center title -->
+      <item>
+       <widget class="QFrame" name="frameTitle">
+        <layout class="QVBoxLayout" name="verticalLayout_title">
+         <property name="margin"><number>6</number></property>
+         <item>
+          <widget class="QLabel" name="labelTitle">
+           <property name="text">
+            <string>TAX INVOICE</string>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>18</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="labelSubTitle">
+           <property name="text">
+            <string>Invoice / Debit Note Generator</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+
+      <!-- Invoice meta -->
+      <item>
+       <widget class="QFrame" name="frameInvoiceMeta">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <layout class="QFormLayout" name="formLayout_meta">
+         <property name="labelAlignment">
+          <set>Qt::AlignLeft</set>
+         </property>
+         <property name="formAlignment">
+          <set>Qt::AlignLeft</set>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="labelInvNoMeta">
+           <property name="text">
+            <string>Invoice No:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="leInvoiceNo"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="labelDateMeta">
+           <property name="text">
+            <string>Date:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="leDate"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+
+     </layout>
+    </widget>
+   </item>
+
+   <!-- BIG section: left Bill To + shipping details, right Consignment details -->
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_mainSections">
+     <property name="spacing"><number>12</number></property>
+
+     <!-- LEFT COLUMN -->
      <item>
-      <widget class="QFrame" name="frameInvoiceInfo">
-       <layout class="QFormLayout" name="formLayout_invoice">
-        <property name="margin"><number>10</number></property>
-        <item row="0" column="0">
-         <widget class="QLabel" name="labelInvoiceNo">
-          <property name="text"><string>Invoice No:</string></property>
+      <widget class="QFrame" name="frameLeftColumn">
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_left">
+        <property name="spacing"><number>8</number></property>
+        <property name="margin"><number>8</number></property>
+
+        <!-- BILL TO header -->
+        <item>
+         <widget class="QLabel" name="labelBillToTitle">
+          <property name="text">
+           <string>BILL TO:</string>
+          </property>
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="leInvoiceNo"/>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="labelDate">
-          <property name="text"><string>Date:</string></property>
+
+        <!-- BILL TO editable text (prefilled with fake company and then required lines) -->
+        <item>
+         <widget class="QTextEdit" name="teBillTo">
+          <property name="plainText">
+           <string>ABC IMPORTS &amp; TRADING PVT LTD
+123, Industrial Estate Road
+Sector 5, Andheri East
+Mumbai, Maharashtra - 400093
+
+MAHARASHTRA - 421302, India
+PAN/IT No:
+State Name: Maharashtra, Code: 27
+GSTIN/UIN: NUM seq</string>
+          </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="leDate"/>
+
+        <!-- Shipping Details title -->
+        <item>
+         <widget class="QLabel" name="labelShippingTitle">
+          <property name="text">
+           <string>SHIPMENT DETAILS</string>
+          </property>
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+         </widget>
         </item>
+
+        <!-- Shipment details form -->
+        <item>
+         <widget class="QFrame" name="frameShipping">
+          <property name="frameShape"><enum>QFrame::StyledPanel</enum></property>
+          <layout class="QFormLayout" name="formLayout_shipping">
+           <property name="labelAlignment"><set>Qt::AlignLeft</set></property>
+           <property name="formAlignment"><set>Qt::AlignLeft</set></property>
+
+           <item row="0" column="0">
+            <widget class="QLabel" name="labelShipper">
+             <property name="text"><string>Shipper:</string></property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="leShipper"/>
+           </item>
+
+           <item row="1" column="0">
+            <widget class="QLabel" name="labelShipConsignee">
+             <property name="text"><string>Consignee:</string></property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="leShipConsignee"/>
+           </item>
+
+           <item row="2" column="0">
+            <widget class="QLabel" name="labelPOL">
+             <property name="text"><string>POL:</string></property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="lePOL"/>
+           </item>
+
+           <item row="3" column="0">
+            <widget class="QLabel" name="labelPOD">
+             <property name="text"><string>POD:</string></property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="lePOD"/>
+           </item>
+
+           <item row="4" column="0">
+            <widget class="QLabel" name="labelVessel">
+             <property name="text"><string>Vessel/Flight:</string></property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="leVessel"/>
+           </item>
+
+           <item row="5" column="0">
+            <widget class="QLabel" name="labelETD">
+             <property name="text"><string>ETD:</string></property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QLineEdit" name="leETD"/>
+           </item>
+
+           <item row="6" column="0">
+            <widget class="QLabel" name="labelETA">
+             <property name="text"><string>ETA:</string></property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QLineEdit" name="leETA"/>
+           </item>
+
+          </layout>
+         </widget>
+        </item>
+
        </layout>
       </widget>
      </item>
 
+     <!-- RIGHT COLUMN -->
      <item>
-      <widget class="QFrame" name="frameCustomer">
-       <layout class="QVBoxLayout" name="verticalLayout_customer">
-        <property name="margin"><number>10</number></property>
+      <widget class="QFrame" name="frameRightColumn">
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_right">
+        <property name="spacing"><number>8</number></property>
+        <property name="margin"><number>8</number></property>
+
         <item>
-         <widget class="QLabel" name="labelBillTo">
-          <property name="text"><string>Bill To</string></property>
+         <widget class="QLabel" name="labelConsignmentTitle">
+          <property name="text">
+           <string>DETAILS ABOUT CONSIGNMENT</string>
+          </property>
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
          </widget>
         </item>
-        <item>
-         <widget class="QTextEdit" name="teBillTo"/>
-        </item>
-       </layout>
-      </widget>
-     </item>
 
-     <item>
-      <widget class="QFrame" name="frameConsignee">
-       <layout class="QVBoxLayout" name="verticalLayout_consignee">
-        <property name="margin"><number>10</number></property>
         <item>
-         <widget class="QLabel" name="labelConsignee">
-          <property name="text"><string>Consignee</string></property>
+         <widget class="QFrame" name="frameConsignmentForm">
+          <property name="frameShape"><enum>QFrame::StyledPanel</enum></property>
+          <layout class="QFormLayout" name="formLayout_consignment">
+           <property name="labelAlignment"><set>Qt::AlignLeft</set></property>
+           <property name="formAlignment"><set>Qt::AlignLeft</set></property>
+
+           <item row="0" column="0">
+            <widget class="QLabel" name="labelCDate">
+             <property name="text"><string>Date:</string></property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="leCDate"/>
+           </item>
+
+           <item row="1" column="0">
+            <widget class="QLabel" name="labelCInvNo">
+             <property name="text"><string>Invoice number:</string></property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="leCInvNo"/>
+           </item>
+
+           <item row="2" column="0">
+            <widget class="QLabel" name="labelMBL">
+             <property name="text"><string>MBL no:</string></property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="leMBL"/>
+           </item>
+
+           <item row="3" column="0">
+            <widget class="QLabel" name="labelJob">
+             <property name="text"><string>Job no:</string></property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="leJob"/>
+           </item>
+
+           <item row="4" column="0">
+            <widget class="QLabel" name="labelGross">
+             <property name="text"><string>Gross weight:</string></property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="leGross"/>
+           </item>
+
+           <item row="5" column="0">
+            <widget class="QLabel" name="labelNet">
+             <property name="text"><string>Net weight:</string></property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QLineEdit" name="leNet"/>
+           </item>
+
+           <item row="6" column="0">
+            <widget class="QLabel" name="labelVolume">
+             <property name="text"><string>Volume (CBM):</string></property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QLineEdit" name="leVolume"/>
+           </item>
+
+           <item row="7" column="0">
+            <widget class="QLabel" name="labelPackages">
+             <property name="text"><string>Packages:</string></property>
+            </widget>
+           </item>
+           <item row="7" column="1">
+            <widget class="QLineEdit" name="lePackages"/>
+           </item>
+
+           <item row="8" column="0">
+            <widget class="QLabel" name="labelBE">
+             <property name="text"><string>BE no / SB no:</string></property>
+            </widget>
+           </item>
+           <item row="8" column="1">
+            <widget class="QLineEdit" name="leBE"/>
+           </item>
+
+           <item row="9" column="0">
+            <widget class="QLabel" name="labelBEDate">
+             <property name="text"><string>BE Date:</string></property>
+            </widget>
+           </item>
+           <item row="9" column="1">
+            <widget class="QLineEdit" name="leBEDate"/>
+           </item>
+
+           <item row="10" column="0">
+            <widget class="QLabel" name="labelIGM">
+             <property name="text"><string>IGM no:</string></property>
+            </widget>
+           </item>
+           <item row="10" column="1">
+            <widget class="QLineEdit" name="leIGM"/>
+           </item>
+
+           <item row="11" column="0">
+            <widget class="QLabel" name="labelIGMDate">
+             <property name="text"><string>IGM Date:</string></property>
+            </widget>
+           </item>
+           <item row="11" column="1">
+            <widget class="QLineEdit" name="leIGMDate"/>
+           </item>
+
+           <item row="12" column="0">
+            <widget class="QLabel" name="labelItemNo">
+             <property name="text"><string>Item no:</string></property>
+            </widget>
+           </item>
+           <item row="12" column="1">
+            <widget class="QLineEdit" name="leItem"/>
+           </item>
+
+           <item row="13" column="0">
+            <widget class="QLabel" name="labelExRate">
+             <property name="text"><string>Ex. Rate:</string></property>
+            </widget>
+           </item>
+           <item row="13" column="1">
+            <widget class="QLineEdit" name="leExRate"/>
+           </item>
+
+           <item row="14" column="0">
+            <widget class="QLabel" name="labelRef">
+             <property name="text"><string>Ref no (optional):</string></property>
+            </widget>
+           </item>
+           <item row="14" column="1">
+            <widget class="QLineEdit" name="leRef"/>
+           </item>
+
+          </layout>
+         </widget>
+        </item>
+
+        <!-- Consignee preview -->
+        <item>
+         <widget class="QLabel" name="labelConsigneePreview">
+          <property name="text"><string>Consignee (preview):</string></property>
          </widget>
         </item>
         <item>
          <widget class="QTextEdit" name="teConsignee"/>
         </item>
+
        </layout>
       </widget>
      </item>
@@ -70,68 +457,110 @@
     </layout>
    </item>
 
-   <!-- Table card -->
+   <!-- Items table -->
    <item>
-    <widget class="QFrame" name="frameTable">
-     <layout class="QVBoxLayout" name="verticalLayout_items">
-      <property name="margin"><number>10</number></property>
+    <widget class="QFrame" name="frameTableArea">
+     <property name="frameShape"><enum>QFrame::StyledPanel</enum></property>
+     <layout class="QVBoxLayout" name="verticalLayout_tableArea">
+      <property name="margin"><number>8</number></property>
+      <property name="spacing"><number>8</number></property>
+
       <item>
        <widget class="QTableWidget" name="tableItems">
         <property name="columnCount"><number>13</number></property>
         <property name="rowCount"><number>0</number></property>
         <property name="sortingEnabled"><bool>false</bool></property>
-        <column><property name="text"><string>Sr</string></property></column>
-        <column><property name="text"><string>Charges Details</string></property></column>
-        <column><property name="text"><string>HSN/SAC</string></property></column>
-        <column><property name="text"><string>CUR</string></property></column>
-        <column><property name="text"><string>Rate</string></property></column>
-        <column><property name="text"><string>Qty</string></property></column>
-        <column><property name="text"><string>Amount</string></property></column>
-        <column><property name="text"><string>Taxable</string></property></column>
-        <column><property name="text"><string>CGST %</string></property></column>
-        <column><property name="text"><string>CGST Amt</string></property></column>
-        <column><property name="text"><string>SGST %</string></property></column>
-        <column><property name="text"><string>SGST Amt</string></property></column>
-        <column><property name="text"><string>Total</string></property></column>
+        <column>
+         <property name="text"><string>Sr No</string></property>
+        </column>
+        <column>
+         <property name="text"><string>Charges Details</string></property>
+        </column>
+        <column>
+         <property name="text"><string>HSN/SAC</string></property>
+        </column>
+        <column>
+         <property name="text"><string>CUR</string></property>
+        </column>
+        <column>
+         <property name="text"><string>Rate</string></property>
+        </column>
+        <column>
+         <property name="text"><string>Qty</string></property>
+        </column>
+        <column>
+         <property name="text"><string>Amount (CUR)</string></property>
+        </column>
+        <column>
+         <property name="text"><string>Taxable Amount</string></property>
+        </column>
+        <column>
+         <property name="text"><string>CGST %</string></property>
+        </column>
+        <column>
+         <property name="text"><string>CGST Amt</string></property>
+        </column>
+        <column>
+         <property name="text"><string>SGST %</string></property>
+        </column>
+        <column>
+         <property name="text"><string>SGST Amt</string></property>
+        </column>
+        <column>
+         <property name="text"><string>Total Amount</string></property>
+        </column>
        </widget>
       </item>
-     </layout>
-    </widget>
-   </item>
 
-   <!-- Bottom buttons -->
-   <item>
-    <widget class="QFrame" name="frameButtons">
-     <layout class="QHBoxLayout" name="horizontalLayout_buttons">
-      <property name="margin"><number>10</number></property>
+      <!-- Table control buttons -->
       <item>
-       <widget class="QPushButton" name="btnAddRow">
-        <property name="text"><string>Add Row</string></property>
+       <widget class="QFrame" name="frameTableButtons">
+        <layout class="QHBoxLayout" name="horizontalLayout_tableButtons">
+         <property name="spacing"><number>12</number></property>
+
+         <item>
+          <widget class="QPushButton" name="btnAddRow">
+           <property name="text"><string>Add Row</string></property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnDelRow">
+           <property name="text"><string>Delete Row</string></property>
+          </widget>
+         </item>
+
+         <item>
+          <spacer name="spacer_tableButtons">
+           <property name="sizeHint">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy>
+             <hor>QSizePolicy.Expanding</hor>
+             <ver>QSizePolicy.Fixed</ver>
+            </sizepolicy>
+           </property>
+          </spacer>
+         </item>
+
+         <item>
+          <widget class="QPushButton" name="btnSave">
+           <property name="text"><string>Save Invoice</string></property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnExportPDF">
+           <property name="text"><string>Export PDF</string></property>
+          </widget>
+         </item>
+
+        </layout>
        </widget>
       </item>
-      <item>
-       <widget class="QPushButton" name="btnDelRow">
-        <property name="text"><string>Delete Row</string></property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation"><enum>Qt::Horizontal</enum></property>
-        <property name="sizeHint" stdset="0">
-         <size><width>40</width><height>20</height></size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnSave">
-        <property name="text"><string>Save</string></property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnExportPDF">
-        <property name="text"><string>Export PDF</string></property>
-       </widget>
-      </item>
+
      </layout>
     </widget>
    </item>
