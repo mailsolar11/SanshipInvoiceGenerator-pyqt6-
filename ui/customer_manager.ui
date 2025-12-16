@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CustomerManager</class>
+ <widget class="QWidget" name="CustomerManager">
+  <property name="windowTitle">
+   <string>Customer Manager</string>
+  </property>
+
+  <layout class="QVBoxLayout" name="verticalLayout">
+
+   <!-- Title -->
+   <item>
+    <widget class="QLabel" name="labelTitle">
+     <property name="text"><string>Customer Master</string></property>
+     <property name="alignment"><set>Qt::AlignCenter</set></property>
+     <property name="font">
+      <font><pointsize>16</pointsize><weight>75</weight><bold>true</bold></font>
+     </property>
+    </widget>
+   </item>
+
+   <!-- Search + Add -->
+   <item>
+    <layout class="QHBoxLayout" name="hl_top">
+     <item>
+      <widget class="QLineEdit" name="leSearch">
+       <property name="placeholderText"><string>Search customer...</string></property>
+      </widget>
+     </item>
+
+     <item>
+      <widget class="QPushButton" name="btnAddCustomer">
+       <property name="text"><string>Add Customer</string></property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+
+   <!-- Table -->
+   <item>
+    <widget class="QTableWidget" name="tableCustomers">
+     <property name="columnCount"><number>6</number></property>
+     <column><property name="text"><string>ID</string></property></column>
+     <column><property name="text"><string>Name</string></property></column>
+     <column><property name="text"><string>GSTIN</string></property></column>
+     <column><property name="text"><string>PAN</string></property></column>
+     <column><property name="text"><string>Addresses</string></property></column>
+     <column><property name="text"><string>Actions</string></property></column>
+    </widget>
+   </item>
+
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

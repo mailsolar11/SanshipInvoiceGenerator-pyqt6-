@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CustomerDialog</class>
+ <widget class="QDialog" name="CustomerDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>420</width>
+    <height>280</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Add / Edit Customer</string>
+  </property>
+
+  <!-- Main Layout -->
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="alignment">
+    <set>Qt::AlignHCenter|Qt::AlignVCenter</set>
+   </property>
+
+   <!-- Card Frame -->
+   <item>
+    <widget class="QFrame" name="frameCard">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">
+       QFrame#frameCard {
+           background-color: #2b2b2b;
+           border-radius: 12px;
+           padding: 20px;
+       }
+       QLabel {
+           color: white;
+           font-size: 14px;
+       }
+       QLineEdit {
+           background-color: #1e1e1e;
+           color: white;
+           padding: 6px;
+           border-radius: 6px;
+           border: 1px solid #444;
+       }
+       QPushButton {
+           background-color: #3a7afe;
+           color: white;
+           padding: 8px 14px;
+           border-radius: 6px;
+           font-weight: bold;
+       }
+       QPushButton:hover {
+           background-color: #5a8cff;
+       }
+      </string>
+     </property>
+
+     <!-- Internal Layout -->
+     <layout class="QVBoxLayout" name="cardLayout">
+      <property name="spacing">
+       <number>12</number>
+      </property>
+
+      <!-- Title -->
+      <item>
+       <widget class="QLabel" name="labelTitle">
+        <property name="text">
+         <string>Add Customer</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignHCenter</set>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-size:18px; font-weight:600; color:white;</string>
+        </property>
+       </widget>
+      </item>
+
+      <!-- Name -->
+      <item>
+       <layout class="QVBoxLayout">
+        <item>
+         <widget class="QLabel" name="lblName">
+          <property name="text">
+           <string>Customer Name</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="leName"/>
+        </item>
+       </layout>
+      </item>
+
+      <!-- GSTIN -->
+      <item>
+       <layout class="QVBoxLayout">
+        <item>
+         <widget class="QLabel" name="lblGST">
+          <property name="text">
+           <string>GSTIN</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="leGST"/>
+        </item>
+       </layout>
+      </item>
+
+      <!-- PAN -->
+      <item>
+       <layout class="QVBoxLayout">
+        <item>
+         <widget class="QLabel" name="lblPAN">
+          <property name="text">
+           <string>PAN</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lePAN"/>
+        </item>
+       </layout>
+      </item>
+
+      <!-- Button -->
+      <item>
+       <widget class="QPushButton" name="btnNext">
+        <property name="text">
+         <string>Next</string>
+        </property>
+        <property name="minimumHeight">
+         <number>36</number>
+        </property>
+       </widget>
+      </item>
+
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+
+ <resources/>
+ <connections/>
+</ui>

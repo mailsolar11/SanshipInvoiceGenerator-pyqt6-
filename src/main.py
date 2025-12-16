@@ -1,70 +1,161 @@
-import os
+# src/main.py
 import sys
-from PyQt6 import QtWidgets, uic
-from PyQt6.QtCore import Qt
-from database import init_db
+from PyQt6 import QtWidgets, QtGui, QtCore
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+# Pages
+from invoice_form import InvoiceForm
+from debitnote_form import DebitNoteForm
+from customer_manager import ConsigneeManager
+
+from database import init_db
 
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi(os.path.join(BASE_DIR, "ui", "main_window.ui"), self)
 
-        # Sidebar buttons
-        self.btn_dashboard = self.findChild(QtWidgets.QPushButton, "btn_dashboard")
-        self.btn_invoice = self.findChild(QtWidgets.QPushButton, "btn_invoice")
-        self.btn_debitnote = self.findChild(QtWidgets.QPushButton, "btn_debitnote")
+        # Init DB
+        init_db()
 
-        # Make them exclusive checkable
-        self.btn_group = QtWidgets.QButtonGroup(self)
-        for btn in (self.btn_dashboard, self.btn_invoice, self.btn_debitnote):
-            self.btn_group.addButton(btn)
-        self.btn_group.setExclusive(True)
+        self.setWindowTitle("SANSHIP — Invoice & Debit Note Generator")
+        self.setMinimumSize(1360, 820)
 
-        # Stacked pages
-        self.stacked = self.findChild(QtWidgets.QStackedWidget, "stackedWidget")
+        self.enable_dark_theme()
 
-        from dashboard import Dashboard
-        from invoice_form import InvoiceForm
-        from debitnote_form import DebitNoteForm
+        # -------------------------
+        # CENTRAL LAYOUT
+        # -------------------------
+        central = QtWidgets.QWidget()
+        self.setCentralWidget(central)
+        main_layout = QtWidgets.QHBoxLayout(central)
+        main_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.page_dashboard = Dashboard()
+        # -------------------------
+        # LEFT SIDEBAR
+        # -------------------------
+        sidebar = QtWidgets.QFrame()
+        sidebar.setFixedWidth(240)
+        sidebar.setObjectName("leftSidebar")
+        sidebar.setStyleSheet("""
+            QFrame#leftSidebar {
+                background-color: #111217;
+                border-right: 1px solid #2b2b2b;
+            }
+            QPushButton.menuButton {
+                padding: 12px 14px;
+                text-align: left;
+                border-radius: 8px;
+                font-size: 14px;
+                color: #eaeaea;
+                background: transparent;
+            }
+            QPushButton.menuButton:hover {
+                background: #1e1e2a;
+            }
+            QLabel#logoLabel {
+                color: white;
+                font-weight: 700;
+                font-size: 20px;
+                padding: 12px;
+            }
+        """)
+
+        menu_layout = QtWidgets.QVBoxLayout(sidebar)
+        menu_layout.setContentsMargins(12, 12, 12, 12)
+        menu_layout.setSpacing(8)
+
+        logo = QtWidgets.QLabel("SANSHIP")
+        logo.setObjectName("logoLabel")
+        logo.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        menu_layout.addWidget(logo)
+
+        btn_invoice = QtWidgets.QPushButton("📄  Create Invoice")
+        btn_invoice.setProperty("class", "menuButton")
+
+        btn_debit = QtWidgets.QPushButton("🧾  Create Debit Note")
+        btn_debit.setProperty("class", "menuButton")
+
+        btn_customers = QtWidgets.QPushButton("👥  Customer / Consignee Manager")
+        btn_customers.setProperty("class", "menuButton")
+
+        btn_exit = QtWidgets.QPushButton("❌  Exit")
+        btn_exit.setProperty("class", "menuButton")
+
+        menu_layout.addWidget(btn_invoice)
+        menu_layout.addWidget(btn_debit)
+        menu_layout.addWidget(btn_customers)
+        menu_layout.addStretch()
+        menu_layout.addWidget(btn_exit)
+
+        # -------------------------
+        # STACKED PAGES
+        # -------------------------
+        self.stack = QtWidgets.QStackedWidget()
+
         self.page_invoice = InvoiceForm()
         self.page_debit = DebitNoteForm()
+        self.page_customers = ConsigneeManager()
 
-        # Clear placeholder pages and add real ones
-        while self.stacked.count() > 0:
-            w = self.stacked.widget(0)
-            self.stacked.removeWidget(w)
-            w.deleteLater()
+        self.stack.addWidget(self.page_invoice)    # index 0
+        self.stack.addWidget(self.page_debit)      # index 1
+        self.stack.addWidget(self.page_customers)  # index 2
 
-        self.stacked.addWidget(self.page_dashboard)  # 0
-        self.stacked.addWidget(self.page_invoice)    # 1
-        self.stacked.addWidget(self.page_debit)      # 2
+        main_layout.addWidget(sidebar)
+        main_layout.addWidget(self.stack, stretch=1)
 
-        self.btn_dashboard.clicked.connect(lambda: self.stacked.setCurrentIndex(0))
-        self.btn_invoice.clicked.connect(lambda: self.stacked.setCurrentIndex(1))
-        self.btn_debitnote.clicked.connect(lambda: self.stacked.setCurrentIndex(2))
+        # -------------------------
+        # MENU NAVIGATION
+        # -------------------------
+        btn_invoice.clicked.connect(lambda: self.stack.setCurrentIndex(0))
+        btn_debit.clicked.connect(lambda: self.stack.setCurrentIndex(1))
+        btn_customers.clicked.connect(lambda: self.stack.setCurrentIndex(2))
+        btn_exit.clicked.connect(self.close)
 
-        self.stacked.setCurrentIndex(0)
+        # -------------------------
+        # SIGNAL-BASED NAVIGATION
+        # -------------------------
+        # From Invoice → Customer Manager
+        if hasattr(self.page_invoice, "openCustomerManager"):
+            self.page_invoice.openCustomerManager.connect(
+                lambda: self.stack.setCurrentIndex(2)
+            )
+
+        # From Debit Note → Customer Manager
+        if hasattr(self.page_debit, "openCustomerManager"):
+            self.page_debit.openCustomerManager.connect(
+                lambda: self.stack.setCurrentIndex(2)
+            )
+
+        # Default page
+        self.stack.setCurrentIndex(0)
+
+    # -------------------------
+    # DARK THEME
+    # -------------------------
+    def enable_dark_theme(self):
+        app = QtWidgets.QApplication.instance()
+        if not app:
+            return
+
+        app.setStyle("Fusion")
+        palette = QtGui.QPalette()
+
+        palette.setColor(QtGui.QPalette.ColorRole.Window, QtGui.QColor(28, 28, 28))
+        palette.setColor(QtGui.QPalette.ColorRole.WindowText, QtGui.QColor(230, 230, 230))
+        palette.setColor(QtGui.QPalette.ColorRole.Base, QtGui.QColor(35, 35, 35))
+        palette.setColor(QtGui.QPalette.ColorRole.Text, QtGui.QColor(230, 230, 230))
+        palette.setColor(QtGui.QPalette.ColorRole.Button, QtGui.QColor(45, 45, 45))
+        palette.setColor(QtGui.QPalette.ColorRole.ButtonText, QtGui.QColor(230, 230, 230))
+        palette.setColor(QtGui.QPalette.ColorRole.Highlight, QtGui.QColor(70, 120, 230))
+        palette.setColor(QtGui.QPalette.ColorRole.HighlightedText, QtGui.QColor(255, 255, 255))
+
+        app.setPalette(palette)
 
 
 def main():
-    init_db()
     app = QtWidgets.QApplication(sys.argv)
-
-    # Apply dark theme
-    qss_path = os.path.join(BASE_DIR, "themes", "dark.qss")
-    if os.path.exists(qss_path):
-        with open(qss_path, "r", encoding="utf-8") as f:
-            app.setStyleSheet(f.read())
-
-    window = MainWindow()
-    window.setWindowFlag(Qt.WindowType.WindowMinimizeButtonHint, True)
-    window.setWindowFlag(Qt.WindowType.WindowMaximizeButtonHint, True)
-    window.showMaximized()
+    win = MainWindow()
+    win.show()
     sys.exit(app.exec())
 
 

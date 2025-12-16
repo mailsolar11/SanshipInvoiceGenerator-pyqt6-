@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ConsigneeManager</class>
+ <widget class="QWidget" name="ConsigneeManager">
+  <layout class="QVBoxLayout" name="verticalLayout">
+
+   <item>
+    <widget class="QFrame">
+     <layout class="QHBoxLayout">
+      <item>
+       <widget class="QLabel">
+        <property name="text">
+         <string>Consignee Master</string>
+        </property>
+        <property name="font">
+         <font><pointsize>16</pointsize><bold>true</bold></font>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer>
+        <property name="orientation"><enum>Qt::Horizontal</enum></property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnAddConsignee">
+        <property name="text"><string>+ Add Consignee</string></property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+
+   <item>
+    <widget class="QTableWidget" name="tableConsignees">
+     <property name="columnCount"><number>3</number></property>
+     <column><property name="text"><string>Name</string></property></column>
+     <column><property name="text"><string>GSTIN</string></property></column>
+     <column><property name="text"><string>PAN</string></property></column>
+    </widget>
+   </item>
+
+   <item>
+    <widget class="QFrame">
+     <layout class="QHBoxLayout">
+      <item>
+       <spacer>
+        <property name="orientation"><enum>Qt::Horizontal</enum></property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnEdit">
+        <property name="text"><string>Edit</string></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnDelete">
+        <property name="text"><string>Delete</string></property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+
+  </layout>
+ </widget>
+</ui>

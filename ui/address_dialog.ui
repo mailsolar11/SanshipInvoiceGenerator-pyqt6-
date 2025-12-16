@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AddressDialog</class>
+ <widget class="QDialog" name="AddressDialog">
+  <property name="windowTitle"><string>Address Details</string></property>
+
+  <layout class="QFormLayout" name="formLayout">
+
+   <item row="0" column="0"><widget class="QLabel" name="labelLabel">
+     <property name="text"><string>Label:</string></property></widget></item>
+   <item row="0" column="1"><widget class="QLineEdit" name="leLabel"/></item>
+
+   <item row="1" column="0"><widget class="QLabel" name="labelAddress">
+     <property name="text"><string>Address:</string></property></widget></item>
+   <item row="1" column="1"><widget class="QTextEdit" name="teAddress"/></item>
+
+   <item row="2" column="0"><widget class="QLabel" name="labelState">
+     <property name="text"><string>State:</string></property></widget></item>
+   <item row="2" column="1"><widget class="QLineEdit" name="leState"/></item>
+
+   <item row="3" column="0"><widget class="QLabel" name="labelStateCode">
+     <property name="text"><string>State Code:</string></property></widget></item>
+   <item row="3" column="1"><widget class="QLineEdit" name="leStateCode"/></item>
+
+   <item row="4" column="0"><widget class="QLabel" name="labelPincode">
+     <property name="text"><string>Pincode:</string></property></widget></item>
+   <item row="4" column="1"><widget class="QLineEdit" name="lePincode"/></item>
+
+   <item row="5" column="0"><widget class="QLabel" name="labelCountry">
+     <property name="text"><string>Country:</string></property></widget></item>
+   <item row="5" column="1"><widget class="QLineEdit" name="leCountry">
+       <property name="text"><string>India</string></property>
+   </widget></item>
+
+   <item row="6" column="0"><widget class="QLabel" name="labelDefault">
+     <property name="text"><string>Set as Default:</string></property></widget></item>
+   <item row="6" column="1"><widget class="QCheckBox" name="chkDefault"/></item>
+
+   <item row="7" column="1">
+    <widget class="QPushButton" name="btnSave">
+      <property name="text"><string>Save Address</string></property>
+    </widget>
+   </item>
+
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

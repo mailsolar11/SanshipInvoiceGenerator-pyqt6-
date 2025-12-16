@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ChargeManager</class>
+ <widget class="QWidget" name="ChargeManager">
+  <layout class="QVBoxLayout">
+
+   <item>
+    <widget class="QLabel">
+     <property name="text"><string>Charge / HSN Master</string></property>
+     <property name="font"><font><pointsize>16</pointsize><bold>true</bold></font></property>
+    </widget>
+   </item>
+
+   <item>
+    <widget class="QTableWidget" name="tableCharges">
+     <property name="columnCount"><number>5</number></property>
+     <column><property name="text"><string>Charge</string></property></column>
+     <column><property name="text"><string>HSN/SAC</string></property></column>
+     <column><property name="text"><string>Currency</string></property></column>
+     <column><property name="text"><string>CGST %</string></property></column>
+     <column><property name="text"><string>SGST %</string></property></column>
+    </widget>
+   </item>
+
+   <item>
+    <layout class="QHBoxLayout">
+     <item><spacer/></item>
+     <item><widget class="QPushButton" name="btnAdd"><property name="text"><string>Add</string></property></widget></item>
+     <item><widget class="QPushButton" name="btnEdit"><property name="text"><string>Edit</string></property></widget></item>
+     <item><widget class="QPushButton" name="btnDelete"><property name="text"><string>Delete</string></property></widget></item>
+    </layout>
+   </item>
+
+  </layout>
+ </widget>
+</ui>
