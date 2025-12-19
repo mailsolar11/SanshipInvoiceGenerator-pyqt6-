@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DebitNoteForm</class>
+ <widget class="QWidget" name="DebitNoteForm">
+  <property name="geometry">
+   <rect><x>0</x><y>0</y><width>1200</width><height>900</height></rect>
+  </property>
+  <property name="windowTitle">
+   <string>Debit Note</string>
+  </property>
+
+  <layout class="QVBoxLayout" name="verticalLayout_root">
+   <property name="spacing"><number>8</number></property>
+   <property name="margin"><number>8</number></property>
+
+   <!-- ================= TOP INFO ================= -->
+   <item>
+    <widget class="QFrame" name="frameTopInfo">
+     <property name="frameShape"><enum>QFrame::StyledPanel</enum></property>
+
+     <layout class="QHBoxLayout" name="horizontalLayout_topinfo">
+      <property name="spacing"><number>10</number></property>
+      <property name="margin"><number>8</number></property>
+
+      <item>
+       <widget class="QLabel" name="labelLogo">
+        <property name="minimumSize">
+         <size><width>140</width><height>90</height></size>
+        </property>
+        <property name="frameShape"><enum>QFrame::Box</enum></property>
+        <property name="text"><string>LOGO</string></property>
+        <property name="alignment"><set>Qt::AlignCenter</set></property>
+       </widget>
+      </item>
+
+      <item>
+       <widget class="QFrame" name="frameTitle">
+        <layout class="QVBoxLayout">
+         <item>
+          <widget class="QLabel">
+           <property name="text"><string>DEBIT NOTE</string></property>
+           <property name="font">
+            <font><pointsize>18</pointsize><bold>true</bold></font>
+           </property>
+           <property name="alignment"><set>Qt::AlignCenter</set></property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel">
+           <property name="text"><string>Invoice / Debit Note Generator</string></property>
+           <property name="alignment"><set>Qt::AlignCenter</set></property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+
+      <item>
+       <widget class="QFrame">
+        <layout class="QFormLayout">
+         <item row="0" column="0">
+          <widget class="QLabel"><property name="text"><string>Debit Note No:</string></property></widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="leInvoiceNo"/>
+         </item>
+
+         <item row="1" column="0">
+          <widget class="QLabel"><property name="text"><string>Date:</string></property></widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="leDate"/>
+         </item>
+
+         <item row="2" column="0">
+          <widget class="QLabel"><property name="text"><string>Job:</string></property></widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QComboBox" name="cbJob"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+
+     </layout>
+    </widget>
+   </item>
+
+   <!-- ================= CUSTOMER SECTION ================= -->
+   <item>
+    <widget class="QFrame">
+     <layout class="QVBoxLayout">
+
+      <item>
+       <layout class="QHBoxLayout">
+        <item>
+         <widget class="QLabel"><property name="text"><string>Customer:</string></property></widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cbCustomer"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnAddCustomer">
+          <property name="text"><string>+ Add</string></property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+
+      <item>
+       <layout class="QHBoxLayout">
+        <item>
+         <widget class="QLabel"><property name="text"><string>Address:</string></property></widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cbAddress"/>
+        </item>
+       </layout>
+      </item>
+
+      <item>
+       <widget class="QLabel">
+        <property name="text"><string>BILL TO:</string></property>
+        <property name="font"><font><bold>true</bold></font></property>
+       </widget>
+      </item>
+
+      <item>
+       <widget class="QTextEdit" name="teBillTo"/>
+      </item>
+
+     </layout>
+    </widget>
+   </item>
+
+   <!-- ================= CONSIGNEE PREVIEW ================= -->
+   <item>
+    <widget class="QFrame">
+     <layout class="QVBoxLayout">
+      <item>
+       <widget class="QLabel"><property name="text"><string>Consignee (Preview):</string></property></widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="teConsignee"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+
+   <!-- ================= ITEMS TABLE ================= -->
+   <item>
+    <widget class="QTableWidget" name="tableItems">
+     <property name="columnCount"><number>13</number></property>
+     <property name="rowCount"><number>0</number></property>
+    </widget>
+   </item>
+
+   <item>
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QPushButton" name="btnAddRow">
+       <property name="text"><string>Add Row</string></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnDelRow">
+       <property name="text"><string>Delete Row</string></property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation"><enum>Qt::Horizontal</enum></property>
+       <property name="sizeHint"><size><width>40</width><height>20</height></size></property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnSave">
+       <property name="text"><string>Save Debit Note</string></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnExportPDF">
+       <property name="text"><string>Export PDF</string></property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

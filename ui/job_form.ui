@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>JobForm</class>
+ <widget class="QWidget" name="JobForm">
+  <property name="windowTitle">
+   <string>Create Job</string>
+  </property>
+
+  <layout class="QVBoxLayout">
+
+   <!-- HEADER -->
+   <item>
+    <widget class="QLabel">
+     <property name="text">
+      <string>JOB CREATION</string>
+     </property>
+     <property name="font">
+      <font><pointsize>18</pointsize><bold>true</bold></font>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+
+   <!-- JOB META -->
+   <item>
+    <layout class="QFormLayout">
+     <item row="0" column="0">
+      <widget class="QLabel"><property name="text"><string>Job No:</string></property></widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="leJobNo"/>
+     </item>
+    </layout>
+   </item>
+
+   <!-- CUSTOMER -->
+   <item>
+    <layout class="QHBoxLayout">
+     <item><widget class="QLabel"><property name="text"><string>Customer:</string></property></widget></item>
+     <item><widget class="QComboBox" name="cbCustomer"/></item>
+    </layout>
+   </item>
+
+   <item>
+    <layout class="QHBoxLayout">
+     <item><widget class="QLabel"><property name="text"><string>Address:</string></property></widget></item>
+     <item><widget class="QComboBox" name="cbAddress"/></item>
+    </layout>
+   </item>
+
+   <!-- SHIPMENT -->
+   <item>
+    <widget class="QGroupBox">
+     <property name="title"><string>Shipment Details</string></property>
+     <layout class="QFormLayout">
+      <item row="0" column="0"><widget class="QLabel"><property name="text"><string>Shipper:</string></property></widget></item>
+      <item row="0" column="1"><widget class="QLineEdit" name="leShipper"/></item>
+
+      <item row="1" column="0"><widget class="QLabel"><property name="text"><string>Consignee:</string></property></widget></item>
+      <item row="1" column="1"><widget class="QLineEdit" name="leConsignee"/></item>
+
+      <item row="2" column="0"><widget class="QLabel"><property name="text"><string>POL:</string></property></widget></item>
+      <item row="2" column="1"><widget class="QLineEdit" name="lePOL"/></item>
+
+      <item row="3" column="0"><widget class="QLabel"><property name="text"><string>POD:</string></property></widget></item>
+      <item row="3" column="1"><widget class="QLineEdit" name="lePOD"/></item>
+     </layout>
+    </widget>
+   </item>
+
+   <!-- CONSIGNMENT -->
+   <item>
+    <widget class="QGroupBox">
+     <property name="title"><string>Consignment Details</string></property>
+     <layout class="QFormLayout">
+      <item row="0" column="0"><widget class="QLabel"><property name="text"><string>MBL No:</string></property></widget></item>
+      <item row="0" column="1"><widget class="QLineEdit" name="leMBL"/></item>
+
+      <item row="1" column="0"><widget class="QLabel"><property name="text"><string>Gross Weight:</string></property></widget></item>
+      <item row="1" column="1"><widget class="QLineEdit" name="leGross"/></item>
+     </layout>
+    </widget>
+   </item>
+
+   <!-- SAVE -->
+   <item>
+    <widget class="QPushButton" name="btnSave">
+     <property name="text"><string>Save Job</string></property>
+    </widget>
+   </item>
+
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

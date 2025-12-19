@@ -6,6 +6,7 @@ from PyQt6 import QtWidgets, QtGui, QtCore
 from invoice_form import InvoiceForm
 from debitnote_form import DebitNoteForm
 from customer_manager import ConsigneeManager
+from job_form import JobForm
 
 from database import init_db
 
@@ -69,11 +70,17 @@ class MainWindow(QtWidgets.QMainWindow):
         logo.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         menu_layout.addWidget(logo)
 
+        # -------------------------
+        # MENU BUTTONS
+        # -------------------------
         btn_invoice = QtWidgets.QPushButton("📄  Create Invoice")
         btn_invoice.setProperty("class", "menuButton")
 
         btn_debit = QtWidgets.QPushButton("🧾  Create Debit Note")
         btn_debit.setProperty("class", "menuButton")
+
+        btn_job = QtWidgets.QPushButton("📦  Create Job")
+        btn_job.setProperty("class", "menuButton")
 
         btn_customers = QtWidgets.QPushButton("👥  Customer / Consignee Manager")
         btn_customers.setProperty("class", "menuButton")
@@ -83,6 +90,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         menu_layout.addWidget(btn_invoice)
         menu_layout.addWidget(btn_debit)
+        menu_layout.addWidget(btn_job)
         menu_layout.addWidget(btn_customers)
         menu_layout.addStretch()
         menu_layout.addWidget(btn_exit)
@@ -111,23 +119,34 @@ class MainWindow(QtWidgets.QMainWindow):
         btn_customers.clicked.connect(lambda: self.stack.setCurrentIndex(2))
         btn_exit.clicked.connect(self.close)
 
+        btn_job.clicked.connect(self.open_job_form)
+
         # -------------------------
         # SIGNAL-BASED NAVIGATION
         # -------------------------
-        # From Invoice → Customer Manager
         if hasattr(self.page_invoice, "openCustomerManager"):
             self.page_invoice.openCustomerManager.connect(
                 lambda: self.stack.setCurrentIndex(2)
             )
 
-        # From Debit Note → Customer Manager
         if hasattr(self.page_debit, "openCustomerManager"):
             self.page_debit.openCustomerManager.connect(
                 lambda: self.stack.setCurrentIndex(2)
             )
 
-        # Default page
         self.stack.setCurrentIndex(0)
+
+    # -------------------------
+    # OPEN JOB FORM (FIXED)
+    # -------------------------
+    def open_job_form(self):
+        self.job_window = JobForm()
+
+        # 🔥 CRITICAL FIX: auto-refresh job dropdowns
+        self.job_window.jobSaved.connect(self.page_invoice.load_jobs)
+        self.job_window.jobSaved.connect(self.page_debit.load_jobs)
+
+        self.job_window.show()
 
     # -------------------------
     # DARK THEME

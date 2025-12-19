@@ -1,11 +1,15 @@
 # src/settings_manager.py
 from datetime import datetime
-from database import get_conn, get_setting, set_setting
+from database import get_setting, set_setting
 
 INVOICE_PREFIX = "SAN/INV"
 DEBIT_PREFIX = "SAN/DN"
+JOB_PREFIX = "SAN/JOB"
 
 
+# =====================================================
+# FINANCIAL YEAR
+# =====================================================
 def current_fin_year():
     now = datetime.now()
     year = now.year
@@ -18,11 +22,13 @@ def current_fin_year():
     return f"{str(start)[-2:]}-{str(end)[-2:]}"
 
 
+# =====================================================
+# INVOICE NUMBER
+# =====================================================
 def get_next_invoice_number():
     fin = current_fin_year()
     stored = get_setting("inv_year")
-    counter = get_setting("inv_counter")
-    counter = int(counter) if counter and str(counter).isdigit() else 0
+    counter = int(get_setting("inv_counter") or 0)
 
     if stored != fin:
         counter = 1
@@ -34,11 +40,13 @@ def get_next_invoice_number():
     return f"{INVOICE_PREFIX}/{fin}/{counter:04d}"
 
 
+# =====================================================
+# DEBIT NOTE NUMBER
+# =====================================================
 def get_next_debit_number():
     fin = current_fin_year()
     stored = get_setting("dn_year")
-    counter = get_setting("dn_counter")
-    counter = int(counter) if counter and str(counter).isdigit() else 0
+    counter = int(get_setting("dn_counter") or 0)
 
     if stored != fin:
         counter = 1
@@ -48,3 +56,21 @@ def get_next_debit_number():
 
     set_setting("dn_counter", counter)
     return f"{DEBIT_PREFIX}/{fin}/{counter:04d}"
+
+
+# =====================================================
+# JOB NUMBER (NEW)
+# =====================================================
+def get_next_job_number():
+    fin = current_fin_year()
+    stored = get_setting("job_year")
+    counter = int(get_setting("job_counter") or 0)
+
+    if stored != fin:
+        counter = 1
+        set_setting("job_year", fin)
+    else:
+        counter += 1
+
+    set_setting("job_counter", counter)
+    return f"{JOB_PREFIX}/{fin}/{counter:04d}"

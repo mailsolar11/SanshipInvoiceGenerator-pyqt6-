@@ -1,6 +1,7 @@
 # src/database.py
 import sqlite3
 import os
+from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DB_PATH = os.path.join(BASE_DIR, "data.db")
@@ -11,18 +12,18 @@ DB_PATH = os.path.join(BASE_DIR, "data.db")
 # =====================================================
 def get_conn():
     conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row   # 🔥 IMPORTANT
+    conn.row_factory = sqlite3.Row
     return conn
 
 
 # =====================================================
-# INIT DATABASE
+# INIT DATABASE (CANONICAL)
 # =====================================================
 def init_db():
     conn = get_conn()
     cur = conn.cursor()
 
-    # SETTINGS
+    # ---------------- SETTINGS ----------------
     cur.execute("""
         CREATE TABLE IF NOT EXISTS settings (
             key TEXT PRIMARY KEY,
@@ -30,7 +31,7 @@ def init_db():
         )
     """)
 
-    # CONSIGNEES
+    # ---------------- CONSIGNEES ----------------
     cur.execute("""
         CREATE TABLE IF NOT EXISTS consignees (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,7 +41,7 @@ def init_db():
         )
     """)
 
-    # ADDRESSES
+    # ---------------- ADDRESSES ----------------
     cur.execute("""
         CREATE TABLE IF NOT EXISTS consignee_addresses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,13 +57,47 @@ def init_db():
         )
     """)
 
-    # INVOICES
+    # ---------------- JOBS (SINGLE SOURCE OF TRUTH) ----------------
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS jobs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            job_no TEXT UNIQUE,
+            customer_id INTEGER,
+            shipper TEXT,
+            consignee TEXT,
+            pol TEXT,
+            pod TEXT,
+            vessel_flight TEXT,
+            etd TEXT,
+            eta TEXT,
+            mbl_no TEXT,
+            hbl_no TEXT,
+            gross_weight TEXT,
+            net_weight TEXT,
+            volume_cbm TEXT,
+            packages TEXT,
+            be_no TEXT,
+            be_date TEXT,
+            igm_no TEXT,
+            igm_date TEXT,
+            item_no TEXT,
+            exchange_rate TEXT,
+            ref_no TEXT,
+            status TEXT DEFAULT 'OPEN',
+            created_at TEXT,
+            FOREIGN KEY (customer_id) REFERENCES consignees(id)
+        )
+    """)
+
+    # ---------------- INVOICES ----------------
     cur.execute("""
         CREATE TABLE IF NOT EXISTS invoices (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             invoice_number TEXT,
             date TEXT,
             type TEXT,
+            job_id INTEGER,
+            job_no TEXT,
             bill_to TEXT,
             consignee_preview TEXT,
             shipper TEXT,
@@ -75,7 +110,6 @@ def init_db():
             c_date TEXT,
             c_invoice_no TEXT,
             mbl_no TEXT,
-            job_no TEXT,
             gross_weight TEXT,
             net_weight TEXT,
             volume_cbm TEXT,
@@ -87,11 +121,12 @@ def init_db():
             item_no TEXT,
             exchange_rate TEXT,
             ref_no TEXT,
-            total_amount REAL
+            total_amount REAL,
+            FOREIGN KEY (job_id) REFERENCES jobs(id)
         )
     """)
 
-    # INVOICE ITEMS
+    # ---------------- INVOICE ITEMS ----------------
     cur.execute("""
         CREATE TABLE IF NOT EXISTS invoice_items (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -139,6 +174,83 @@ def set_setting(key, value):
     """, (key, str(value)))
     conn.commit()
     conn.close()
+
+
+# =====================================================
+# JOB CRUD
+# =====================================================
+def insert_job(data):
+    conn = get_conn()
+    cur = conn.cursor()
+
+    data = data.copy()
+    data["created_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    cols = ",".join(data.keys())
+    placeholders = ",".join(["?"] * len(data))
+
+    cur.execute(
+        f"INSERT INTO jobs ({cols}) VALUES ({placeholders})",
+        list(data.values())
+    )
+
+    jid = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return jid
+
+
+def list_jobs():
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM jobs ORDER BY id DESC")
+    rows = [dict(r) for r in cur.fetchall()]
+    conn.close()
+    return rows
+
+
+def get_job(job_id):
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM jobs WHERE id=?", (job_id,))
+    r = cur.fetchone()
+    conn.close()
+    return dict(r) if r else None
+
+
+def close_job(job_id):
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("UPDATE jobs SET status='CLOSED' WHERE id=?", (job_id,))
+    conn.commit()
+    conn.close()
+
+
+def list_jobs_for_dropdown():
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT id, job_no
+        FROM jobs
+        ORDER BY id DESC
+    """)
+    rows = [dict(r) for r in cur.fetchall()]
+    conn.close()
+    return rows
+
+
+def list_open_jobs_for_dropdown():
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT id, job_no
+        FROM jobs
+        WHERE status='OPEN'
+        ORDER BY id DESC
+    """)
+    rows = [dict(r) for r in cur.fetchall()]
+    conn.close()
+    return rows
 
 
 # =====================================================
@@ -282,6 +394,7 @@ def insert_invoice(header, items):
 
     cols = ",".join(header.keys())
     placeholders = ",".join(["?"] * len(header))
+
     cur.execute(
         f"INSERT INTO invoices ({cols}) VALUES ({placeholders})",
         list(header.values())
@@ -318,7 +431,7 @@ def insert_invoice(header, items):
 
 
 # =====================================================
-# CUSTOMER COMPATIBILITY (ALIAS)
+# CUSTOMER ALIAS
 # =====================================================
 def list_customers():
     return list_consignees()
