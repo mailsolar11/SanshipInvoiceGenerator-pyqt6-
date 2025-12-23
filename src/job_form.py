@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 from PyQt6 import QtWidgets, QtCore, uic
 from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtCore import QDate
 
 from database import (
     list_customers,
@@ -36,6 +37,8 @@ class JobForm(QtWidgets.QWidget):
         self.leConsignee = self.findChild(QtWidgets.QLineEdit, "leConsignee")
         self.lePOL = self.findChild(QtWidgets.QLineEdit, "lePOL")
         self.lePOD = self.findChild(QtWidgets.QLineEdit, "lePOD")
+        self.deETD = self.findChild(QtWidgets.QDateEdit, "deETD")
+        self.deETA = self.findChild(QtWidgets.QDateEdit, "deETA")
 
         # Consignment
         self.leMBL = self.findChild(QtWidgets.QLineEdit, "leMBL")
@@ -59,6 +62,12 @@ class JobForm(QtWidgets.QWidget):
     def init_job(self):
         self.leJobNo.setText(get_next_job_number())
         self.leJobNo.setReadOnly(True)
+
+        # Date pickers (Tally-style)
+        self.deETD.setCalendarPopup(True)
+        self.deETA.setCalendarPopup(True)
+        self.deETD.setDate(QDate.currentDate())
+        self.deETA.setDate(QDate.currentDate())
 
     # ==================================================
     def load_customers(self):
@@ -99,6 +108,10 @@ class JobForm(QtWidgets.QWidget):
             "pol": self.lePOL.text().strip(),
             "pod": self.lePOD.text().strip(),
 
+            # ✅ NEW — Dates stored in DB
+            "etd": self.deETD.date().toString("yyyy-MM-dd"),
+            "eta": self.deETA.date().toString("yyyy-MM-dd"),
+
             # Consignment
             "mbl_no": self.leMBL.text().strip(),
             "gross_weight": self.leGross.text().strip(),
@@ -134,3 +147,6 @@ class JobForm(QtWidgets.QWidget):
         self.lePOD.clear()
         self.leMBL.clear()
         self.leGross.clear()
+
+        self.deETD.setDate(QDate.currentDate())
+        self.deETA.setDate(QDate.currentDate())

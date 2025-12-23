@@ -1,15 +1,19 @@
 # src/base_invoice_form.py
+from email import header
 import os
 from datetime import datetime
 from PyQt6 import QtWidgets, uic, QtCore
 from PyQt6.QtWidgets import QTableWidgetItem, QMessageBox
+from pyparsing import col
+from sqlalchemy import desc
+from tomlkit import value
 
 from database import (
     insert_invoice,
     list_customers,
     get_addresses_for_customer,
     list_open_jobs_for_dropdown,
-    get_job
+    get_job, list_charges
 )
 
 from settings_manager import get_next_invoice_number
@@ -55,8 +59,8 @@ class BaseInvoiceForm(QtWidgets.QWidget):
             "pol": self.findChild(QtWidgets.QLineEdit, "lePOL"),
             "pod": self.findChild(QtWidgets.QLineEdit, "lePOD"),
             "vessel_flight": self.findChild(QtWidgets.QLineEdit, "leVessel"),
-            "etd": self.findChild(QtWidgets.QLineEdit, "leETD"),
-            "eta": self.findChild(QtWidgets.QLineEdit, "leETA"),
+            "etd": self.findChild(QtWidgets.QDateEdit, "leETD"),
+            "eta": self.findChild(QtWidgets.QDateEdit, "leETA"),
         }
 
         # Consignment fields
@@ -136,22 +140,100 @@ class BaseInvoiceForm(QtWidgets.QWidget):
             self.cbJob.addItem(j["job_no"], j["id"])
 
     # ==================================================
+    def load_charge_dropdown(self, row):
+        combo = QtWidgets.QComboBox()
+        combo.setEditable(True)
+        combo.setInsertPolicy(QtWidgets.QComboBox.InsertPolicy.NoInsert)
+        combo.addItem("-- Type or Select Charge --", None)
+
+
+        for c in list_charges():
+            combo.addItem(
+                c["charge_name"],
+                c
+            )
+        combo.currentIndexChanged.connect(
+            lambda _, r=row, cb=combo: self.apply_charge_to_row(r, cb)
+        )
+
+        self.table.setCellWidget(row, 1, combo)
+
+
+    # ==================================================
+    def apply_charge_to_row(self, row, combo):
+        combo = self.table.cellWidget(row, 1)
+        charge = combo.currentData()
+
+        if not charge:
+            # Manual entry – do NOT auto-fill anything
+            return
+
+        def set_col(col, value):
+            item = self.table.item(row, col)
+            if not item:
+                item = QTableWidgetItem()
+                self.table.setItem(row, col, item)
+            item.setText(str(value))
+        set_col(2, charge.get("hsn_sac", ""))        # HSN/SAC
+        set_col(3, charge.get("currency", "INR"))   # CUR
+        set_col(8, charge.get("cgst_rate", 0))      # CGST %
+        set_col(10, charge.get("sgst_rate", 0))     # SGST %
+
+    # DO NOT manually call recalculate_row
+    # itemChanged signal will auto-trigger calculations
+
+    # ==================================================
     def lock_job_fields(self, locked: bool):
-        for w in self.ship_fields.values():
-            w.setReadOnly(locked)
-        for w in self.cons_fields.values():
-            w.setReadOnly(locked)
-        self.teConsignee.setReadOnly(locked)
-        self.cbCustomer.setEnabled(not locked)
-        self.cbAddress.setEnabled(not locked)
+        job_locked_fields = {"shipper", "consignee", "pol", "pod"}
+
+    # Shipment fields
+        for key, widget in self.ship_fields.items():
+            if widget is None:
+                continue
+
+            if key in job_locked_fields:
+            # Job-controlled fields
+                if isinstance(widget, QtWidgets.QLineEdit):
+                    widget.setReadOnly(locked)
+                else:
+                    widget.setEnabled(not locked)
+            else:
+            # User-editable fields (vessel, ETD, ETA)
+                if isinstance(widget, QtWidgets.QLineEdit):
+                    widget.setReadOnly(False)
+                else:
+                    widget.setEnabled(True)
+
+    # Consignment fields (mostly job driven)
+        for widget in self.cons_fields.values():
+            if widget is None:
+                continue
+            widget.setReadOnly(locked)
+
+    # Consignee preview text
+        if self.teConsignee:
+            self.teConsignee.setReadOnly(locked)
+
+    # Customer & Address should not change once job is selected
+        if self.cbCustomer:
+            self.cbCustomer.setEnabled(not locked)
+        if self.cbAddress:
+            self.cbAddress.setEnabled(not locked)
 
     # ==================================================
     def clear_job_fields(self):
         for w in self.ship_fields.values():
-            w.clear()
+            if isinstance(w, QtWidgets.QDateEdit):
+                w.setDate(QtCore.QDate.currentDate())
+            elif w is not None:
+                w.clear()
+
         for w in self.cons_fields.values():
-            w.clear()
-        self.teConsignee.clear()
+            if w is not None:
+                w.clear()
+        if self.teConsignee:
+            self.teConsignee.clear()
+
 
     # ==================================================
     def apply_job(self):
@@ -167,25 +249,50 @@ class BaseInvoiceForm(QtWidgets.QWidget):
             self.lock_job_fields(False)
             return
 
+        # -------------------------------
         # Customer
+        # -------------------------------
         if job.get("customer_id"):
             idx = self.cbCustomer.findData(job["customer_id"])
             if idx >= 0:
                 self.cbCustomer.setCurrentIndex(idx)
 
-        # Shipment
-        for k, w in self.ship_fields.items():
-            w.setText(str(job.get(k, "") or ""))
+        # -------------------------------
+        # Shipment (TEXT + DATE SAFE)
+        # -------------------------------
+        for key, widget in self.ship_fields.items():
+            if widget is None:
+                continue
+            val = job.get(key)
 
+            # Date fields
+            if isinstance(widget, QtWidgets.QDateEdit):
+                if val:
+                    d = QtCore.QDate.fromString(val, "yyyy-MM-dd")
+                    if d.isValid():
+                        widget.setDate(d)
+                continue
+
+            # Text fields
+            widget.setText(str(val or ""))
+
+        # -------------------------------
         # Consignment
-        self.cons_fields["job_no"].setText(job.get("job_no", ""))
-        self.cons_fields["mbl_no"].setText(job.get("mbl_no", ""))
-        self.cons_fields["gross_weight"].setText(job.get("gross_weight", ""))
+        # -------------------------------
+        for key, widget in self.cons_fields.items():
+            if widget is None:
+                continue
+            widget.setText(str(job.get(key) or ""))
 
+        # -------------------------------
+        # Consignee preview
+        # -------------------------------
         if job.get("consignee"):
             self.teConsignee.setPlainText(job["consignee"])
 
         self.lock_job_fields(True)
+
+
 
     # ==================================================
     def apply_address(self):
@@ -208,8 +315,12 @@ class BaseInvoiceForm(QtWidgets.QWidget):
         r = self.table.rowCount()
         self.table.insertRow(r)
         self.table.setItem(r, 0, QTableWidgetItem(str(r + 1)))
-        for c in range(1, 13):
+
+        for c in range(2, 13):
             self.table.setItem(r, c, QTableWidgetItem(""))
+
+        self.load_charge_dropdown(r)
+
 
     def delete_row(self):
         r = self.table.currentRow()
@@ -218,24 +329,29 @@ class BaseInvoiceForm(QtWidgets.QWidget):
 
     def recalculate_row(self, item):
         r = item.row()
-        try:
-            rate = float(self.table.item(r, 4).text() or 0)
-            qty = float(self.table.item(r, 5).text() or 0)
-            cgst = float(self.table.item(r, 8).text() or 0)
-            sgst = float(self.table.item(r, 10).text() or 0)
-        except Exception:
-            return
 
-        amt = rate * qty
-        cgst_amt = amt * cgst / 100
-        sgst_amt = amt * sgst / 100
-        total = amt + cgst_amt + sgst_amt
+        def val(col):
+            try:
+                return float(self.table.item(r, col).text() or 0)
+            except Exception:
+                return 0.0
 
-        self._set(r, 6, amt)
-        self._set(r, 7, amt)
-        self._set(r, 9, cgst_amt)
-        self._set(r, 11, sgst_amt)
-        self._set(r, 12, total)
+        rate = val(4)
+        qty = val(5)
+        cgst_rate = val(8)
+        sgst_rate = val(10)
+
+        taxable = rate * qty
+        cgst_amt = taxable * cgst_rate / 100
+        sgst_amt = taxable * sgst_rate / 100
+        total = taxable + cgst_amt + sgst_amt
+
+        self._set(r, 6, taxable)       # Amount
+        self._set(r, 7, taxable)       # Taxable Amount
+        self._set(r, 9, cgst_amt)      # CGST Amount
+        self._set(r, 11, sgst_amt)     # SGST Amount
+        self._set(r, 12, total)        # Total
+
 
     def _set(self, r, c, v):
         self.table.blockSignals(True)
@@ -266,6 +382,34 @@ class BaseInvoiceForm(QtWidgets.QWidget):
         return items
 
     # ==================================================
+    def validate_items_before_save(self, items):
+        issues = []
+
+        for i, it in enumerate(items, start=1):
+            if it["rate"] <= 0 or it["qty"] <= 0:
+                issues.append(
+                    f"Row {i}: Rate or Quantity is zero"
+                )
+            if it["cgst_rate"] <= 0 and it["sgst_rate"] <= 0:
+                issues.append(
+                    f"Row {i}: CGST and SGST rates are empty"
+                )
+
+        return issues
+
+    # ==================================================    
+    def validate_items(self, items):
+        issues = []
+
+        for i, it in enumerate(items, start=1):
+            if it["rate"] == 0 or it["qty"] == 0:
+                issues.append(f"Row {i}: Rate or Quantity is zero")
+            if it["cgst_rate"] == 0 and it["sgst_rate"] == 0:
+                issues.append(f"Row {i}: GST rates are empty")
+
+        return issues
+    
+    # ==================================================
     def save_document(self):
         job_id = self.cbJob.currentData()
         job = get_job(job_id) if job_id else None
@@ -275,6 +419,66 @@ class BaseInvoiceForm(QtWidgets.QWidget):
             QMessageBox.warning(self, "No Items", "Please add at least one item.")
             return
 
+    # -------------------------------
+    # Soft validation (warnings)
+    # -------------------------------
+        issues = self.validate_items_before_save(items)
+        if issues:
+            msg = "The following issues were found:\n\n"
+            msg += "\n".join(f"• {i}" for i in issues)
+            msg += "\n\nDo you want to continue saving?"
+
+            reply = QMessageBox.warning(
+                self,
+                "Validation Warning",
+                msg,
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+
+            if reply == QMessageBox.StandardButton.No:
+                return
+
+    # -------------------------------
+    # Hard validation (must fix)
+    # -------------------------------
+        issues = self.validate_items(items)
+        if issues:
+            QMessageBox.warning(
+                self,
+                "Validation Error",
+                "Please fix the following issues before saving:\n\n" + "\n".join(issues)
+            )
+            return
+    # -------------------------------
+    # Per-row safety checks
+    # -------------------------------
+        for r in range(self.table.rowCount()):
+            desc = self.table.item(r, 1)
+            if not desc or not desc.text().strip():
+                continue
+
+            rate = float(self.table.item(r, 4).text() or 0)
+            qty = float(self.table.item(r, 5).text() or 0)
+            cgst = float(self.table.item(r, 8).text() or 0)
+            sgst = float(self.table.item(r, 10).text() or 0)
+
+            if rate == 0 or qty == 0:
+                QMessageBox.warning(
+                    self,
+                    "Invalid Item",
+                    f"Row {r+1}: Rate or Quantity cannot be zero"
+                )
+                return
+            if cgst == 0 and sgst == 0:
+                QMessageBox.warning(
+                    self,
+                    "GST Missing",
+                    f"Row {r+1}: CGST and SGST cannot both be zero"
+                )
+                return
+    # -------------------------------
+    # Save invoice
+    # -------------------------------
         header = {
             "invoice_number": self.leInvoiceNo.text(),
             "date": self.leDate.text(),
@@ -282,18 +486,30 @@ class BaseInvoiceForm(QtWidgets.QWidget):
 
             "job_id": job_id,
             "job_no": job.get("job_no") if job else None,
-
             "bill_to": self.teBillTo.toPlainText(),
             "consignee_preview": self.teConsignee.toPlainText(),
 
-            **{k: v.text() for k, v in self.ship_fields.items()},
+            **{
+                k: (
+                v.date().toString("yyyy-MM-dd")
+                if isinstance(v, QtWidgets.QDateEdit)
+                else v.text()
+            )
+            for k, v in self.ship_fields.items()
+        },
+
             **{k: v.text() for k, v in self.cons_fields.items()},
 
             "total_amount": sum(i["total_amt"] for i in items),
         }
 
         insert_invoice(header, items)
-        QMessageBox.information(self, "Saved", f"{self.DOCUMENT_TITLE} saved successfully")
+        QMessageBox.information(
+            self,
+            "Saved",
+            f"{self.DOCUMENT_TITLE} saved successfully"
+        )
+
 
     # ==================================================
     def export_pdf(self):

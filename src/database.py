@@ -148,6 +148,68 @@ def init_db():
         )
     """)
 
+
+    # ---------------- CHARGE / HSN MASTER ----------------
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS charges_master (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            charge_name TEXT NOT NULL,
+            hsn_sac TEXT,
+            currency TEXT DEFAULT 'INR',
+            cgst_rate REAL DEFAULT 0,
+            sgst_rate REAL DEFAULT 0,
+            is_active INTEGER DEFAULT 1,
+            created_at TEXT
+        )
+    """)
+
+    ensure_charges_schema()
+    ensure_charges_schema()
+    seed_default_charges_if_empty()
+
+    conn.commit()
+    conn.close()
+
+
+def ensure_charges_schema():
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute("PRAGMA table_info(charges_master)")
+    cols = [r["name"] for r in cur.fetchall()]
+
+    if "igst_rate" not in cols:
+        cur.execute("ALTER TABLE charges_master ADD COLUMN igst_rate REAL DEFAULT 0")
+
+    if "is_active" not in cols and "active" in cols:
+        cur.execute("ALTER TABLE charges_master RENAME COLUMN active TO is_active")
+
+    conn.commit()
+    conn.close()
+
+
+def seed_default_charges_if_empty():
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute("SELECT COUNT(*) AS cnt FROM charges_master")
+    count = cur.fetchone()["cnt"]
+
+    if count == 0:
+        charges = [
+            ("charge1", "9967", "INR", 8, 8, 16),
+            ("charge2", "9967", "INR", 8, 8, 16),
+            ("charge3", "9967", "INR", 8, 8, 16),
+            ("charge4", "9967", "INR", 8, 8, 16),
+        ]
+
+        for c in charges:
+            cur.execute("""
+                INSERT INTO charges_master
+                (charge_name, hsn_sac, currency, cgst_rate, sgst_rate, igst_rate, is_active, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, 1, ?)
+            """, (*c, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+
     conn.commit()
     conn.close()
 
@@ -428,6 +490,112 @@ def insert_invoice(header, items):
     conn.commit()
     conn.close()
     return invoice_id
+
+# =====================================================
+# CHARGE / HSN MASTER
+# =====================================================
+
+def add_charge(charge_name, hsn_sac, currency, cgst_rate, sgst_rate):
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT INTO charges_master
+        (charge_name, hsn_sac, currency, cgst_rate, sgst_rate, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (
+        charge_name,
+        hsn_sac,
+        currency,
+        cgst_rate,
+        sgst_rate,
+        datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    ))
+    conn.commit()
+    conn.close()
+
+
+
+def list_charges():
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT * FROM charges_master
+        WHERE is_active = 1
+        ORDER BY charge_name
+    """)
+    rows = [dict(r) for r in cur.fetchall()]
+    conn.close()
+    return rows
+
+
+
+
+def get_charge(charge_id):
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM charges_master WHERE id=?", (charge_id,))
+    r = cur.fetchone()
+    conn.close()
+    return dict(r) if r else None
+
+
+def update_charge(charge_id, charge_name, hsn_sac, currency, cgst_rate, sgst_rate):
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        UPDATE charges_master
+        SET charge_name=?, hsn_sac=?, currency=?, cgst_rate=?, sgst_rate=?
+        WHERE id=?
+    """, (charge_name, hsn_sac, currency, cgst_rate, sgst_rate, charge_id))
+    conn.commit()
+    conn.close()
+
+
+
+def delete_charge(charge_id):
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        UPDATE charges_master SET is_active = 0 WHERE id = ?
+    """, (charge_id,))
+    conn.commit()
+    conn.close()
+
+
+def ensure_charges_schema():
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute("PRAGMA table_info(charges_master)")
+    cols = [r["name"] for r in cur.fetchall()]
+
+    if "igst_rate" not in cols:
+        cur.execute("ALTER TABLE charges_master ADD COLUMN igst_rate REAL DEFAULT 0")
+
+    conn.commit()
+    conn.close()
+
+
+def seed_default_charges():
+    conn = get_conn()
+    cur = conn.cursor()
+
+    charges = [
+        ("charge1", "9967", "INR", 8, 8, 16),
+        ("charge2", "9967", "INR", 8, 8, 16),
+        ("charge3", "9967", "INR", 8, 8, 16),
+        ("charge4", "9967", "INR", 8, 8, 16),
+    ]
+
+    for c in charges:
+        cur.execute("""
+            INSERT INTO charges_master
+            (charge_name, hsn_sac, currency, cgst_rate, sgst_rate, igst_rate, active, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, 1, ?)
+        """, (*c, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+
+    conn.commit()
+    conn.close()
 
 
 # =====================================================
