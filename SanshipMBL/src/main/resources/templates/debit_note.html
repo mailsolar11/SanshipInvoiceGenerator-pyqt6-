@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- HEADER SECTION -->
+    <table class="header-table">
+        <tr>
+            <td width="30%">
+                <!-- Logo placeholder -->
+                <div style="height: 60px; border: 1px dashed #ccc; padding: 10px; text-align: center;">
+                    <img src="{{logo_path}}" style="max-height: 50px;" />
+                </div>
+            </td>
+            <td width="40%" class="text-center">
+                <div class="company-name">{{company_name}}</div>
+                <div class="company-address">{{company_address}}</div>
+            </td>
+            <td width="30%">
+                <div class="header-title">DEBIT NOTE</div>
+                <div class="text-right qr-code-container">
+                    <!-- QR Code placeholder -->
+                    {{qr_code_img}}
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- IRN SECTION -->
+    <div class="border-box" style="margin-bottom: 10px; font-size: 8pt;">
+        <strong>IRN:</strong> {{irn_no}}<br />
+        <strong>Ack No:</strong> {{ack_no}} &nbsp;&nbsp;&nbsp; <strong>Ack Date:</strong> {{ack_date}}
+    </div>
+
+    <!-- BILL TO / SHIP TO & INVOICE DETAILS -->
+    <table class="details-table" style="border: 1px solid #ddd;">
+        <tr>
+            <td width="50%" style="border-right: 1px solid #ddd; padding: 10px;">
+                <strong>TO:</strong><br />
+                <span style="font-weight: bold; font-size: 10pt;">{{billed_to_name}}</span><br />
+                {{billed_to_address}}<br />
+                <strong>PAN/IT No:</strong> {{billed_to_pan}}<br />
+                <strong>GSTIN/UIN:</strong> {{billed_to_gstin}}<br />
+                <strong>State:</strong> {{billed_to_state_name}}, Code: {{billed_to_state_code}}
+            </td>
+            <td width="50%" style="padding: 10px;">
+                <strong>DETAILS ABOUT CONSIGNMENT</strong><br /><br />
+                <table width="100%">
+                    <tr>
+                        <td>1. Date</td>
+                        <td>: {{invoice_date}}</td>
+                    </tr>
+                    <tr>
+                        <td>2. Note No</td>
+                        <td>: {{invoice_no}}</td>
+                    </tr>
+                    <tr>
+                        <td>3. MBL No</td>
+                        <td>: {{mbl_no}}</td>
+                    </tr>
+                    <tr>
+                        <td>4. Job No</td>
+                        <td>: {{job_no}}</td>
+                    </tr>
+                    <tr>
+                        <td>5. Gross Weight</td>
+                        <td>: {{gross_weight}}</td>
+                    </tr>
+                    <tr>
+                        <td>6. Net Weight</td>
+                        <td>: {{net_weight}} {{net_weight_unit}}</td>
+                    </tr>
+                    <tr>
+                        <td>7. Volume</td>
+                        <td>: {{volume}}</td>
+                    </tr>
+                    <tr>
+                        <td>8. Packages</td>
+                        <td>: {{packages}}</td>
+                    </tr>
+                    <tr>
+                        <td>9. BE No / SB No</td>
+                        <td>: {{be_no}}</td>
+                    </tr>
+                    <tr>
+                        <td>10. IGM No</td>
+                        <td>: {{igm_no}}</td>
+                    </tr>
+                    <tr>
+                        <td>11. Item No</td>
+                        <td>: {{item_no}}</td>
+                    </tr>
+                    <tr>
+                        <td>12. Ex. Rate</td>
+                        <td>: {{exchange_rate}}</td>
+                    </tr>
+                    <tr>
+                        <td>13. Ref No</td>
+                        <td>: {{ref_no}}</td>
+                    </tr>
+                    <tr>
+                        <td>14. Other Ref No</td>
+                        <td>: {{other_ref_no}}</td>
+                    </tr>
+                    <tr>
+                        <td>15. Place of Supply</td>
+                        <td>: {{place_of_supply}}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <!-- SHIPPING DETAILS -->
+    <table class="details-table" style="border: 1px solid #ddd; border-top: none;">
+        <tr>
+            <td width="33%" style="padding: 5px;"><strong>Shipper:</strong><br />{{shipper_name}}</td>
+            <td width="33%" style="padding: 5px;"><strong>Consignee:</strong><br />{{consignee_name}}</td>
+            <td width="33%" style="padding: 5px;">
+                <strong>POL:</strong> {{pol}}<br />
+                <strong>POD:</strong> {{pod}}
+            </td>
+        </tr>
+    </table>
+
+    <!-- ITEMS TABLE -->
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th width="3%">SN</th>
+                <th width="25%">Description of Services</th>
+                <th width="8%">HSN/SAC</th>
+                <th width="8%">Rate</th>
+                <th width="5%">Qty</th>
+                <th width="10%">Amount</th>
+                <th width="10%">Taxable</th>
+                <th width="8%">CGST</th>
+                <th width="8%">SGST</th>
+                <th width="8%">IGST</th>
+                <th width="12%">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{item_rows}}
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="6" class="text-right">Total:</td>
+                <td>{{total_taxable}}</td>
+                <td>{{total_cgst}}</td>
+                <td>{{total_sgst}}</td>
+                <td>{{total_igst}}</td>
+                <td class="text-right">{{grand_total}}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <!-- FOOTER SECTION -->
+    <div class="footer-section">
+        <table class="footer-table">
+            <tr>
+                <td width="60%">
+                    <strong>Amount in words:</strong><br />
+                    {{amount_in_words}}<br /><br />
+
+                    <strong>Bank Details:</strong><br />
+                    Beneficiary Name: {{bank_beneficiary}}<br />
+                    Bank Name: {{bank_name}}<br />
+                    A/c No: {{bank_account_no}}<br />
+                    Branch & IFS Code: {{bank_ifsc}}<br />
+                    Swift Code: {{bank_swift}}
+                </td>
+                <td width="40%" class="signature-box" style="vertical-align: bottom;">
+                    For <strong>{{company_name}}</strong><br /><br /><br /><br />
+                    Authorised Signatory
+                </td>
+            </tr>
+        </table>
+
+        <div style="font-size: 8pt; margin-top: 10px;">
+            <strong>Terms &amp; Conditions:</strong><br />
+            1. Interest @ 18% p.a. will be charged if bill is not paid within due date.<br />
+            2. Subject to Mumbai Jurisdiction only.
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -26,36 +26,7 @@
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
-     <property name="styleSheet">
-      <string notr="true">
-       QFrame#frameCard {
-           background-color: #2b2b2b;
-           border-radius: 12px;
-           padding: 20px;
-       }
-       QLabel {
-           color: white;
-           font-size: 14px;
-       }
-       QLineEdit {
-           background-color: #1e1e1e;
-           color: white;
-           padding: 6px;
-           border-radius: 6px;
-           border: 1px solid #444;
-       }
-       QPushButton {
-           background-color: #3a7afe;
-           color: white;
-           padding: 8px 14px;
-           border-radius: 6px;
-           font-weight: bold;
-       }
-       QPushButton:hover {
-           background-color: #5a8cff;
-       }
-      </string>
-     </property>
+
 
      <!-- Internal Layout -->
      <layout class="QVBoxLayout" name="cardLayout">
@@ -72,9 +43,7 @@
         <property name="alignment">
          <set>Qt::AlignHCenter</set>
         </property>
-        <property name="styleSheet">
-         <string notr="true">font-size:18px; font-weight:600; color:white;</string>
-        </property>
+
        </widget>
       </item>
 

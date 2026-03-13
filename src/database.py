@@ -90,6 +90,7 @@ def init_db():
     """)
 
     # ---------------- INVOICES ----------------
+    # ---------------- INVOICES ----------------
     cur.execute("""
         CREATE TABLE IF NOT EXISTS invoices (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -122,9 +123,16 @@ def init_db():
             exchange_rate TEXT,
             ref_no TEXT,
             total_amount REAL,
+            narration TEXT,
             FOREIGN KEY (job_id) REFERENCES jobs(id)
         )
     """)
+
+    # Check/Add narration column if missing (MIGRATION)
+    cur.execute("PRAGMA table_info(invoices)")
+    cols = [r["name"] for r in cur.fetchall()]
+    if "narration" not in cols:
+        cur.execute("ALTER TABLE invoices ADD COLUMN narration TEXT")
 
     # ---------------- INVOICE ITEMS ----------------
     cur.execute("""

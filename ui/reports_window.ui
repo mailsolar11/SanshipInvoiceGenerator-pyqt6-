@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ReportsWindow</class>
+ <widget class="QWidget" name="ReportsWindow">
+  <layout class="QVBoxLayout">
+
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+
+     <!-- TRIAL BALANCE -->
+     <widget class="QWidget" name="tabTrial">
+      <layout class="QVBoxLayout">
+       <item>
+        <widget class="QTableWidget" name="tableTrial">
+         <property name="columnCount"><number>3</number></property>
+         <column><property name="text"><string>Ledger</string></property></column>
+         <column><property name="text"><string>Debit</string></property></column>
+         <column><property name="text"><string>Credit</string></property></column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+
+     <!-- PROFIT & LOSS -->
+     <widget class="QWidget" name="tabPNL">
+      <layout class="QFormLayout">
+       <item row="0" column="0"><widget class="QLabel"><property name="text"><string>Total Income</string></property></widget></item>
+       <item row="0" column="1"><widget class="QLabel" name="lblIncome"/></item>
+
+       <item row="1" column="0"><widget class="QLabel"><property name="text"><string>Total Expense</string></property></widget></item>
+       <item row="1" column="1"><widget class="QLabel" name="lblExpense"/></item>
+
+       <item row="2" column="0"><widget class="QLabel"><property name="text"><string>Net Profit</string></property></widget></item>
+       <item row="2" column="1"><widget class="QLabel" name="lblProfit"/></item>
+      </layout>
+     </widget>
+
+     <!-- BALANCE SHEET -->
+     <widget class="QWidget" name="tabBS">
+      <layout class="QHBoxLayout">
+
+       <item>
+        <widget class="QTableWidget" name="tableAssets">
+         <property name="columnCount"><number>2</number></property>
+         <column><property name="text"><string>Assets</string></property></column>
+         <column><property name="text"><string>Amount</string></property></column>
+        </widget>
+       </item>
+
+       <item>
+        <widget class="QTableWidget" name="tableLiabilities">
+         <property name="columnCount"><number>2</number></property>
+         <column><property name="text"><string>Liabilities</string></property></column>
+         <column><property name="text"><string>Amount</string></property></column>
+        </widget>
+       </item>
+
+      </layout>
+     </widget>
+
+    </widget>
+   </item>
+
+  </layout>
+ </widget>
+</ui>

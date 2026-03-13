@@ -1,0 +1,141 @@
+package com.sanship.ui.reports
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.sanship.services.GstReportService
+import java.time.LocalDate
+
+@Composable
+fun Gstr3bScreen() {
+    var startDate by remember { mutableStateOf(LocalDate.now().withDayOfMonth(1).toString()) }
+    var endDate by remember { mutableStateOf(LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()).toString()) }
+    
+    var summary by remember { mutableStateOf<GstReportService.Gstr3bSummary?>(null) }
+    var errorMsg by remember { mutableStateOf("") }
+
+    fun loadData() {
+        try {
+            summary = GstReportService.getGstr3bSummary(startDate, endDate)
+            errorMsg = ""
+        } catch (e: Exception) {
+            errorMsg = "Error loading GSTR-3B data: ${e.message}"
+        }
+    }
+
+    LaunchedEffect(startDate, endDate) { loadData() }
+
+    Column(
+        modifier = Modifier.fillMaxSize().background(Color(0xFFF9F9F9)).padding(24.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("GSTR-3B Summary", style = MaterialTheme.typography.h4)
+            IconButton(onClick = { loadData() }) {
+                Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+            }
+        }
+        Spacer(Modifier.height(20.dp))
+        
+        Card(elevation = 2.dp, modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    OutlinedTextField(
+                        value = startDate,
+                        onValueChange = { startDate = it },
+                        label = { Text("Start Date (YYYY-MM-DD)") },
+                        modifier = Modifier.weight(1f),
+                        trailingIcon = { Icon(Icons.Default.DateRange, null) }
+                    )
+                    OutlinedTextField(
+                        value = endDate,
+                        onValueChange = { endDate = it },
+                        label = { Text("End Date (YYYY-MM-DD)") },
+                        modifier = Modifier.weight(1f),
+                        trailingIcon = { Icon(Icons.Default.DateRange, null) }
+                    )
+                }
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    Button(onClick = { loadData() }) {
+                        Icon(Icons.Default.Refresh, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Generate Summary")
+                    }
+                }
+            }
+        }
+        
+        Spacer(Modifier.height(24.dp))
+        
+        if (errorMsg.isNotBlank()) {
+            Text(errorMsg, color = MaterialTheme.colors.error)
+        } else if (summary != null) {
+            val data = summary!!
+            
+            Card(elevation = 2.dp, modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text("3.1 Details of Outward Supplies (Net of Credit/Debit notes)", fontWeight = FontWeight.Bold, fontSize = androidx.compose.ui.unit.TextUnit.Unspecified)
+                    Divider()
+                    
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Total Taxable Value:", modifier = Modifier.weight(1f))
+                        Text(
+                            "₹ ${"%.2f".format(data.totalTaxable)}", 
+                            modifier = Modifier.weight(1f), 
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF2E7D32)
+                        )
+                    }
+                    
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Integrated Tax (IGST):", modifier = Modifier.weight(1f))
+                        Text("₹ ${"%.2f".format(data.igst)}", modifier = Modifier.weight(1f))
+                    }
+                    
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Central Tax (CGST):", modifier = Modifier.weight(1f))
+                        Text("₹ ${"%.2f".format(data.cgst)}", modifier = Modifier.weight(1f))
+                    }
+                    
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("State/UT Tax (SGST):", modifier = Modifier.weight(1f))
+                        Text("₹ ${"%.2f".format(data.sgst)}", modifier = Modifier.weight(1f))
+                    }
+                    
+                    Divider()
+                    val totalTax = data.igst + data.cgst + data.sgst
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Total Tax Output:", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold)
+                        Text(
+                            "₹ ${"%.2f".format(totalTax)}", 
+                            modifier = Modifier.weight(1f), 
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFD32F2F)
+                        )
+                    }
+                    
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        "* Note: Input Tax Credit (ITC) data requires expense invoice recording, which is currently handled via manual expense vouchers. Only Outward Liability is calculated here.",
+                        style = MaterialTheme.typography.caption,
+                        color = Color.Gray
+                    )
+                }
+            }
+        }
+    }
+}

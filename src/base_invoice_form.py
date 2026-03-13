@@ -2,7 +2,7 @@
 from email import header
 import os
 from datetime import datetime
-from PyQt6 import QtWidgets, uic, QtCore
+from PyQt6 import QtWidgets, uic, QtCore, QtGui
 from PyQt6.QtWidgets import QTableWidgetItem, QMessageBox
 from pyparsing import col
 from sqlalchemy import desc
@@ -15,7 +15,6 @@ from database import (
     list_open_jobs_for_dropdown,
     get_job, list_charges
 )
-
 from settings_manager import get_next_invoice_number
 from pdf_generator import generate_invoice_pdf
 
@@ -36,6 +35,66 @@ class BaseInvoiceForm(QtWidgets.QWidget):
             raise RuntimeError("UI_FILE not defined in subclass")
 
         uic.loadUi(os.path.join(BASE_DIR, "ui", self.UI_FILE), self)
+
+        # -------------------------------
+        # PROGRAMMATIC LAYOUT REFACTOR (Vertical Scroll)
+        # -------------------------------
+        # 1. Widgets to move
+        self.frameTopInfo = self.findChild(QtWidgets.QFrame, "frameTopInfo")
+        self.frameLeft = self.findChild(QtWidgets.QFrame, "frameLeftColumn")
+        self.frameRight = self.findChild(QtWidgets.QFrame, "frameRightColumn")
+        self.frameTable = self.findChild(QtWidgets.QFrame, "frameRightColumn2")
+
+        if self.frameTopInfo and self.frameLeft and self.frameRight and self.frameTable:
+            # 2. Create Scroll Area Structure
+            self.scrollArea = QtWidgets.QScrollArea()
+            self.scrollArea.setWidgetResizable(True)
+            self.scrollArea.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
+            
+            self.scrollWidget = QtWidgets.QWidget()
+            self.scrollLayout = QtWidgets.QVBoxLayout(self.scrollWidget)
+            self.scrollLayout.setContentsMargins(20, 20, 20, 60) # Increased margins
+            self.scrollLayout.setSpacing(50) # Increased spacing between sections
+
+            # 3. Move them into Scroll Layout (Vertical Stack)
+            # Remove from their original parents implicitly by adding to new layout
+            self.scrollLayout.addWidget(self.frameTopInfo)
+            self.scrollLayout.addWidget(self.frameLeft)
+            self.scrollLayout.addWidget(self.frameRight)
+            self.scrollLayout.addWidget(self.frameTable)
+            
+            self.scrollArea.setWidget(self.scrollWidget)
+
+            # 4. Reset Main Window Layout to ONLY contain the ScrollArea
+            # We create a new VBox for 'self' and replace the old one if possible, 
+            # OR just clear the old one. simpler is to just hide old layout's container if it was a widget, 
+            # but 'self' is the widget.
+            
+            # Use a brute force approach: Delete old layout reference? No, dangerous.
+            # Safe way: Create a temporary container for the old layout? No.
+            # Best way: Just set a NEW layout. QWidget.setLayout() triggers a warning if one exists.
+            # But we can reparent the frames, leaving the old layout empty/useless.
+            
+            # Existing layout on 'self' is 'verticalLayout_root'.
+            # We can just clear it.
+            existing_layout = self.layout()
+            if existing_layout:
+                # Remove items from existing layout just to be clean (though reparenting often handles this)
+                pass 
+                
+            # Create a completely new Overlay Layout?
+            # Actually, since we repurposed all the content widgets, the old layout is effectively empty except for empty containers.
+            # Let's just create a new root layout for self.
+            new_root_layout = QtWidgets.QVBoxLayout()
+            new_root_layout.setContentsMargins(0, 0, 0, 0)
+            new_root_layout.addWidget(self.scrollArea)
+            
+            # Initial Layout is created by uic.loadUi into self.
+            # We need to nuke it.
+            if self.layout():
+                QtWidgets.QWidget().setLayout(self.layout()) # Re-parent old layout to a dummy widget to garbage collect it
+                
+            self.setLayout(new_root_layout)
 
         # -------------------------------
         # Header
@@ -92,28 +151,59 @@ class BaseInvoiceForm(QtWidgets.QWidget):
         # -------------------------------
         # Signals
         # -------------------------------
-        self.btnAddCustomer.clicked.connect(
-            lambda: self.openCustomerManager.emit()
-        )
+        if self.btnAddCustomer:
+            self.btnAddCustomer.clicked.connect(
+                lambda: self.openCustomerManager.emit()
+            )
 
-        self.cbCustomer.currentIndexChanged.connect(self.load_addresses)
-        self.cbAddress.currentIndexChanged.connect(self.apply_address)
+        if self.cbCustomer:
+            self.cbCustomer.currentIndexChanged.connect(self.load_addresses)
+        if self.cbAddress:
+            self.cbAddress.currentIndexChanged.connect(self.apply_address)
 
         if self.cbJob:
             self.cbJob.currentIndexChanged.connect(self.apply_job)
 
-        self.btnAddRow.clicked.connect(self.add_row)
-        self.btnDelRow.clicked.connect(self.delete_row)
-        self.table.itemChanged.connect(self.recalculate_row)
+        if self.btnAddRow: self.btnAddRow.clicked.connect(self.add_row)
+        if self.btnDelRow: self.btnDelRow.clicked.connect(self.delete_row)
+        if self.table: self.table.itemChanged.connect(self.recalculate_row)
 
-        self.btnSave.clicked.connect(self.save_document)
-        self.btnPDF.clicked.connect(self.export_pdf)
+        if self.btnSave: self.btnSave.clicked.connect(self.save_document)
+        if self.btnPDF: self.btnPDF.clicked.connect(self.export_pdf)
+
+        # Initial Layout adjustment
+        if self.table:
+            # We need to ensure columns are laid out to get header height, 
+            # sometimes a single processEvents helps, but usually just calling it works.
+            self.adjust_table_height()
 
     # ==================================================
     def init_document(self):
         self.leInvoiceNo.setText(get_next_invoice_number())
         self.leInvoiceNo.setReadOnly(True)
         self.leDate.setText(datetime.now().strftime("%Y-%m-%d"))
+
+        # Try loading logo
+        self.load_logo()
+
+    def load_logo(self):
+        # Look for logo.png in the project root (BASE_DIR is 'Sanship' folder)
+        logo_path = os.path.join(BASE_DIR, "logo.png")
+        
+        if os.path.exists(logo_path):
+            lbl_logo = self.findChild(QtWidgets.QLabel, "labelLogo")
+            if lbl_logo:
+                pixmap = QtGui.QPixmap(logo_path)
+                if not pixmap.isNull():
+                     # Scale nicely to fit the label height, keeping aspect ratio
+                    scaled = pixmap.scaled(
+                        lbl_logo.width(), 
+                        lbl_logo.height(), 
+                        QtCore.Qt.AspectRatioMode.KeepAspectRatio, 
+                        QtCore.Qt.TransformationMode.SmoothTransformation
+                    )
+                    lbl_logo.setPixmap(scaled)
+                    lbl_logo.setText("") # Clear text if it had "LOGO"
 
     # ==================================================
     def load_customers(self):
@@ -309,8 +399,38 @@ class BaseInvoiceForm(QtWidgets.QWidget):
         self.teConsignee.setPlainText(text)
 
     # ==================================================
-    # TABLE LOGIC (UNCHANGED)
+    # TABLE LOGIC
     # ==================================================
+    def adjust_table_height(self):
+        """
+        Auto-resize table widget to fit all rows + header,
+        preventing internal scrollbars.
+        """
+        # Calculate height: Header + (Rows * RowHeight) + minor padding
+        header_height = self.table.horizontalHeader().height()
+        # Default row height is usually 30, or we can get it from rowHeight(0) if rows exist
+        total_row_height = 0
+        row_count = self.table.rowCount()
+        
+        if row_count > 0:
+            for i in range(row_count):
+                total_row_height += self.table.rowHeight(i)
+        else:
+            # If no rows, maybe show a minimum empty space? Or just header.
+            # Let's show at least ample space for the "First Row" visual cue if user adds one
+            pass
+
+        # Add a buffer for borders + horizontal scrollbar height (usually ~15px)
+        # We proactively add 20px extra to ensure the last row is fully above the scrollbar
+        total_height = header_height + total_row_height + 25 
+        
+        # Enforce minimum height (e.g., enough for header + 1 empty row visual)
+        if total_height < 80: 
+            total_height = 80
+            
+        self.table.setFixedHeight(total_height)
+
+
     def add_row(self):
         r = self.table.rowCount()
         self.table.insertRow(r)
@@ -320,12 +440,14 @@ class BaseInvoiceForm(QtWidgets.QWidget):
             self.table.setItem(r, c, QTableWidgetItem(""))
 
         self.load_charge_dropdown(r)
+        self.adjust_table_height()
 
 
     def delete_row(self):
         r = self.table.currentRow()
         if r >= 0:
             self.table.removeRow(r)
+            self.adjust_table_height()
 
     def recalculate_row(self, item):
         r = item.row()
@@ -419,9 +541,9 @@ class BaseInvoiceForm(QtWidgets.QWidget):
             QMessageBox.warning(self, "No Items", "Please add at least one item.")
             return
 
-    # -------------------------------
-    # Soft validation (warnings)
-    # -------------------------------
+        # --------------------------------------------------
+        # Soft validation (warnings)
+        # --------------------------------------------------
         issues = self.validate_items_before_save(items)
         if issues:
             msg = "The following issues were found:\n\n"
@@ -434,51 +556,24 @@ class BaseInvoiceForm(QtWidgets.QWidget):
                 msg,
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
-
             if reply == QMessageBox.StandardButton.No:
                 return
 
-    # -------------------------------
-    # Hard validation (must fix)
-    # -------------------------------
+        # --------------------------------------------------
+        # Hard validation (must fix)
+        # --------------------------------------------------
         issues = self.validate_items(items)
         if issues:
             QMessageBox.warning(
                 self,
                 "Validation Error",
-                "Please fix the following issues before saving:\n\n" + "\n".join(issues)
+                "Please fix the following issues before saving:\n\n"
+                + "\n".join(issues)
             )
             return
-    # -------------------------------
-    # Per-row safety checks
-    # -------------------------------
-        for r in range(self.table.rowCount()):
-            desc = self.table.item(r, 1)
-            if not desc or not desc.text().strip():
-                continue
-
-            rate = float(self.table.item(r, 4).text() or 0)
-            qty = float(self.table.item(r, 5).text() or 0)
-            cgst = float(self.table.item(r, 8).text() or 0)
-            sgst = float(self.table.item(r, 10).text() or 0)
-
-            if rate == 0 or qty == 0:
-                QMessageBox.warning(
-                    self,
-                    "Invalid Item",
-                    f"Row {r+1}: Rate or Quantity cannot be zero"
-                )
-                return
-            if cgst == 0 and sgst == 0:
-                QMessageBox.warning(
-                    self,
-                    "GST Missing",
-                    f"Row {r+1}: CGST and SGST cannot both be zero"
-                )
-                return
-    # -------------------------------
-    # Save invoice
-    # -------------------------------
+        # --------------------------------------------------
+        # Header build (PURE DATA)
+        # --------------------------------------------------
         header = {
             "invoice_number": self.leInvoiceNo.text(),
             "date": self.leDate.text(),
@@ -488,27 +583,52 @@ class BaseInvoiceForm(QtWidgets.QWidget):
             "job_no": job.get("job_no") if job else None,
             "bill_to": self.teBillTo.toPlainText(),
             "consignee_preview": self.teConsignee.toPlainText(),
+            "narration": f"{self.DOCUMENT_TITLE} {self.leInvoiceNo.text()}",
 
             **{
                 k: (
-                v.date().toString("yyyy-MM-dd")
-                if isinstance(v, QtWidgets.QDateEdit)
-                else v.text()
-            )
-            for k, v in self.ship_fields.items()
-        },
+                    v.date().toString("yyyy-MM-dd")
+                    if isinstance(v, QtWidgets.QDateEdit)
+                    else v.text()
+                )
+                for k, v in self.ship_fields.items()
+            },
 
             **{k: v.text() for k, v in self.cons_fields.items()},
 
             "total_amount": sum(i["total_amt"] for i in items),
         }
 
-        insert_invoice(header, items)
+        # --------------------------------------------------
+        # SAVE + ACCOUNTING (ATOMIC)
+        # --------------------------------------------------
+        try:
+            if self.DOCUMENT_TYPE == "INVOICE":
+                from services.invoice_service import save_and_post_invoice
+                invoice_id = save_and_post_invoice(
+                    header=header,
+                    items=items
+                )
+            else:
+                from services.invoice_service import save_and_post_debit_note
+                invoice_id = save_and_post_debit_note(
+                    header=header,
+                    items=items
+                )
+
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Accounting Error",
+                f"Failed to save document:\n\n{str(e)}"
+            )
+            return
         QMessageBox.information(
             self,
-            "Saved",
-            f"{self.DOCUMENT_TITLE} saved successfully"
-        )
+                "Saved Successfully",
+                f"{self.DOCUMENT_TITLE} saved and posted to accounts.\n\n"
+                f"Document ID: {invoice_id}"
+            )
 
 
     # ==================================================

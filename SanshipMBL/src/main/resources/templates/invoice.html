@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- 1. HEADER SECTION (bordered box) -->
+    <table class="header-table">
+        <tr>
+            <!-- Company Logo (Left) -->
+            <td width="15%" valign="middle">
+                <div style="padding: 3px; text-align: center;">
+                    <img src="{{logo_path}}" style="max-height: 60px;" />
+                </div>
+            </td>
+
+            <!-- Company Info (Center) -->
+            <td width="55%" class="text-center" valign="top">
+                <div class="company-name">{{company_name}}</div>
+                <div class="company-address">{{company_address}}</div>
+            </td>
+
+            <!-- e-Invoice / QR (Right) - conditional -->
+            <td width="30%" valign="top" style="text-align: right;">
+                {{einvoice_header}}
+            </td>
+        </tr>
+    </table>
+
+    <!-- 2. IRN SECTION (conditional - only for e-Invoice) -->
+    {{irn_section}}
+
+    <!-- 3. DOCUMENT TITLE (bordered) -->
+    <div class="invoice-title">{{document_title}}</div>
+
+    <!-- 4. MAIN DETAILS SECTION (Two columns, bordered) -->
+    <table class="details-outer">
+        <tr>
+            <!-- LEFT COLUMN: Bill To + Shipment Details -->
+            <td class="details-left">
+                <table style="width:100%; border-collapse:collapse; height:100%;">
+                    <!-- TOP HALF: Bill To (50%) -->
+                    <tr>
+                        <td style="vertical-align:top; padding:5px 8px; height:50%;">
+                            <strong>Bill To</strong><br />
+                            <strong>{{billed_to_name}}</strong><br />
+                            {{billed_to_address}}
+                            <br />
+                            {{billto_pan_gstin}}
+                        </td>
+                    </tr>
+                    <!-- BOTTOM HALF: Shipment Details (50%) -->
+                    <tr>
+                        <td style="vertical-align:top; padding:5px 8px; border-top:1px solid #000; height:50%;">
+                            <table class="sub-table">
+                                <tr>
+                                    <td class="label">SHIPPER</td>
+                                    <td>: {{shipper_name}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">CONSIGNEE</td>
+                                    <td>: {{consignee_name}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">INVOICE NO</td>
+                                    <td>
+                                        <table style="width:100%; border-collapse:collapse;">
+                                            <tr>
+                                                <td style="padding:0;">: {{shipper_invoice_no}}</td>
+                                                <td style="padding:0; text-align:right; white-space:nowrap;">
+                                                    <strong>DATE:</strong> {{shipper_invoice_date}}
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="label">POL</td>
+                                    <td>: {{pol}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">POD</td>
+                                    <td>: {{pod}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Vessel/Flight</td>
+                                    <td>: {{vessel_flight}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">ETD</td>
+                                    <td>: {{etd}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">ETA</td>
+                                    <td>: {{eta}}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+
+            <!-- RIGHT COLUMN: Consignment Details -->
+            <td class="details-right">
+                <table class="sub-table">
+                    <tr>
+                        <td class="label">DATE</td>
+                        <td>: {{invoice_date}}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">INVOICE NO.</td>
+                        <td>: {{invoice_no}}</td>
+                    </tr>
+                    <tr>
+                        <td style="height: 5px;"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Category</td>
+                        <td>: {{category}}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">MBL No.</td>
+                        <td>: {{mbl_no}}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">HBL No.</td>
+                        <td>: {{hbl_no}}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">JOB NO.</td>
+                        <td>: {{job_no}}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">GROSS WEIGHT</td>
+                        <td>: {{gross_weight}}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">NET WEIGHT</td>
+                        <td>: {{net_weight}} {{net_weight_unit}}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">VOLUME</td>
+                        <td>: {{volume}}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">PACKAGES</td>
+                        <td>: {{packages}}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">BE NO / SB NO</td>
+                        <td>
+                            <table style="width:100%; border-collapse:collapse;">
+                                <tr>
+                                    <td style="padding:0;">: {{be_no}}</td>
+                                    <td style="padding:0; text-align:right; white-space:nowrap;"><strong>Date :</strong>
+                                        {{be_date}}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">IGM NO</td>
+                        <td>
+                            <table style="width:100%; border-collapse:collapse;">
+                                <tr>
+                                    <td style="padding:0;">: {{igm_no}}</td>
+                                    <td style="padding:0; text-align:right; white-space:nowrap;"><strong>Date :</strong>
+                                        {{igm_date}}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">ITEM NO</td>
+                        <td>: {{item_no}}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Ex. Rate</td>
+                        <td>: {{exchange_rate}}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Ref No</td>
+                        <td>: {{ref_no}}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Other Ref No</td>
+                        <td>: {{other_ref_no}}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <!-- 5. CONTAINER NO's ROW -->
+    <div class="container-row">Container No's: {{container_nos}}</div>
+
+    <!-- 6. ITEMS TABLE -->
+    <table class="items-table">
+        <thead>
+            {{items_thead}}
+        </thead>
+        <tbody>
+            {{item_rows}}
+        </tbody>
+        <tfoot>
+            {{items_tfoot}}
+        </tfoot>
+    </table>
+
+    <!-- 7. FOOTER SECTION -->
+    <div class="footer-section">
+        <!-- PAN + GSTIN (with fixed-width labels) -->
+        <div style="border:1px solid #000; border-bottom:none; padding:4px 8px;">
+            <table class="sub-table">
+                <tr>
+                    <td style="width:90px; font-weight:bold; padding:2px 0;">PAN NO</td>
+                    <td style="padding:2px 0;">: {{company_pan}}</td>
+                </tr>
+                <tr>
+                    <td style="width:90px; font-weight:bold; padding:2px 0;">GSTIN NO.</td>
+                    <td style="padding:2px 0;">: {{company_gstin}}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Amount in Words (bordered) -->
+        <div class="amount-words">Amount in Words :- {{amount_in_words}}</div>
+
+        <!-- Terms and Conditions -->
+        <div class="terms-section">
+            <strong>Terms &#38; Conditions :</strong><br />
+            1. Payment becomes due on presentation of Invoice / debit note and must be settled immediately<br />
+            2. Interest would be charged @ 24% p.a. on the delayed payment<br />
+            3. No deductions will be entertained unless notified in writing within 7 days from the date of receipt of
+            bill<br />
+            4. Payment to be made by a/c payee cheque/Demand draft/ NEFT or RTGS...<br />
+            5. Subject to Mumbai Jurisdiction
+        </div>
+    </div>
+
+    <!-- 8. BANK DETAILS + SIGNATURE -->
+    <table class="bank-signature-table">
+        <tr>
+            <td class="bank-cell">
+                <strong>Company's Bank Details</strong><br />
+                <strong>Beneficiary Name</strong> &#160; : &#160; {{bank_beneficiary}}<br />
+                <strong>Bank Name</strong> &#160; : &#160; {{bank_name}}<br />
+                <strong>A/c No.</strong> &#160; : &#160; {{bank_account_no}}<br />
+                <strong>Branch &#38; IFS Code</strong> &#160; : &#160; {{bank_ifsc}}<br />
+                <strong>Swift Code</strong> &#160; : &#160; {{bank_swift}}
+            </td>
+            <td class="signature-cell">
+                <strong>For {{company_name}}</strong><br />
+                <br /><br /><br />
+                {{stamp_image}}
+                <br />
+                <strong>Authorised Signatory</strong>
+            </td>
+        </tr>
+    </table>
+
+    <!-- 9. COMPUTER GENERATED FOOTER -->
+    <div class="computer-generated">This is a Computer Generated Invoice</div>
+
+</body>
+
+</html>

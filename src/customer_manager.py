@@ -1,6 +1,5 @@
-# src/consignee_manager.py
 import os
-from PyQt6 import QtWidgets, uic
+from PyQt6 import QtWidgets, uic, QtCore, QtGui
 from PyQt6.QtWidgets import QMessageBox, QTableWidgetItem
 
 from database import (
@@ -16,22 +15,68 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 class ConsigneeManager(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
-        uic.loadUi(os.path.join(BASE_DIR, "ui", "customer_manager.ui"), self)
+        
+        # Main Layout
+        self.main_layout = QtWidgets.QVBoxLayout(self)
+        self.main_layout.setContentsMargins(20, 20, 20, 20)
+        self.main_layout.setSpacing(20)
 
-        # Rename title
-        title = self.findChild(QtWidgets.QLabel, "labelTitle")
-        if title:
-            title.setText("Consignee Master")
+        # ---------------------------
+        # Header
+        # ---------------------------
+        self.header_frame = QtWidgets.QFrame()
+        self.header_layout = QtWidgets.QHBoxLayout(self.header_frame)
+        self.header_layout.setContentsMargins(0, 0, 0, 0)
+        
+        self.lbl_title = QtWidgets.QLabel("Customer Management")
+        self.lbl_title.setStyleSheet("font-size: 24px; font-weight: bold;")
+        self.header_layout.addWidget(self.lbl_title)
+        
+        self.header_layout.addStretch()
+        
+        # Add Button
+        self.btnAdd = QtWidgets.QPushButton("+ Add Customer")
+        self.btnAdd.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        self.btnAdd.setFixedWidth(140)
+        # Modern Add Button (Global Theme)
+        self.btnAdd.setObjectName("ctaBtn")
+        self.header_layout.addWidget(self.btnAdd)
+        
+        self.main_layout.addWidget(self.header_frame)
 
-        self.leSearch = self.findChild(QtWidgets.QLineEdit, "leSearch")
-        self.btnAdd = self.findChild(QtWidgets.QPushButton, "btnAddCustomer")
-        self.table = self.findChild(QtWidgets.QTableWidget, "tableCustomers")
+        # ---------------------------
+        # Search Bar
+        # ---------------------------
+        self.leSearch = QtWidgets.QLineEdit()
+        self.leSearch.setPlaceholderText("🔍 Search by Name, GSTIN or PAN...")
+        self.leSearch.setFixedHeight(40)
 
-        self.btnAdd.setText("Add Consignee")
+        self.main_layout.addWidget(self.leSearch)
 
+        # ---------------------------
+        # Table
+        # ---------------------------
+        self.table = QtWidgets.QTableWidget()
+        self.table.setColumnCount(6)
+        self.table.setHorizontalHeaderLabels(["ID", "Name", "GSTIN", "PAN", "Addresses", "Actions"])
+        self.table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents) # ID Column small
+        self.table.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.ResizeToContents) # Actions Column fit
+        self.table.verticalHeader().setVisible(False)
+        self.table.setAlternatingRowColors(True)
+        self.table.setEditTriggers(QtWidgets.QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
+
+        
+        self.main_layout.addWidget(self.table)
+
+        # ---------------------------
+        # Signals
+        # ---------------------------
         self.btnAdd.clicked.connect(self.open_add_dialog)
         self.leSearch.textChanged.connect(self.refresh_table)
 
+        # Initial Load
         self.refresh_table()
 
     # --------------------------------------------------
@@ -51,9 +96,18 @@ class ConsigneeManager(QtWidgets.QWidget):
             summary = ", ".join(a["label"] for a in addrs) if addrs else ""
             self.table.setItem(r, 4, QTableWidgetItem(summary))
 
-            btnAddr = QtWidgets.QPushButton("Addresses")
-            btnEdit = QtWidgets.QPushButton("Edit")
-            btnDel = QtWidgets.QPushButton("Delete")
+            # Action Buttons Layout
+            btnAddr = QtWidgets.QPushButton("ADDR")
+            btnEdit = QtWidgets.QPushButton("EDIT")
+            btnDel = QtWidgets.QPushButton("DEL")
+            
+            # Style mini buttons
+            for b, color in [(btnAddr, "#6c757d"), (btnEdit, "#ffc107"), (btnDel, "#dc3545")]:
+                b.setFixedWidth(50)
+                b.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+                # Keep text color readable
+                text_col = "black" if color == "#ffc107" else "white"
+                b.setStyleSheet(f"background-color: {color}; color: {text_col}; border: none; border-radius: 3px; padding: 2px;")
 
             btnAddr.clicked.connect(lambda _, cid=c["id"]: self.open_address_manager(cid))
             btnEdit.clicked.connect(lambda _, cid=c["id"]: self.open_edit_dialog(cid))
@@ -61,14 +115,15 @@ class ConsigneeManager(QtWidgets.QWidget):
 
             w = QtWidgets.QWidget()
             hl = QtWidgets.QHBoxLayout(w)
-            hl.setContentsMargins(0, 0, 0, 0)
+            hl.setContentsMargins(4, 2, 4, 2)
+            hl.setSpacing(4)
             hl.addWidget(btnAddr)
             hl.addWidget(btnEdit)
             hl.addWidget(btnDel)
-
+            
             self.table.setCellWidget(r, 5, w)
 
-        self.table.resizeColumnsToContents()
+        # No need to resize columns here as we set resize mode in init
 
     # --------------------------------------------------
     def open_add_dialog(self):

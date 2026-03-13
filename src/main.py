@@ -1,182 +1,212 @@
-# src/main.py
+
+# src/main_beautiful.py
 import sys
-from PyQt6 import QtWidgets, QtGui, QtCore
+from PyQt6 import QtWidgets, QtCore, QtGui
+
+# Theme
+from themes.beautiful_theme import get_qss
+
+# Database
+from database import init_db
+from init_db import init_accounting_db
 
 # Pages
 from invoice_form import InvoiceForm
 from debitnote_form import DebitNoteForm
 from customer_manager import ConsigneeManager
 from job_form import JobForm
-
-from database import init_db
-
+from reports_window import ReportsWindow
+from reports_window import ReportsWindow
+from ledger_view import LedgerView
+from receipt_form import ReceiptForm
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-
-        # Init DB
+        
+        # 1. Init DB
         init_db()
+        init_accounting_db()
 
-        self.setWindowTitle("SANSHIP — Invoice & Debit Note Generator")
-        self.setMinimumSize(1360, 820)
+        # 2. Window Properties
+        self.setWindowTitle("SANSHIP — Invoice Generator")
+        self.resize(1380, 850)
+        
+        # 3. Apply Initial Theme
+        self.current_mode = "LIGHT" 
+        self.apply_theme()
 
-        self.enable_dark_theme()
+        # 4. Main Layout (Split Pane)
+        central_widget = QtWidgets.QWidget()
+        self.setCentralWidget(central_widget)
+        
+        self.main_layout = QtWidgets.QHBoxLayout(central_widget)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setSpacing(0)
 
-        # -------------------------
-        # CENTRAL LAYOUT
-        # -------------------------
-        central = QtWidgets.QWidget()
-        self.setCentralWidget(central)
-        main_layout = QtWidgets.QHBoxLayout(central)
-        main_layout.setContentsMargins(0, 0, 0, 0)
-
-        # -------------------------
+        # =================================================
         # LEFT SIDEBAR
-        # -------------------------
-        sidebar = QtWidgets.QFrame()
-        sidebar.setFixedWidth(240)
-        sidebar.setObjectName("leftSidebar")
-        sidebar.setStyleSheet("""
-            QFrame#leftSidebar {
-                background-color: #111217;
-                border-right: 1px solid #2b2b2b;
-            }
-            QPushButton.menuButton {
-                padding: 12px 14px;
-                text-align: left;
-                border-radius: 8px;
-                font-size: 14px;
-                color: #eaeaea;
-                background: transparent;
-            }
-            QPushButton.menuButton:hover {
-                background: #1e1e2a;
-            }
-            QLabel#logoLabel {
-                color: white;
-                font-weight: 700;
-                font-size: 20px;
-                padding: 12px;
-            }
-        """)
+        # =================================================
+        self.sidebar_frame = QtWidgets.QFrame()
+        self.sidebar_frame.setObjectName("sidebarFrame")
+        self.sidebar_frame.setFixedWidth(260)
+        
+        self.sidebar_layout = QtWidgets.QVBoxLayout(self.sidebar_frame)
+        self.sidebar_layout.setContentsMargins(20, 20, 20, 20)
+        self.sidebar_layout.setSpacing(8)
 
-        menu_layout = QtWidgets.QVBoxLayout(sidebar)
-        menu_layout.setContentsMargins(12, 12, 12, 12)
-        menu_layout.setSpacing(8)
+        # Logo
+        self.logo = QtWidgets.QLabel("SANSHIP")
+        self.logo.setObjectName("logoLabel")
+        self.sidebar_layout.addWidget(self.logo)
 
-        logo = QtWidgets.QLabel("SANSHIP")
-        logo.setObjectName("logoLabel")
-        logo.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        menu_layout.addWidget(logo)
+        # Navigation Buttons
+        self.btn_group = QtWidgets.QButtonGroup(self)
+        self.btn_group.setExclusive(True)
 
-        # -------------------------
-        # MENU BUTTONS
-        # -------------------------
-        btn_invoice = QtWidgets.QPushButton("📄  Create Invoice")
-        btn_invoice.setProperty("class", "menuButton")
+        self.btn_invoice = self.create_nav_btn("Create Invoice", 0, checked=True)
+        self.btn_debit = self.create_nav_btn("Debit Note", 1)
+        self.btn_customers = self.create_nav_btn("Customers", 2)
+        self.btn_ledger = self.create_nav_btn("Statement", 3)
+        self.btn_ledger = self.create_nav_btn("Statement", 3)
+        self.btn_receipt = self.create_nav_btn("Receipt Entry", 4)
+        self.btn_reports = self.create_nav_btn("Reports", 5)
+        self.btn_exit = self.create_nav_btn("Exit", -1)
+        self.btn_exit.clicked.connect(self.close)
 
-        btn_debit = QtWidgets.QPushButton("🧾  Create Debit Note")
-        btn_debit.setProperty("class", "menuButton")
+        self.sidebar_layout.addStretch()
+        
+        # Theme Toggle
+        self.btn_theme = QtWidgets.QPushButton("Toggle Theme")
+        self.btn_theme.setProperty("class", "navBtn")
+        self.btn_theme.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        self.btn_theme.clicked.connect(self.toggle_theme)
+        self.sidebar_layout.addWidget(self.btn_theme)
 
-        btn_job = QtWidgets.QPushButton("📦  Create Job")
-        btn_job.setProperty("class", "menuButton")
+        # "CTA" Style Button for Create Job
+        self.btn_create_job = QtWidgets.QPushButton("CREATE NEW JOB")
+        self.btn_create_job.setObjectName("ctaBtn")
+        self.btn_create_job.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        self.btn_create_job.clicked.connect(self.open_job_form)
+        self.sidebar_layout.addWidget(self.btn_create_job)
 
-        btn_customers = QtWidgets.QPushButton("👥  Customer / Consignee Manager")
-        btn_customers.setProperty("class", "menuButton")
+        # =================================================
+        # MAIN CONTENT AREA
+        # =================================================
+        self.content_area = QtWidgets.QWidget()
+        self.content_area.setObjectName("contentArea")
+        
+        # We use a layout with padding to create the "floating card" effect
+        self.content_layout = QtWidgets.QVBoxLayout(self.content_area)
+        self.content_layout.setContentsMargins(30, 30, 30, 30)
 
-        btn_exit = QtWidgets.QPushButton("❌  Exit")
-        btn_exit.setProperty("class", "menuButton")
+        # Card Container (White Box)
+        self.card_frame = QtWidgets.QFrame()
+        self.card_frame.setProperty("class", "contentCard")
+        # Add Drop Shadow to Card
+        shadow = QtWidgets.QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(20)
+        shadow.setColor(QtGui.QColor(0, 0, 0, 20))
+        shadow.setOffset(0, 4)
+        self.card_frame.setGraphicsEffect(shadow)
 
-        menu_layout.addWidget(btn_invoice)
-        menu_layout.addWidget(btn_debit)
-        menu_layout.addWidget(btn_job)
-        menu_layout.addWidget(btn_customers)
-        menu_layout.addStretch()
-        menu_layout.addWidget(btn_exit)
+        self.card_layout = QtWidgets.QVBoxLayout(self.card_frame)
+        self.card_layout.setContentsMargins(0, 0, 0, 0) # Page content fills the card
 
-        # -------------------------
-        # STACKED PAGES
-        # -------------------------
+        # Stacked Pages
         self.stack = QtWidgets.QStackedWidget()
-
+        
         self.page_invoice = InvoiceForm()
         self.page_debit = DebitNoteForm()
         self.page_customers = ConsigneeManager()
+        self.page_ledger = LedgerView()
+        self.page_receipt = ReceiptForm()
+        self.page_reports = ReportsWindow()
 
-        self.stack.addWidget(self.page_invoice)    # index 0
-        self.stack.addWidget(self.page_debit)      # index 1
-        self.stack.addWidget(self.page_customers)  # index 2
+        self.stack.addWidget(self.page_invoice)   # 0
+        self.stack.addWidget(self.page_debit)     # 1
+        self.stack.addWidget(self.page_customers) # 2
+        self.stack.addWidget(self.page_ledger)    # 3
+        self.stack.addWidget(self.page_receipt)   # 4
+        self.stack.addWidget(self.page_reports)   # 5
 
-        main_layout.addWidget(sidebar)
-        main_layout.addWidget(self.stack, stretch=1)
+        self.card_layout.addWidget(self.stack)
 
-        # -------------------------
-        # MENU NAVIGATION
-        # -------------------------
-        btn_invoice.clicked.connect(lambda: self.stack.setCurrentIndex(0))
-        btn_debit.clicked.connect(lambda: self.stack.setCurrentIndex(1))
-        btn_customers.clicked.connect(lambda: self.stack.setCurrentIndex(2))
-        btn_exit.clicked.connect(self.close)
+        self.content_layout.addWidget(self.card_frame)
 
-        btn_job.clicked.connect(self.open_job_form)
+        # Assemble Main Layout
+        self.main_layout.addWidget(self.sidebar_frame)
+        self.main_layout.addWidget(self.content_area)
 
-        # -------------------------
-        # SIGNAL-BASED NAVIGATION
-        # -------------------------
+        # Connect Signals
+        self.connect_signals()
+
+    def apply_theme(self):
+        app = QtWidgets.QApplication.instance()
+        # Modes: "DARK" <-> "LIGHT"
+        app.setStyleSheet(get_qss(self.current_mode))
+
+    def toggle_theme(self):
+        if self.current_mode == "LIGHT":
+            self.current_mode = "DARK"
+        else:
+            self.current_mode = "LIGHT"
+            
+        self.apply_theme()
+
+
+    def create_nav_btn(self, text, index, checked=False):
+        btn = QtWidgets.QPushButton(text)
+        btn.setProperty("class", "navBtn")
+        btn.setCheckable(True)
+        btn.setChecked(checked)
+        btn.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        
+        if index != -1:
+            btn.clicked.connect(lambda: self.stack.setCurrentIndex(index))
+            self.btn_group.addButton(btn)
+        
+        self.sidebar_layout.addWidget(btn)
+        return btn
+
+    def connect_signals(self):
+        # Cross-module nav
         if hasattr(self.page_invoice, "openCustomerManager"):
             self.page_invoice.openCustomerManager.connect(
-                lambda: self.stack.setCurrentIndex(2)
+                lambda: self.switch_tab(2)
             )
-
         if hasattr(self.page_debit, "openCustomerManager"):
             self.page_debit.openCustomerManager.connect(
-                lambda: self.stack.setCurrentIndex(2)
+                lambda: self.switch_tab(2)
             )
 
-        self.stack.setCurrentIndex(0)
+    def switch_tab(self, index):
+        self.stack.setCurrentIndex(index)
+        # Update button state manually if needed (ButtonGroup handles exclusive, but we need to toggle the right one)
+        btns = [self.btn_invoice, self.btn_debit, self.btn_customers, self.btn_ledger, self.btn_receipt, self.btn_reports]
+        if 0 <= index < len(btns):
+            btns[index].setChecked(True)
 
-    # -------------------------
-    # OPEN JOB FORM (FIXED)
-    # -------------------------
     def open_job_form(self):
         self.job_window = JobForm()
-
-        # 🔥 CRITICAL FIX: auto-refresh job dropdowns
+        # Fix styling for popup (Popups are separate windows, might need theme applied directly if not global)
+        # Global theme is already applied to 'app', so it should inherit.
+        
         self.job_window.jobSaved.connect(self.page_invoice.load_jobs)
         self.job_window.jobSaved.connect(self.page_debit.load_jobs)
-
         self.job_window.show()
 
-    # -------------------------
-    # DARK THEME
-    # -------------------------
-    def enable_dark_theme(self):
-        app = QtWidgets.QApplication.instance()
-        if not app:
-            return
-
-        app.setStyle("Fusion")
-        palette = QtGui.QPalette()
-
-        palette.setColor(QtGui.QPalette.ColorRole.Window, QtGui.QColor(28, 28, 28))
-        palette.setColor(QtGui.QPalette.ColorRole.WindowText, QtGui.QColor(230, 230, 230))
-        palette.setColor(QtGui.QPalette.ColorRole.Base, QtGui.QColor(35, 35, 35))
-        palette.setColor(QtGui.QPalette.ColorRole.Text, QtGui.QColor(230, 230, 230))
-        palette.setColor(QtGui.QPalette.ColorRole.Button, QtGui.QColor(45, 45, 45))
-        palette.setColor(QtGui.QPalette.ColorRole.ButtonText, QtGui.QColor(230, 230, 230))
-        palette.setColor(QtGui.QPalette.ColorRole.Highlight, QtGui.QColor(70, 120, 230))
-        palette.setColor(QtGui.QPalette.ColorRole.HighlightedText, QtGui.QColor(255, 255, 255))
-
-        app.setPalette(palette)
-
-
 def main():
-    app = QtWidgets.QApplication(sys.argv)
-    win = MainWindow()
-    win.show()
-    sys.exit(app.exec())
+    # High DPI
+    if hasattr(QtCore.Qt.ApplicationAttribute, "AA_EnableHighDpiScaling"):
+        QtCore.QCoreApplication.setAttribute(QtCore.Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
+    if hasattr(QtCore.Qt.ApplicationAttribute, "AA_UseHighDpiPixmaps"):
+        QtCore.QCoreApplication.setAttribute(QtCore.Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
 
+    app = QtWidgets.QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
     main()
