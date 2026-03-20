@@ -131,7 +131,7 @@ fun JobDialog(
     var net by remember { mutableStateOf(job?.netWeight ?: "") }
     var vol by remember { mutableStateOf(job?.volumeCbm ?: "") }
     var pkgs by remember { mutableStateOf(job?.packages ?: "") }
-    var exRate by remember { mutableStateOf(job?.exchangeRate ?: "") }
+    var exRate by remember { mutableStateOf(job?.exchangeRate?.toString() ?: "1.0") }
     var ref by remember { mutableStateOf(job?.refNo ?: "") }
 
     // Logic to auto-fill Shipper/Consignee from Customer Selection could be added,
@@ -147,24 +147,20 @@ fun JobDialog(
         text = {
             Column(modifier = Modifier.width(600.dp)) {
                 // Customer Dropdown
-                var expanded by remember { mutableStateOf(false) }
                 val selectedClient = clients.find { it.id == customerId }
-                
-                OutlinedButton(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth()) {
-                    Text(selectedClient?.fullName ?: "Select Customer")
-                }
-                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    clients.forEach { client ->
-                        DropdownMenuItem(onClick = {
-                            customerId = client.id
-                            // Auto-fill Consignee if empty?
-                            if (consignee.isEmpty()) consignee = client.fullName
-                            expanded = false
-                        }) {
-                            Text(client.fullName)
-                        }
-                    }
-                }
+
+                com.sanship.ui.components.SearchableDropdown(
+                    label = "Customer",
+                    items = clients,
+                    selectedItem = selectedClient,
+                    itemToString = { it.fullName },
+                    onItemSelected = { client ->
+                        customerId = client?.id ?: 0
+                        // Auto-fill Consignee if empty?
+                        if (client != null && consignee.isEmpty()) consignee = client.fullName
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
                 
                 Spacer(Modifier.height(8.dp))
                 
@@ -209,7 +205,12 @@ fun JobDialog(
                                 OutlinedTextField(value = vol, onValueChange = { vol = it }, label = { Text("CBM") }, modifier = Modifier.weight(1f))
                                 OutlinedTextField(value = pkgs, onValueChange = { pkgs = it }, label = { Text("Packages") }, modifier = Modifier.weight(1f))
                             }
-                            OutlinedTextField(value = exRate, onValueChange = { exRate = it }, label = { Text("Exchange Rate") }, modifier = Modifier.fillMaxWidth())
+                            OutlinedTextField(
+                                value = exRate, 
+                                onValueChange = { s: String -> exRate = s }, 
+                                label = { Text("Exchange Rate") }, 
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         }
                     }
                 }
@@ -237,7 +238,7 @@ fun JobDialog(
                             netWeight = net,
                             volumeCbm = vol,
                             packages = pkgs,
-                            exchangeRate = exRate,
+                            exchangeRate = exRate.toDoubleOrNull() ?: 1.0,
                             refNo = ref
                         ))
                     },

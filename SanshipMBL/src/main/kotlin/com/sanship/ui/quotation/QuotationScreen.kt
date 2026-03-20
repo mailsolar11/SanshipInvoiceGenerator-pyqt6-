@@ -167,41 +167,36 @@ fun QuotationScreen() {
                     Text("Customer", fontWeight = FontWeight.Bold, fontSize = 16.sp)
 
                     // Job dropdown (auto-fills customer + shipment)
-                    var jobExpanded by remember { mutableStateOf(false) }
-                    Box {
-                        OutlinedTextField(
-                            value = if (header.jobId != null) jobs.firstOrNull { it.first == header.jobId }?.second ?: "Select Job" else "— Select Job (optional) —",
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("Select Job") },
-                            trailingIcon = { IconButton(onClick = { jobExpanded = true }) { Icon(Icons.Default.ArrowDropDown, null) } },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        DropdownMenu(expanded = jobExpanded, onDismissRequest = { jobExpanded = false }) {
-                            DropdownMenuItem(onClick = { header = header.copy(jobId = null, jobNo = ""); jobExpanded = false }) { Text("— None —") }
-                            jobs.forEach { (id, no) ->
-                                DropdownMenuItem(onClick = { onJobSelected(id); jobExpanded = false }) { Text(no) }
+                    com.sanship.ui.components.SearchableDropdown(
+                        label = "Select Job (optional)",
+                        items = jobs,
+                        selectedItem = jobs.find { it.first == header.jobId },
+                        itemToString = { it.second },
+                        onItemSelected = { selected ->
+                            if (selected != null) {
+                                onJobSelected(selected.first)
+                            } else {
+                                header = header.copy(jobId = null, jobNo = "")
                             }
-                        }
-                    }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
                     // Customer dropdown
-                    var custExpanded by remember { mutableStateOf(false) }
-                    Box {
-                        OutlinedTextField(
-                            value = header.customerName.ifBlank { "— Select Customer —" },
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("Customer") },
-                            trailingIcon = { IconButton(onClick = { custExpanded = true }) { Icon(Icons.Default.ArrowDropDown, null) } },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        DropdownMenu(expanded = custExpanded, onDismissRequest = { custExpanded = false }) {
-                            customers.forEach { (id, name) ->
-                                DropdownMenuItem(onClick = { header = header.copy(customerId = id, customerName = name); custExpanded = false }) { Text(name) }
+                    com.sanship.ui.components.SearchableDropdown(
+                        label = "Customer",
+                        items = customers,
+                        selectedItem = customers.find { it.first == header.customerId },
+                        itemToString = { it.second },
+                        onItemSelected = { selected ->
+                            if (selected != null) {
+                                header = header.copy(customerId = selected.first, customerName = selected.second)
+                            } else {
+                                header = header.copy(customerId = null, customerName = "")
                             }
-                        }
-                    }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
                     OutlinedTextField(
                         value = header.billingAddress,
@@ -223,23 +218,23 @@ fun QuotationScreen() {
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         // Mode dropdown
-                        var modeExpanded by remember { mutableStateOf(false) }
-                        Box(modifier = Modifier.weight(1f)) {
-                            OutlinedTextField(value = header.mode, onValueChange = {}, readOnly = true, label = { Text("Mode") },
-                                trailingIcon = { IconButton(onClick = { modeExpanded = true }) { Icon(Icons.Default.ArrowDropDown, null) } }, modifier = Modifier.fillMaxWidth())
-                            DropdownMenu(expanded = modeExpanded, onDismissRequest = { modeExpanded = false }) {
-                                modes.forEach { m -> DropdownMenuItem(onClick = { header = header.copy(mode = m); modeExpanded = false }) { Text(m) } }
-                            }
-                        }
+                        com.sanship.ui.components.SearchableDropdown(
+                            label = "Mode",
+                            items = modes,
+                            selectedItem = header.mode.takeIf { it.isNotBlank() },
+                            itemToString = { it },
+                            onItemSelected = { if (it != null) header = header.copy(mode = it) },
+                            modifier = Modifier.weight(1f)
+                        )
                         // Container Type dropdown
-                        var ctExpanded by remember { mutableStateOf(false) }
-                        Box(modifier = Modifier.weight(1f)) {
-                            OutlinedTextField(value = header.containerType, onValueChange = {}, readOnly = true, label = { Text("Container Type") },
-                                trailingIcon = { IconButton(onClick = { ctExpanded = true }) { Icon(Icons.Default.ArrowDropDown, null) } }, modifier = Modifier.fillMaxWidth())
-                            DropdownMenu(expanded = ctExpanded, onDismissRequest = { ctExpanded = false }) {
-                                containerTypes.forEach { ct -> DropdownMenuItem(onClick = { header = header.copy(containerType = ct); ctExpanded = false }) { Text(ct) } }
-                            }
-                        }
+                        com.sanship.ui.components.SearchableDropdown(
+                            label = "Container Type",
+                            items = containerTypes,
+                            selectedItem = header.containerType.takeIf { it.isNotBlank() },
+                            itemToString = { it },
+                            onItemSelected = { if (it != null) header = header.copy(containerType = it) },
+                            modifier = Modifier.weight(1f)
+                        )
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         OutlinedTextField(value = header.shipper, onValueChange = { header = header.copy(shipper = it) }, label = { Text("Shipper") }, modifier = Modifier.weight(1f))

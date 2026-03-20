@@ -396,4 +396,152 @@ object Vouchers {
             }
         }
     }
+    fun postPurchaseVoucher(
+        voucherNo: String,
+        voucherDate: String,
+        partyName: String,
+        partyGstin: String?,
+        narration: String,
+        taxableAmount: Double,
+        cgstAmount: Double = 0.0,
+        sgstAmount: Double = 0.0,
+        igstAmount: Double = 0.0,
+        externalConn: java.sql.Connection? = null
+    ): Int {
+        /**
+         * Posts PURCHASE voucher.
+         *
+         * Accounting rules:
+         * - Purchase & tax ledgers → DR
+         * - Party ledger → CR
+         * - DR must equal CR
+         */
+        
+        Ledgers.ensureSystemLedgers()
+        
+        val partyLedger = Ledgers.getOrCreatePartyLedger(partyName, partyGstin, groupName = "Liabilities")
+        val purchaseLedger = Ledgers.getLedgerId("PURCHASES")
+        val cgstLedger = Ledgers.getLedgerId("CGST INPUT")
+        val sgstLedger = Ledgers.getLedgerId("SGST INPUT")
+        val igstLedger = Ledgers.getLedgerId("IGST INPUT")
+        
+        val total = toBigDecimal(taxableAmount) +
+                    toBigDecimal(cgstAmount) +
+                    toBigDecimal(sgstAmount) +
+                    toBigDecimal(igstAmount)
+        
+        if (total <= BigDecimal.ZERO) {
+            throw RuntimeException("Purchase total cannot be zero")
+        }
+        
+        val entries = mutableListOf<Map<String, Any?>>()
+        
+        // Purchase DR
+        if (toBigDecimal(taxableAmount) > BigDecimal.ZERO) {
+            entries.add(mapOf(
+                "ledger_id" to purchaseLedger,
+                "dr" to toBigDecimal(taxableAmount),
+                "cr" to BigDecimal.ZERO
+            ))
+        }
+        
+        // GST DRs
+        if (toBigDecimal(cgstAmount) > BigDecimal.ZERO) {
+            entries.add(mapOf("ledger_id" to cgstLedger, "dr" to toBigDecimal(cgstAmount), "cr" to BigDecimal.ZERO))
+        }
+        if (toBigDecimal(sgstAmount) > BigDecimal.ZERO) {
+            entries.add(mapOf("ledger_id" to sgstLedger, "dr" to toBigDecimal(sgstAmount), "cr" to BigDecimal.ZERO))
+        }
+        if (toBigDecimal(igstAmount) > BigDecimal.ZERO) {
+            entries.add(mapOf("ledger_id" to igstLedger, "dr" to toBigDecimal(igstAmount), "cr" to BigDecimal.ZERO))
+        }
+        
+        // Party CR
+        entries.add(mapOf(
+            "ledger_id" to partyLedger,
+            "dr" to BigDecimal.ZERO,
+            "cr" to total
+        ))
+        
+        Validation.validateEntries(entries)
+        
+        fun executeWithConnection(conn: java.sql.Connection): Int {
+            try {
+                var voucherId = -1
+                conn.prepareStatement("SELECT id FROM vouchers WHERE voucher_no = ?").use { ps ->
+                    ps.setString(1, voucherNo)
+                    val rs = ps.executeQuery()
+                    if (rs.next()) voucherId = rs.getInt("id")
+                }
+                
+                if (voucherId != -1) {
+                    conn.prepareStatement(
+                        "UPDATE vouchers SET voucher_date = ?, narration = ?, voucher_type = ? WHERE id = ?"
+                    ).use { ps ->
+                        ps.setString(1, voucherDate)
+                        ps.setString(2, narration)
+                        ps.setString(3, "PURCHASE")
+                        ps.setInt(4, voucherId)
+                        ps.executeUpdate()
+                    }
+                    conn.prepareStatement("DELETE FROM ledger_entries WHERE voucher_id = ?").use { ps ->
+                        ps.setInt(1, voucherId)
+                        ps.executeUpdate()
+                    }
+                } else {
+                    conn.prepareStatement(
+                        """
+                        INSERT INTO vouchers
+                        (voucher_no, voucher_type, voucher_type_id, voucher_date, narration)
+                        VALUES (?, ?, ?, ?, ?)
+                        """.trimIndent(),
+                        java.sql.Statement.RETURN_GENERATED_KEYS
+                    ).use { ps ->
+                        ps.setString(1, voucherNo)
+                        ps.setString(2, "PURCHASE")
+                        ps.setInt(3, 1)
+                        ps.setString(4, voucherDate)
+                        ps.setString(5, narration)
+                        ps.executeUpdate()
+                        val rs = ps.generatedKeys
+                        if (rs.next()) voucherId = rs.getInt(1) else 0
+                    }
+                }
+                
+                if (voucherId != 0) {
+                    val insertEntry = """
+                        INSERT INTO ledger_entries (voucher_id, ledger_id, dr_amount, cr_amount)
+                        VALUES (?, ?, ?, ?)
+                    """
+                    conn.prepareStatement(insertEntry).use { ps ->
+                        for (e in entries) {
+                            ps.setInt(1, voucherId)
+                            ps.setInt(2, e["ledger_id"] as Int)
+                            ps.setDouble(3, (e["dr"] as BigDecimal).toDouble())
+                            ps.setDouble(4, (e["cr"] as BigDecimal).toDouble())
+                            ps.addBatch()
+                        }
+                        ps.executeBatch()
+                    }
+                }
+                return voucherId
+            } catch (e: Exception) { throw e }
+        }
+        
+        return if (externalConn != null) {
+            executeWithConnection(externalConn)
+        } else {
+            getConnection().use { conn ->
+                conn.autoCommit = false
+                try {
+                    val result = executeWithConnection(conn)
+                    conn.commit()
+                    return result
+                } catch (e: Exception) {
+                    conn.rollback()
+                    throw e
+                }
+            }
+        }
+    }
 }

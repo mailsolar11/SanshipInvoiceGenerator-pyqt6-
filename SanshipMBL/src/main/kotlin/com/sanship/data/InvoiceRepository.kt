@@ -12,12 +12,12 @@ object InvoiceRepository {
                 // 1. Insert Header
                 val headerSql = """
                     INSERT INTO invoices (
-                        invoice_no, date, type, customer_id, job_id, job_no, bill_to, consignee_preview,
+                        invoice_no, date, document_type, customer_id, job_id, job_no, billing_address, consignee_address,
                         shipper, consignee, pol, pod, vessel_flight, etd, eta,
                         mbl_no, gross_weight, net_weight, net_weight_unit, volume_cbm, packages,
                         be_no, be_date, igm_no, igm_date, item_no,
-                        exchange_rate, ref_no, other_ref_no, pan, state_code, total_amount, narration
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        currency, exchange_rate, ref_no, other_ref_no, pan, state_code, grand_total, narration
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """
                 conn.prepareStatement(headerSql, Statement.RETURN_GENERATED_KEYS).use { ps ->
                     ps.setString(1, header.invoiceNo)
@@ -46,13 +46,14 @@ object InvoiceRepository {
                     ps.setString(24, header.igmNo)
                     ps.setString(25, header.igmDate)
                     ps.setString(26, header.itemNo)
-                    ps.setString(27, header.exchangeRate)
-                    ps.setString(28, header.refNo)
-                    ps.setString(29, header.otherRefNo)
-                    ps.setString(30, header.pan)
-                    ps.setString(31, header.stateCode)
-                    ps.setDouble(32, header.grandTotal)
-                    ps.setString(33, header.narration)
+                    ps.setString(27, header.currency)
+                    ps.setDouble(28, header.exchangeRate)
+                    ps.setString(29, header.refNo)
+                    ps.setString(30, header.otherRefNo)
+                    ps.setString(31, header.pan)
+                    ps.setString(32, header.stateCode)
+                    ps.setDouble(33, header.grandTotal)
+                    ps.setString(34, header.narration)
                     ps.executeUpdate()
                     
                     val rs = ps.generatedKeys
@@ -64,9 +65,9 @@ object InvoiceRepository {
                 // 2. Insert Items
                 val itemSql = """
                     INSERT INTO invoice_items (
-                        invoice_id, sr_no, description, hsn_sac, currency, rate, qty, amount, taxable_amount,
+                        invoice_id, sr_no, description, hsn_sac, currency, exchange_rate, rate, qty, amount, taxable_amount,
                         cgst_rate, cgst_amt, sgst_rate, sgst_amt, igst_rate, igst_amt, total_amt
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """
                 conn.prepareStatement(itemSql).use { ps ->
                     items.forEach { item ->
@@ -75,17 +76,18 @@ object InvoiceRepository {
                         ps.setString(3, item.description)
                         ps.setString(4, item.hsnSac)
                         ps.setString(5, item.currency)
-                        ps.setDouble(6, item.rate)
-                        ps.setDouble(7, item.qty)
-                        ps.setDouble(8, item.amount)
-                        ps.setDouble(9, item.taxableAmount)
-                        ps.setDouble(10, item.cgstRate)
-                        ps.setDouble(11, item.cgstAmt)
-                        ps.setDouble(12, item.sgstRate)
-                        ps.setDouble(13, item.sgstAmt)
-                        ps.setDouble(14, item.igstRate)
-                        ps.setDouble(15, item.igstAmt)
-                        ps.setDouble(16, item.totalAmt)
+                        ps.setDouble(6, item.exchangeRate)
+                        ps.setDouble(7, item.rate)
+                        ps.setDouble(8, item.qty)
+                        ps.setDouble(9, item.amount)
+                        ps.setDouble(10, item.taxableAmount)
+                        ps.setDouble(11, item.cgstRate)
+                        ps.setDouble(12, item.cgstAmt)
+                        ps.setDouble(13, item.sgstRate)
+                        ps.setDouble(14, item.sgstAmt)
+                        ps.setDouble(15, item.igstRate)
+                        ps.setDouble(16, item.igstAmt)
+                        ps.setDouble(17, item.totalAmt)
                         ps.addBatch()
                     }
                     ps.executeBatch()
@@ -141,14 +143,15 @@ object InvoiceRepository {
                         igmNo = rs.getString("igm_no") ?: "",
                         igmDate = rs.getString("igm_date") ?: "",
                         itemNo = rs.getString("item_no") ?: "",
-                        exchangeRate = rs.getString("exchange_rate") ?: "",
+                        currency = rs.getString("currency") ?: "INR",
+                        exchangeRate = rs.getDouble("exchange_rate"),
                         refNo = rs.getString("ref_no") ?: "",
                         otherRefNo = try { rs.getString("other_ref_no") ?: "" } catch (_: Exception) { "" },
                         taxableAmount = 0.0,
                         cgstAmount = 0.0,
                         sgstAmount = 0.0,
                         igstAmount = 0.0,
-                        grandTotal = rs.getDouble("total_amount"),
+                        grandTotal = rs.getDouble("grand_total"),
                         narration = rs.getString("narration") ?: ""
                     )
                 } else null
@@ -168,6 +171,7 @@ object InvoiceRepository {
                         description = rs.getString("description") ?: "",
                         hsnSac = rs.getString("hsn_sac") ?: "",
                         currency = rs.getString("currency") ?: "INR",
+                        exchangeRate = rs.getDouble("exchange_rate"),
                         rate = rs.getDouble("rate"),
                         qty = rs.getDouble("qty"),
                         amount = rs.getDouble("amount"),

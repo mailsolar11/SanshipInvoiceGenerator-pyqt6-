@@ -82,26 +82,13 @@ fun BLScreen() {
             Text("Bill of Lading Details", style = MaterialTheme.typography.h5, color = Color.White, modifier = Modifier.weight(1f))
             
             // Job Selector
-            Box {
-                OutlinedButton(
-                    onClick = { jobExpanded = true },
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color.White)
-                ) {
-                    val job = jobs.find { it.id == selectedJobId }
-                    Text(if (job != null) "Job: ${job.jobNo}" else "Select Job")
-                }
-                DropdownMenu(expanded = jobExpanded, onDismissRequest = { jobExpanded = false }) {
-                    jobs.forEach { job ->
-                        DropdownMenuItem(onClick = { 
-                            selectedJobId = job.id
-                            jobExpanded = false 
-                        }) {
-                            Text("${job.jobNo} - ${job.shipper}")
-                        }
-                    }
-                }
-            }
+            com.sanship.ui.components.SearchableDropdown(
+                label = "Select Job",
+                items = jobs,
+                selectedItem = jobs.find { it.id == selectedJobId },
+                itemToString = { "${it.jobNo} - ${it.shipper}" },
+                onItemSelected = { selectedJobId = it?.id }
+            )
         }
         
         if (selectedJobId == null) {

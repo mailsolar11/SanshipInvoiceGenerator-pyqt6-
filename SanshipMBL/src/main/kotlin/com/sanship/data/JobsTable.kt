@@ -18,7 +18,7 @@ object JobsTable : Table("jobs") {
     val netWeight = varchar("net_weight", 50).nullable()
     val volumeCbm = varchar("volume_cbm", 50).nullable()
     val packages = varchar("packages", 50).nullable()
-    val exchangeRate = varchar("exchange_rate", 20).nullable()
+    val exchangeRate = double("exchange_rate").nullable()
     val refNo = varchar("ref_no", 50).nullable()
     val status = varchar("status", 20).default("OPEN")
     val createdAt = varchar("created_at", 50).default("") // SQLite defaults handle timestamp

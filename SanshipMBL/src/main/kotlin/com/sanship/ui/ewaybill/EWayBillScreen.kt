@@ -94,78 +94,23 @@ fun EWayBillScreen() {
                 Text("1. Link Invoice", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.DarkGray)
 
                 // Invoice search with autocomplete
-                Box {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        OutlinedTextField(
-                            value = invoiceNo,
-                            onValueChange = {
-                                invoiceNo = it
-                                showSuggestions = it.isNotBlank()
-                                if (linkedInvoice != null) { linkedInvoice = null; successMsg = ""; errorMsg = "" }
-                            },
-                            label = { Text("Enter Invoice No") },
-                            placeholder = { Text("Type to search…", color = Color.LightGray) },
-                            leadingIcon = { Icon(Icons.Default.Search, null, tint = Color(0xFF5C00D9)) },
-                            trailingIcon = {
-                                if (invoiceNo.isNotBlank()) {
-                                    IconButton(onClick = {
-                                        invoiceNo = ""; showSuggestions = false
-                                        linkedInvoice = null; successMsg = ""; errorMsg = ""
-                                    }) { Icon(Icons.Default.Clear, null) }
-                                }
-                            },
-                            modifier = Modifier.weight(1f),
-                            singleLine = true
-                        )
-                        Button(
-                            onClick = { showSuggestions = false; searchInvoice() },
-                            modifier = Modifier.padding(top = 8.dp),
-                            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF5C00D9))
-                        ) {
-                            Icon(Icons.Default.Search, null, tint = Color.White)
-                            Spacer(Modifier.width(6.dp))
-                            Text("Search", color = Color.White)
+                com.sanship.ui.components.SearchableDropdown(
+                    label = "Enter or Select Invoice No",
+                    items = allInvoiceNos,
+                    selectedItem = linkedInvoice?.invoiceNo,
+                    itemToString = { it },
+                    onItemSelected = { selected ->
+                        invoiceNo = selected ?: ""
+                        if (selected != null) {
+                            searchInvoice(selected)
+                        } else {
+                            linkedInvoice = null
+                            successMsg = ""
+                            errorMsg = ""
                         }
-                    }
-
-                    // ── True popup autocomplete — overlays everything ──
-                    DropdownMenu(
-                        expanded = showSuggestions && suggestions.isNotEmpty(),
-                        onDismissRequest = { showSuggestions = false },
-                        modifier = Modifier
-                            .fillMaxWidth(0.78f)
-                            .heightIn(max = 240.dp)
-                            .background(Color.White)
-                    ) {
-                        suggestions.forEach { suggestion ->
-                            DropdownMenuItem(
-                                onClick = {
-                                    invoiceNo = suggestion
-                                    showSuggestions = false
-                                    searchInvoice(suggestion)
-                                }
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                                ) {
-                                    Icon(
-                                        Icons.Default.List,
-                                        contentDescription = null,
-                                        tint = Color(0xFF5C00D9),
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Text(suggestion, fontSize = 14.sp)
-                                }
-                            }
-                            Divider()
-                        }
-                    }
-                }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
                 // Status messages
                 if (successMsg.isNotBlank()) {

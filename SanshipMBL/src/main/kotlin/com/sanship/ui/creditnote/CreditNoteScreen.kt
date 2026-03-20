@@ -164,29 +164,26 @@ fun CreditNoteScreen() {
             Card(elevation = 2.dp, modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text("Customer", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    var custExpanded by remember { mutableStateOf(false) }
-                    Box {
-                        OutlinedTextField(
-                            value = header.customerName.ifBlank { "— Select Customer —" },
-                            onValueChange = {}, readOnly = true, label = { Text("Customer") },
-                            trailingIcon = { IconButton(onClick = { custExpanded = true }) { Icon(Icons.Default.ArrowDropDown, null) } },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        DropdownMenu(expanded = custExpanded, onDismissRequest = { custExpanded = false }) {
-                            customers.forEach { (id, name) ->
-                                DropdownMenuItem(onClick = {
-                                    // Also fill GSTIN from customer master
-                                    var gstin = ""; var sc = ""
-                                    DatabaseManager.connect()?.use { conn ->
-                                        val rs = conn.prepareStatement("SELECT gstin, stateCode FROM client_master WHERE id = ?").apply { setInt(1, id) }.executeQuery()
-                                        if (rs.next()) { gstin = rs.getString("gstin") ?: ""; sc = rs.getString("stateCode") ?: "" }
-                                    }
-                                    header = header.copy(customerId = id, customerName = name, gstin = gstin, stateCode = sc)
-                                    custExpanded = false
-                                }) { Text(name) }
+                    com.sanship.ui.components.SearchableDropdown(
+                        label = "Customer",
+                        items = customers,
+                        selectedItem = customers.find { it.first == header.customerId },
+                        itemToString = { it.second },
+                        onItemSelected = { selected ->
+                            if (selected != null) {
+                                val (id, name) = selected
+                                var gstin = ""; var sc = ""
+                                DatabaseManager.connect()?.use { conn ->
+                                    val rs = conn.prepareStatement("SELECT gstin, stateCode FROM client_master WHERE id = ?").apply { setInt(1, id) }.executeQuery()
+                                    if (rs.next()) { gstin = rs.getString("gstin") ?: ""; sc = rs.getString("stateCode") ?: "" }
+                                }
+                                header = header.copy(customerId = id, customerName = name, gstin = gstin, stateCode = sc)
+                            } else {
+                                header = header.copy(customerId = null, customerName = "", gstin = "", stateCode = "")
                             }
-                        }
-                    }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                     OutlinedTextField(value = header.billingAddress, onValueChange = { header = header.copy(billingAddress = it) }, label = { Text("Billing Address") }, modifier = Modifier.fillMaxWidth(), minLines = 2)
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         OutlinedTextField(value = header.gstin, onValueChange = { header = header.copy(gstin = it) }, label = { Text("GSTIN") }, modifier = Modifier.weight(1f))
@@ -199,21 +196,20 @@ fun CreditNoteScreen() {
             Card(elevation = 2.dp, modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text("Shipment Reference", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    var jobExpanded by remember { mutableStateOf(false) }
-                    Box {
-                        OutlinedTextField(
-                            value = if (header.jobId != null) jobs.firstOrNull { it.first == header.jobId }?.second ?: "Select Job" else "— Link to Job (optional) —",
-                            onValueChange = {}, readOnly = true, label = { Text("Job No") },
-                            trailingIcon = { IconButton(onClick = { jobExpanded = true }) { Icon(Icons.Default.ArrowDropDown, null) } },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        DropdownMenu(expanded = jobExpanded, onDismissRequest = { jobExpanded = false }) {
-                            DropdownMenuItem(onClick = { header = header.copy(jobId = null, jobNo = ""); jobExpanded = false }) { Text("— None —") }
-                            jobs.forEach { (id, no) ->
-                                DropdownMenuItem(onClick = { onJobSelected(id); jobExpanded = false }) { Text(no) }
+                    com.sanship.ui.components.SearchableDropdown(
+                        label = "Job No",
+                        items = jobs,
+                        selectedItem = jobs.find { it.first == header.jobId },
+                        itemToString = { it.second },
+                        onItemSelected = { selected ->
+                            if (selected != null) {
+                                onJobSelected(selected.first)
+                            } else {
+                                header = header.copy(jobId = null, jobNo = "")
                             }
-                        }
-                    }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         OutlinedTextField(value = header.mblNo, onValueChange = { header = header.copy(mblNo = it) }, label = { Text("MBL No") }, modifier = Modifier.weight(1f))
                         OutlinedTextField(value = header.hblNo, onValueChange = { header = header.copy(hblNo = it) }, label = { Text("HBL No") }, modifier = Modifier.weight(1f))

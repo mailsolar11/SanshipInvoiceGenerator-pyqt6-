@@ -104,55 +104,36 @@ fun ReceiptVoucherScreen() {
                 }
                 
                 // Row 2: Received From (Customer)
-                Box {
-                    OutlinedButton(
-                        onClick = { clientExpanded = true }, 
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        val client = clients.find { it.id == selectedClientId }
-                        Text(if (client != null) "Received From: ${client.fullName}" else "Select Payer (Customer)")
-                    }
-                    DropdownMenu(expanded = clientExpanded, onDismissRequest = { clientExpanded = false }) {
-                        clients.forEach { client ->
-                            DropdownMenuItem(onClick = { 
-                                selectedClientId = client.id
-                                clientExpanded = false 
-                            }) {
-                                Text(client.fullName)
-                            }
-                        }
-                    }
-                }
+                com.sanship.ui.components.SearchableDropdown(
+                    label = "Received From (Customer)",
+                    items = clients,
+                    selectedItem = clients.find { it.id == selectedClientId },
+                    itemToString = { it.fullName },
+                    onItemSelected = { selectedClientId = it?.id },
+                    modifier = Modifier.fillMaxWidth()
+                )
                 
                 // Row 3: Job Link & Payment Mode
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     // Job Link
-                    Box(modifier = Modifier.weight(1f)) {
-                        OutlinedButton(onClick = { jobExpanded = true }, modifier = Modifier.fillMaxWidth()) {
-                            val job = jobs.find { it.id == selectedJobId }
-                            Text(if (job != null) "Link Job: ${job.jobNo}" else "Link Job (Optional)")
-                        }
-                        DropdownMenu(expanded = jobExpanded, onDismissRequest = { jobExpanded = false }) {
-                            DropdownMenuItem(onClick = { selectedJobId = null; jobExpanded = false }) { Text("None") }
-                            jobs.forEach { job ->
-                                DropdownMenuItem(onClick = { selectedJobId = job.id; jobExpanded = false }) {
-                                    Text("${job.jobNo} - ${job.shipper}")
-                                }
-                            }
-                        }
-                    }
+                    com.sanship.ui.components.SearchableDropdown(
+                        label = "Link Job (Optional)",
+                        items = jobs,
+                        selectedItem = jobs.find { it.id == selectedJobId },
+                        itemToString = { "${it.jobNo} - ${it.shipper}" },
+                        onItemSelected = { selectedJobId = it?.id },
+                        modifier = Modifier.weight(1f)
+                    )
                     
                     // Deposit To (Mode)
-                    Box(modifier = Modifier.weight(1f)) {
-                        OutlinedButton(onClick = { modeExpanded = true }, modifier = Modifier.fillMaxWidth()) {
-                            Text("Deposit To: $selectedMode")
-                        }
-                        DropdownMenu(expanded = modeExpanded, onDismissRequest = { modeExpanded = false }) {
-                            modes.forEach { mode ->
-                                DropdownMenuItem(onClick = { selectedMode = mode; modeExpanded = false }) { Text(mode) }
-                            }
-                        }
-                    }
+                    com.sanship.ui.components.SearchableDropdown(
+                        label = "Deposit To",
+                        items = modes,
+                        selectedItem = selectedMode,
+                        itemToString = { it },
+                        onItemSelected = { if (it != null) selectedMode = it },
+                        modifier = Modifier.weight(1f)
+                    )
                 }
                 
                 // Row 4: Amount

@@ -140,7 +140,7 @@ object JobRepository {
             netWeight = row[JobsTable.netWeight] ?: "",
             volumeCbm = row[JobsTable.volumeCbm] ?: "",
             packages = row[JobsTable.packages] ?: "",
-            exchangeRate = row[JobsTable.exchangeRate] ?: "",
+            exchangeRate = row[JobsTable.exchangeRate] ?: 1.0,
             refNo = row[JobsTable.refNo] ?: "",
             status = row[JobsTable.status],
             createdAt = row[JobsTable.createdAt]

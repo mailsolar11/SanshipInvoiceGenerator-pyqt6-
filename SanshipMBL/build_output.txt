@@ -1,29 +1,17 @@
 > Task :checkKotlinGradlePluginConfigurationErrors
 
 > Task :compileKotlin
-e: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/docs/DocumentTemplateScreen.kt:37:39 Unresolved reference: getJobByNo
-e: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/docs/DocumentTemplateScreen.kt:40:27 Not enough information to infer type variable V
-e: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/reports/CashBankBookScreen.kt:86:56 Unresolved reference: balance
-e: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/reports/CashBankBookScreen.kt:86:92 Unresolved reference: balance
-e: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/reports/CashBankBookScreen.kt:86:129 Unresolved reference: balance
-e: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/reports/CashBankBookScreen.kt:87:57 Unresolved reference: balance
-
-> Task :compileKotlin FAILED
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/invoice/InvoiceFormScreen.kt:27:5 Parameter 'onNavigateBack' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/viewmodels/InvoiceFormViewModel.kt:161:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/viewmodels/InvoiceFormViewModel.kt:189:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/viewmodels/InvoiceFormViewModel.kt:200:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/viewmodels/InvoiceFormViewModel.kt:211:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/viewmodels/InvoiceFormViewModel.kt:232:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/viewmodels/InvoiceFormViewModel.kt:432:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/viewmodels/InvoiceFormViewModel.kt:561:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/viewmodels/InvoiceFormViewModel.kt:718:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
 
 [Incubating] Problems report is available at: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/build/reports/problems/problems-report.html
-
-FAILURE: Build failed with an exception.
-
-* What went wrong:
-Execution failed for task ':compileKotlin'.
-> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
-   > Compilation error. See log for more details
-
-* Try:
-> Run with --stacktrace option to get the stack trace.
-> Run with --info or --debug option to get more log output.
-> Run with --scan to generate a Build Scan (Powered by Develocity).
-> Get more help at https://help.gradle.org.
 
 Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
 
@@ -31,5 +19,6 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/9.0.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD FAILED in 6s
+BUILD SUCCESSFUL in 11s
 2 actionable tasks: 2 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.0.0/userguide/configuration_cache_enabling.html

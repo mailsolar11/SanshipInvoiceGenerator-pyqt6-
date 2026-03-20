@@ -39,22 +39,14 @@ fun StatementScreen() {
             Spacer(Modifier.height(16.dp))
 
             // Selector
-            Box {
-                OutlinedTextField(
-                    value = ledgers[selectedLedgerId] ?: "Select Ledger",
-                    onValueChange = {},
-                    readOnly = true,
-                    trailingIcon = { IconButton(onClick = { expanded = true }) { Icon(Icons.Default.ArrowDropDown, null) } },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    ledgers.forEach { (id, name) ->
-                        DropdownMenuItem(onClick = { selectedLedgerId = id; expanded = false }) {
-                            Text(name)
-                        }
-                    }
-                }
-            }
+            com.sanship.ui.components.SearchableDropdown(
+                label = "Select Ledger",
+                items = ledgers.toList(),
+                selectedItem = ledgers.toList().find { it.first == selectedLedgerId },
+                itemToString = { it.second },
+                onItemSelected = { selectedLedgerId = it?.first },
+                modifier = Modifier.fillMaxWidth()
+            )
 
             Spacer(Modifier.height(20.dp))
 

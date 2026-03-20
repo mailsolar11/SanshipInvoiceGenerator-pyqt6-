@@ -48,7 +48,8 @@ object InvoiceModels {
         val igmNo: String = "",
         val igmDate: String = "",
         val itemNo: String = "",
-        val exchangeRate: String = "",
+        val currency: String = "INR",
+        val exchangeRate: Double = 1.0,
         val refNo: String = "",
         val otherRefNo: String = "",      // "other Ref no (Optional)" from image
         
@@ -78,6 +79,7 @@ object InvoiceModels {
         val description: String = "",
         val hsnSac: String = "",
         val currency: String = "INR",
+        val exchangeRate: Double = 1.0,
         val rate: Double = 0.0,
         val qty: Double = 0.0,
         val amount: Double = 0.0,

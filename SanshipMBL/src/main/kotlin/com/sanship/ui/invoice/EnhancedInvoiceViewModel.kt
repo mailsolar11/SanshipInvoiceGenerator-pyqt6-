@@ -56,7 +56,7 @@ class EnhancedInvoiceViewModel {
     var netWeight by mutableStateOf("")
     var volumeCbm by mutableStateOf("")
     var packages by mutableStateOf("")
-    var exchangeRate by mutableStateOf("1.0")
+    var exchangeRate by mutableStateOf(1.0)
     var refNo by mutableStateOf("")
     
     // Items
@@ -121,7 +121,7 @@ class EnhancedInvoiceViewModel {
         netWeight = job.netWeight
         volumeCbm = job.volumeCbm
         packages = job.packages
-        exchangeRate = job.exchangeRate.ifBlank { "1.0" }
+        exchangeRate = job.exchangeRate
         refNo = job.refNo
         
         // Update consignee preview
@@ -142,7 +142,7 @@ class EnhancedInvoiceViewModel {
         netWeight = ""
         volumeCbm = ""
         packages = ""
-        exchangeRate = "1.0"
+        exchangeRate = 1.0
         refNo = ""
         consigneePreview = ""
     }

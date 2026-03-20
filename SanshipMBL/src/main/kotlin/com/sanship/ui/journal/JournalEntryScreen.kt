@@ -137,28 +137,21 @@ fun JournalEntryScreen() {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             // Ledger dropdown
-                            Box(modifier = Modifier.weight(2f)) {
-                                OutlinedButton(
-                                    onClick = { ledgerExpanded = true },
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    val name = allLedgers.find { it.first == line.ledgerId }?.second ?: "Select Ledger"
-                                    Text(name, maxLines = 1)
-                                }
-                                DropdownMenu(expanded = ledgerExpanded, onDismissRequest = { ledgerExpanded = false }) {
-                                    allLedgers.forEach { (id, name) ->
-                                        DropdownMenuItem(onClick = {
-                                            lines = lines.toMutableList().also {
-                                                it[index] = it[index].copy(ledgerId = id, ledgerName = name)
-                                            }
-                                            ledgerExpanded = false
-                                        }) {
-                                            Text(name)
-                                        }
+                            com.sanship.ui.components.SearchableDropdown(
+                                label = "Select Ledger",
+                                items = allLedgers,
+                                selectedItem = allLedgers.find { it.first == line.ledgerId },
+                                itemToString = { it.second },
+                                onItemSelected = { selected ->
+                                    lines = lines.toMutableList().also {
+                                        it[index] = it[index].copy(
+                                            ledgerId = selected?.first,
+                                            ledgerName = selected?.second ?: ""
+                                        )
                                     }
-                                }
-                            }
-                            
+                                },
+                                modifier = Modifier.weight(2f)
+                            )                            
                             // DR Amount
                             OutlinedTextField(
                                 value = line.drAmount,

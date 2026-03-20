@@ -16,6 +16,9 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Divider
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,12 +30,15 @@ import com.sanship.ui.debitnote.DebitNoteScreen
 import com.sanship.ui.customer.CustomerScreen
 import com.sanship.ui.job.JobScreen
 import com.sanship.ui.reports.StatementScreen
+import com.sanship.ui.dashboard.DashboardScreen
+import com.sanship.ui.purchase.PurchaseInvoiceScreen
+import com.sanship.ui.purchase.PurchaseRegisterScreen
 
 fun main() = application {
     // FIX: Force Database Initialization before the UI loads
     // This prevents the "Please call Database.connect()" error
     DatabaseManager.initDatabase()
-    
+
     // Initialize Accounting Database (Double-Entry Bookkeeping System)
     com.sanship.data.AccountingDatabaseManager.initAccountingDb()
 
@@ -61,21 +67,21 @@ fun main() = application {
                 ) {
                     Text("Sanship - Logistics Software", color = Color.White, fontSize = androidx.compose.ui.unit.TextUnit.Unspecified)
                     Spacer(Modifier.weight(1f))
-                    
+
                     val density = androidx.compose.ui.platform.LocalDensity.current
-                    
+
                     // Minimize
                     TitleBarButton("-") { windowState.isMinimized = true }
-                    
+
                     // Maximize/Restore - Manual implementation to respect Taskbar
-                    TitleBarButton("▢") { 
+                    TitleBarButton("▢") {
                         val bounds = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().maximumWindowBounds
                         val currentHeight = windowState.size.height.value
                         val maxHeight = bounds.height / density.density
-                        
+
                         // Check if we are roughly at max size (tolerance of 20px)
                         val isMaximized = kotlin.math.abs(currentHeight - maxHeight) < 20
-                        
+
                         if (isMaximized) {
                             // Restore to default/smaller size
                             windowState.placement = androidx.compose.ui.window.WindowPlacement.Floating
@@ -94,12 +100,12 @@ fun main() = application {
                             )
                         }
                     }
-                    
+
                     // Close
                     TitleBarButton("X", true) { exitApplication() }
                 }
             }
-            
+
             // App Content
             MainAppContainer()
         }
@@ -111,7 +117,7 @@ fun TitleBarButton(text: String, isClose: Boolean = false, onClick: () -> Unit) 
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = if(isClose) Color.Transparent else Color.Transparent, 
+            backgroundColor = if(isClose) Color.Transparent else Color.Transparent,
             contentColor = Color.White
         ),
         elevation = null,
@@ -124,7 +130,7 @@ fun TitleBarButton(text: String, isClose: Boolean = false, onClick: () -> Unit) 
 }
 
 enum class Screen {
-    MBL, INVOICE, DEBIT_NOTE, CREDIT_NOTE, QUOTATION, EWAY_BILL, JOBS, DOCS, EXPENSE, RECEIPT, PAYMENT, JOURNAL, CUSTOMER, VENDOR, STATEMENTS, CHART_OF_ACCOUNTS, CASH_BANK, BANK_RECON, REPORTS, JOB_PNL, TRIAL_BALANCE, PNL, BALANCE_SHEET, OUTSTANDING, GSTR_1, GSTR_3B, BL, BACKUP_RESTORE
+    DASHBOARD, MBL, INVOICE, DEBIT_NOTE, CREDIT_NOTE, QUOTATION, EWAY_BILL, JOBS, DOCS, EXPENSE, RECEIPT, PAYMENT, JOURNAL, CUSTOMER, VENDOR, STATEMENTS, CHART_OF_ACCOUNTS, CASH_BANK, BANK_RECON, REPORTS, JOB_PNL, TRIAL_BALANCE, PNL, BALANCE_SHEET, OUTSTANDING, GSTR_1, GSTR_3B, BL, BACKUP_RESTORE, PURCHASE_INVOICE, PURCHASE_REGISTER, INVOICE_SEARCH
 }
 
 @Composable
@@ -139,7 +145,7 @@ fun MainAppContainer() {
         })
     } else {
         Column(modifier = Modifier.fillMaxSize()) {
-            Row(modifier = Modifier.fillMaxWidth().background(Color(0xFFE0E0E0)).padding(horizontal = 16.dp, vertical = 4.dp), 
+            Row(modifier = Modifier.fillMaxWidth().background(Color(0xFFE0E0E0)).padding(horizontal = 16.dp, vertical = 4.dp),
                 horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
                 Text("Logged in as: $user ($role)", style = androidx.compose.material.MaterialTheme.typography.subtitle2)
                 Spacer(Modifier.width(16.dp))
@@ -154,10 +160,10 @@ fun MainAppContainer() {
 
 @Composable
 fun MainApp(isAdmin: Boolean) {
-    var currentScreen by remember { mutableStateOf(Screen.MBL) }
-    
+    var currentScreen by remember { mutableStateOf(Screen.DASHBOARD) }
+
     Row(modifier = Modifier.fillMaxSize()) {
-        
+
         // --- SIDEBAR ---
         Column(
             modifier = Modifier
@@ -167,6 +173,10 @@ fun MainApp(isAdmin: Boolean) {
                 .padding(vertical = 20.dp)
                 .verticalScroll(rememberScrollState()) // Allow scrolling for many items
         ) {
+            NavButton("Dashboard", currentScreen == Screen.DASHBOARD) { currentScreen = Screen.DASHBOARD }
+
+            Spacer(Modifier.height(6.dp))
+            Text("OPERATIONS", color = Color.Gray, modifier = Modifier.padding(start = 16.dp, bottom = 4.dp), fontSize = androidx.compose.ui.unit.TextUnit.Unspecified)
             NavButton("Bill of Lading", currentScreen == Screen.MBL) { currentScreen = Screen.MBL }
             NavButton("Create Job", currentScreen == Screen.JOBS) { currentScreen = Screen.JOBS }
             NavButton("Generate Docs", currentScreen == Screen.DOCS) { currentScreen = Screen.DOCS }
@@ -175,14 +185,23 @@ fun MainApp(isAdmin: Boolean) {
             NavButton("Debit Notes", currentScreen == Screen.DEBIT_NOTE) { currentScreen = Screen.DEBIT_NOTE }
             NavButton("Credit Notes", currentScreen == Screen.CREDIT_NOTE) { currentScreen = Screen.CREDIT_NOTE }
             NavButton("E-Way Bill", currentScreen == Screen.EWAY_BILL) { currentScreen = Screen.EWAY_BILL }
+
+            Spacer(Modifier.height(6.dp))
+            Text("PURCHASE", color = Color.Gray, modifier = Modifier.padding(start = 16.dp, bottom = 4.dp), fontSize = androidx.compose.ui.unit.TextUnit.Unspecified)
+            NavButton("Purchase Invoice", currentScreen == Screen.PURCHASE_INVOICE) { currentScreen = Screen.PURCHASE_INVOICE }
+            NavButton("Purchase Register", currentScreen == Screen.PURCHASE_REGISTER) { currentScreen = Screen.PURCHASE_REGISTER }
+
+            Spacer(Modifier.height(6.dp))
+            Text("ACCOUNTING", color = Color.Gray, modifier = Modifier.padding(start = 16.dp, bottom = 4.dp), fontSize = androidx.compose.ui.unit.TextUnit.Unspecified)
             NavButton("Expense Entry", currentScreen == Screen.EXPENSE) { currentScreen = Screen.EXPENSE }
             NavButton("Receipt Entry", currentScreen == Screen.RECEIPT) { currentScreen = Screen.RECEIPT }
             NavButton("Payment Entry", currentScreen == Screen.PAYMENT) { currentScreen = Screen.PAYMENT }
             NavButton("Journal Entry", currentScreen == Screen.JOURNAL) { currentScreen = Screen.JOURNAL }
-            
-            Spacer(Modifier.height(10.dp))
-            Text("REPORTS", color = Color.Gray, modifier = Modifier.padding(start = 16.dp), fontSize = androidx.compose.ui.unit.TextUnit.Unspecified)
-            
+
+            Spacer(Modifier.height(6.dp))
+            Text("REPORTS", color = Color.Gray, modifier = Modifier.padding(start = 16.dp, bottom = 4.dp), fontSize = androidx.compose.ui.unit.TextUnit.Unspecified)
+
+            NavButton("Invoice Search", currentScreen == Screen.INVOICE_SEARCH) { currentScreen = Screen.INVOICE_SEARCH }
             NavButton("GSTR-1 Export", currentScreen == Screen.GSTR_1) { currentScreen = Screen.GSTR_1 }
             NavButton("GSTR-3B Summary", currentScreen == Screen.GSTR_3B) { currentScreen = Screen.GSTR_3B }
             NavButton("Job Profitability", currentScreen == Screen.JOB_PNL) { currentScreen = Screen.JOB_PNL }
@@ -197,17 +216,18 @@ fun MainApp(isAdmin: Boolean) {
             NavButton("Customer Master", currentScreen == Screen.CUSTOMER) { currentScreen = Screen.CUSTOMER }
             NavButton("Vendor Master", currentScreen == Screen.VENDOR) { currentScreen = Screen.VENDOR }
             NavButton("Sales Register", currentScreen == Screen.REPORTS) { currentScreen = Screen.REPORTS }
-            
+
             if (isAdmin) {
                 Spacer(Modifier.height(10.dp))
                 Text("SETTINGS", color = Color.Gray, modifier = Modifier.padding(start = 16.dp), fontSize = androidx.compose.ui.unit.TextUnit.Unspecified)
                 NavButton("Backup & Restore", currentScreen == Screen.BACKUP_RESTORE) { currentScreen = Screen.BACKUP_RESTORE }
             }
         }
-        
+
         // --- CONTENT ---
         Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
             when(currentScreen) {
+                Screen.DASHBOARD -> com.sanship.ui.dashboard.DashboardScreen()
                 Screen.MBL -> MblScreen()
                 Screen.INVOICE -> InvoiceFormScreen(documentType = "INVOICE")
                 Screen.QUOTATION -> com.sanship.ui.quotation.QuotationScreen()
@@ -236,6 +256,9 @@ fun MainApp(isAdmin: Boolean) {
                 Screen.BALANCE_SHEET -> com.sanship.ui.reports.BalanceSheetScreen()
                 Screen.OUTSTANDING -> com.sanship.ui.reports.OutstandingScreen()
                 Screen.BL -> com.sanship.ui.bl.BLScreen()
+                Screen.PURCHASE_INVOICE -> PurchaseInvoiceScreen()
+                Screen.PURCHASE_REGISTER -> PurchaseRegisterScreen()
+                Screen.INVOICE_SEARCH -> Box(Modifier.fillMaxSize().padding(24.dp)) { Text("Invoice Search — Coming Soon", style = MaterialTheme.typography.h5) }
             }
         }
     }

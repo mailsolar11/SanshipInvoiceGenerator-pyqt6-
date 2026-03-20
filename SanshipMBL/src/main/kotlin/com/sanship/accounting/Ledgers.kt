@@ -179,13 +179,19 @@ object Ledgers {
     fun ensureSystemLedgers() {
         ensureTables()
         
-        // Core income
+        // Core accounts
         createLedger(name = "SALES", groupName = "Income", isSystem = 1)
+        createLedger(name = "PURCHASES", groupName = "Expenses", isSystem = 1)
         
         // GST Output
         createLedger(name = "CGST OUTPUT", groupName = "Duties & Taxes", isSystem = 1)
         createLedger(name = "SGST OUTPUT", groupName = "Duties & Taxes", isSystem = 1)
         createLedger(name = "IGST OUTPUT", groupName = "Duties & Taxes", isSystem = 1)
+        
+        // GST Input
+        createLedger(name = "CGST INPUT", groupName = "Duties & Taxes", isSystem = 1)
+        createLedger(name = "SGST INPUT", groupName = "Duties & Taxes", isSystem = 1)
+        createLedger(name = "IGST INPUT", groupName = "Duties & Taxes", isSystem = 1)
         
         // Rounding
         createLedger(name = "ROUND OFF", groupName = "Income", isSystem = 1)

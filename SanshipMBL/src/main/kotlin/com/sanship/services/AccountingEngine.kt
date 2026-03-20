@@ -3,6 +3,8 @@ package com.sanship.services
 import com.sanship.accounting.Gst
 import com.sanship.accounting.Vouchers
 import com.sanship.data.InvoiceModels
+import com.sanship.data.PurchaseHeader
+import com.sanship.data.PurchaseItem
 import java.sql.Connection
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -88,13 +90,14 @@ object AccountingEngine {
         // ------------------------------
         // Document intent
         // ------------------------------
-        if (documentType !in listOf("INVOICE", "DEBIT_NOTE", "CREDIT_NOTE")) {
+        if (documentType !in listOf("INVOICE", "DEBIT_NOTE", "CREDIT_NOTE", "PURCHASE")) {
             throw IllegalArgumentException("Unsupported document type: $documentType")
         }
         
         val voucherType = when (documentType) {
             "INVOICE" -> "SALES"
             "CREDIT_NOTE" -> "CREDIT_NOTE"
+            "PURCHASE" -> "PURCHASE"
             else -> "DEBIT_NOTE"
         }
         
@@ -188,19 +191,33 @@ object AccountingEngine {
             supplierStateCode = supplierStateCode,
             customerStateCode = customerStateCode
         )
-        val voucherId = Vouchers.postSalesVoucher(
-            voucherType = payload.voucherType,
-            voucherNo = payload.postingData.voucherNo,
-            voucherDate = payload.postingData.voucherDate,
-            partyName = payload.postingData.partyName,
-            partyGstin = payload.postingData.partyGstin,
-            narration = payload.postingData.narration,
-            taxableAmount = payload.postingData.taxableAmount,
-            cgstAmount = payload.postingData.cgstAmount,
-            sgstAmount = payload.postingData.sgstAmount,
-            igstAmount = payload.postingData.igstAmount,
-            externalConn = externalConn
-        )
+        val voucherId = when (payload.voucherType) {
+            "PURCHASE" -> Vouchers.postPurchaseVoucher(
+                voucherNo = payload.postingData.voucherNo,
+                voucherDate = payload.postingData.voucherDate,
+                partyName = payload.postingData.partyName,
+                partyGstin = payload.postingData.partyGstin,
+                narration = payload.postingData.narration,
+                taxableAmount = payload.postingData.taxableAmount,
+                cgstAmount = payload.postingData.cgstAmount,
+                sgstAmount = payload.postingData.sgstAmount,
+                igstAmount = payload.postingData.igstAmount,
+                externalConn = externalConn
+            )
+            else -> Vouchers.postSalesVoucher(
+                voucherType = payload.voucherType,
+                voucherNo = payload.postingData.voucherNo,
+                voucherDate = payload.postingData.voucherDate,
+                partyName = payload.postingData.partyName,
+                partyGstin = payload.postingData.partyGstin,
+                narration = payload.postingData.narration,
+                taxableAmount = payload.postingData.taxableAmount,
+                cgstAmount = payload.postingData.cgstAmount,
+                sgstAmount = payload.postingData.sgstAmount,
+                igstAmount = payload.postingData.igstAmount,
+                externalConn = externalConn
+            )
+        }
         
         return voucherId
     }
@@ -416,4 +433,61 @@ object AccountingEngine {
         
         postCreditNote(headerMap, itemsList, conn)
     }
+    fun postPurchase(
+        header: Map<String, Any?>,
+        items: List<Map<String, Any?>>,
+        externalConn: Connection? = null
+    ): PostResult {
+        // Resolve State Codes
+        val supplierStateName = header["place_of_supply"] as? String
+        val supplierStateCode = Gst.getStateCode(supplierStateName) ?: "27"
+        val customerStateCode = "27" // San Shipping (Receiver MH)
+        
+        val voucherId = postDocumentToAccounting(
+            documentType = "PURCHASE",
+            documentNumber = header["purchaseNo"] as? String ?: "",
+            documentDate = header["date"] as? String ?: "",
+            partyName = header["vendorName"] as? String ?: "",
+            partyGstin = header["vendorGstin"] as? String,
+            narration = header["narration"] as? String,
+            items = items,
+            supplierStateCode = supplierStateCode,
+            customerStateCode = customerStateCode,
+            externalConn = externalConn
+        )
+        
+        return PostResult(voucherId = voucherId, documentType = "PURCHASE")
+    }
+
+    fun postPurchaseInternal(
+        conn: Connection,
+        header: PurchaseHeader,
+        items: List<PurchaseItem>
+    ) {
+        val headerMap = mapOf<String, Any?>(
+            "purchaseNo" to header.purchaseNo,
+            "date" to header.date,
+            "vendorName" to header.vendorName,
+            "vendorGstin" to header.vendorGstin,
+            "place_of_supply" to header.placeOfSupply,
+            "narration" to header.narration
+        )
+        
+        val itemsList = items.map { item ->
+            mapOf<String, Any?>(
+                "description" to item.description,
+                "hsn_sac" to item.hsnSac,
+                "qty" to item.qty,
+                "rate" to item.rate,
+                "amount" to item.amount,
+                "taxable_amount" to item.taxableAmount,
+                "cgst_rate" to item.cgstRate,
+                "sgst_rate" to item.sgstRate,
+                "igst_rate" to item.igstRate
+            )
+        }
+        
+        postPurchase(headerMap, itemsList, conn)
+    }
 }
+

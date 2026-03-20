@@ -16,6 +16,7 @@ repositories {
 
 dependencies {
     implementation(compose.desktop.currentOs)
+    implementation(compose.materialIconsExtended)
 
     // PDF Generation
     implementation("org.apache.pdfbox:pdfbox:2.0.29")
@@ -27,6 +28,7 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:3.45.1.0")
     implementation("org.jetbrains.exposed:exposed-core:0.50.1")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.50.1")
+
 
     // JSON Handling
     implementation("com.google.code.gson:gson:2.10.1")

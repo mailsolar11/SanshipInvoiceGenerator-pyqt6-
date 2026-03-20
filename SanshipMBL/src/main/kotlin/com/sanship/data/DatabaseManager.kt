@@ -156,7 +156,7 @@ object DatabaseManager {
                     net_weight TEXT,
                     volume_cbm TEXT,
                     packages TEXT,
-                    exchange_rate TEXT,
+                    exchange_rate REAL DEFAULT 1.0,
                     ref_no TEXT,
                     status TEXT DEFAULT 'OPEN',
                     created_at TEXT DEFAULT CURRENT_TIMESTAMP
@@ -287,7 +287,8 @@ object DatabaseManager {
                      igmNo TEXT,
                      igmDate TEXT,
                      itemNo TEXT,
-                     exchangeRate TEXT,
+                     currency TEXT DEFAULT 'INR',
+                     exchangeRate REAL DEFAULT 1.0,
                      refNo TEXT,
                      otherRefNo TEXT,
                      pan TEXT,
@@ -307,6 +308,58 @@ object DatabaseManager {
                  );
             """.trimIndent()
             stmt.execute(createInvoices)
+
+            // --- PURCHASE INVOICE TABLES ---
+            val createPurchases = """
+                CREATE TABLE IF NOT EXISTS purchase_invoices (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    purchase_no TEXT NOT NULL UNIQUE,
+                    date TEXT NOT NULL,
+                    vendor_id INTEGER,
+                    vendor_name TEXT,
+                    vendor_gstin TEXT,
+                    vendor_address TEXT,
+                    place_of_supply TEXT,
+                    reverse_charge INTEGER DEFAULT 0,
+                    job_id INTEGER,
+                    job_no TEXT,
+                    taxable_amount REAL DEFAULT 0,
+                    cgst_amount REAL DEFAULT 0,
+                    sgst_amount REAL DEFAULT 0,
+                    igst_amount REAL DEFAULT 0,
+                    grand_total REAL DEFAULT 0,
+                    currency TEXT DEFAULT 'INR',
+                    exchange_rate REAL DEFAULT 1.0,
+                    narration TEXT,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                );
+            """.trimIndent()
+            stmt.execute(createPurchases)
+
+            val createPurchaseItems = """
+                CREATE TABLE IF NOT EXISTS purchase_invoice_items (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    purchase_id INTEGER NOT NULL,
+                    sr_no INTEGER,
+                    description TEXT,
+                    hsn_sac TEXT,
+                    qty REAL DEFAULT 0,
+                    rate REAL DEFAULT 0,
+                    amount REAL DEFAULT 0,
+                    taxable_amount REAL DEFAULT 0,
+                    cgst_rate REAL DEFAULT 0,
+                    cgst_amt REAL DEFAULT 0,
+                    sgst_rate REAL DEFAULT 0,
+                    sgst_amt REAL DEFAULT 0,
+                    igst_rate REAL DEFAULT 0,
+                    igst_amt REAL DEFAULT 0,
+                    currency TEXT DEFAULT 'INR',
+                    exchange_rate REAL DEFAULT 1.0,
+                    total_amt REAL DEFAULT 0,
+                    FOREIGN KEY (purchase_id) REFERENCES purchase_invoices(id)
+                );
+            """.trimIndent()
+            stmt.execute(createPurchaseItems)
 
             // --- AUDIT LOG ---
             val createAudit = """
@@ -380,6 +433,30 @@ object DatabaseManager {
                 try {
                     stmt.execute("ALTER TABLE invoices ADD COLUMN $col $type")
                 } catch (e: Exception) { /* Column exists */ }
+            }
+
+            // CLEANUP: Ensure exchangeRate and exchange_rate are NEVER empty string or NULL
+            try {
+                stmt.execute("UPDATE jobs SET exchange_rate = 1.0 WHERE exchange_rate IS NULL OR exchange_rate = ''")
+                stmt.execute("UPDATE invoices SET exchangeRate = 1.0 WHERE exchangeRate IS NULL OR exchangeRate = ''")
+                // Add currency column to invoices if missing
+                try { stmt.execute("ALTER TABLE invoices ADD COLUMN currency TEXT DEFAULT 'INR'") } catch(e: Exception) {}
+                stmt.execute("UPDATE invoices SET currency = 'INR' WHERE currency IS NULL OR currency = ''")
+                
+                // Add columns to purchase invoices if missing
+                try { stmt.execute("ALTER TABLE purchase_invoices ADD COLUMN currency TEXT DEFAULT 'INR'") } catch(e: Exception) {}
+                try { stmt.execute("ALTER TABLE purchase_invoices ADD COLUMN exchange_rate REAL DEFAULT 1.0") } catch(e: Exception) {}
+                try { stmt.execute("ALTER TABLE purchase_invoice_items ADD COLUMN currency TEXT DEFAULT 'INR'") } catch(e: Exception) {}
+                try { stmt.execute("ALTER TABLE purchase_invoice_items ADD COLUMN exchange_rate REAL DEFAULT 1.0") } catch(e: Exception) {}
+                
+                stmt.execute("UPDATE purchase_invoices SET exchange_rate = 1.0 WHERE exchange_rate IS NULL OR exchange_rate = ''")
+                stmt.execute("UPDATE purchase_invoices SET currency = 'INR' WHERE currency IS NULL OR currency = ''")
+                stmt.execute("UPDATE purchase_invoice_items SET exchange_rate = 1.0 WHERE exchange_rate IS NULL OR exchange_rate = ''")
+                stmt.execute("UPDATE purchase_invoice_items SET currency = 'INR' WHERE currency IS NULL OR currency = ''")
+                
+                println("Migration: Harmonized currency and exchange_rate columns across all tables.")
+            } catch (e: Exception) {
+                println("Migration Error during currency cleanup: ${e.message}")
             }
 
             // --- PHASE 20 MIGRATIONS (Fix Schema Mismatch for Invoice Items) ---

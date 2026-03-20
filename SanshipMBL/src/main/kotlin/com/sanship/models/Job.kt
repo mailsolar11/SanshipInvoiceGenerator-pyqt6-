@@ -25,7 +25,7 @@ data class Job(
     val netWeight: String = "",
     val volumeCbm: String = "",
     val packages: String = "",
-    val exchangeRate: String = "",
+    val exchangeRate: Double = 1.0,
     val refNo: String = "",
     
     // Status

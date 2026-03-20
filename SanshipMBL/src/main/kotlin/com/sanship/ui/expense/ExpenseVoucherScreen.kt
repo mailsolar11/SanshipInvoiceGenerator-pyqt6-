@@ -104,53 +104,26 @@ fun ExpenseVoucherScreen() {
                 }
                 
                 // Row 2: Job Selection
-                Box {
-                    OutlinedButton(
-                        onClick = { jobExpanded = true }, 
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        val job = jobs.find { it.id == selectedJobId }
-                        Text(if (job != null) "Job: ${job.jobNo} (${job.shipper})" else "Select Job (Optional)")
-                    }
-                    DropdownMenu(expanded = jobExpanded, onDismissRequest = { jobExpanded = false }) {
-                        DropdownMenuItem(onClick = { 
-                            selectedJobId = null 
-                            jobExpanded = false
-                        }) { Text("None") }
-                        
-                        jobs.forEach { job ->
-                            DropdownMenuItem(onClick = { 
-                                selectedJobId = job.id
-                                jobExpanded = false 
-                            }) {
-                                Text("${job.jobNo} - ${job.shipper}")
-                            }
-                        }
-                    }
-                }
+                com.sanship.ui.components.SearchableDropdown(
+                    label = "Select Job (Optional)",
+                    items = jobs,
+                    selectedItem = jobs.find { it.id == selectedJobId },
+                    itemToString = { "${it.jobNo} - ${it.shipper}" },
+                    onItemSelected = { selectedJobId = it?.id },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
                 
 
                 // Row 3: Expense Ledger
-                Box {
-                    OutlinedButton(
-                        onClick = { ledgerExpanded = true }, 
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        val l = expenseLedgers.find { it.first == selectedLedgerId }
-                        Text(if (l != null) "Account: ${l.second}" else "Select Expense Account")
-                    }
-                    DropdownMenu(expanded = ledgerExpanded, onDismissRequest = { ledgerExpanded = false }) {
-                        expenseLedgers.forEach { (id, name) ->
-                            DropdownMenuItem(onClick = { 
-                                selectedLedgerId = id
-                                ledgerExpanded = false
-                            }) {
-                                Text(name)
-                            }
-                        }
-                    }
-                }
+                com.sanship.ui.components.SearchableDropdown(
+                    label = "Select Expense Account",
+                    items = expenseLedgers,
+                    selectedItem = expenseLedgers.find { it.first == selectedLedgerId },
+                    itemToString = { it.second },
+                    onItemSelected = { selectedLedgerId = it?.first },
+                    modifier = Modifier.fillMaxWidth()
+                )
                 
                 // Row 4: Party & Amount
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {

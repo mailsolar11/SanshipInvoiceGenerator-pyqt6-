@@ -601,14 +601,24 @@ fun ConsignmentDetailsCard(viewModel: InvoiceFormViewModel) {
                 modifier = Modifier.fillMaxWidth()
             )
             
-            // Row 14: Ex. Rate
-            val rateMax = 12
-            OutlinedTextField(
-                value = viewModel.invoiceHeader.exchangeRate,
-                onValueChange = { if (it.length <= rateMax) viewModel.updateHeaderField("exchangeRate", it) },
-                label = { Text("Ex. Rate ($rateMax)") },
-                modifier = Modifier.fillMaxWidth()
-            )
+            // Row 14: Currency & Ex. Rate
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                DropdownField(
+                    label = "Currency",
+                    items = listOf(Pair("INR", "INR")) + viewModel.currencies.map { Pair(it.code, it.code) },
+                    selectedValue = viewModel.invoiceHeader.currency,
+                    onValueChange = { if (it != null) viewModel.onCurrencyChange(it) },
+                    modifier = Modifier.weight(1f)
+                )
+                
+                val rateMax = 12
+                OutlinedTextField(
+                    value = viewModel.invoiceHeader.exchangeRate.toString(),
+                    onValueChange = { s: String -> if (s.length <= rateMax) viewModel.updateHeaderField("exchangeRate", s) },
+                    label = { Text("Ex. Rate ($rateMax)") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
             
             // Row 15: Ref no (optional)
             val refMax = 50

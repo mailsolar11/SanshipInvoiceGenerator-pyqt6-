@@ -58,6 +58,12 @@ class InvoiceFormViewModel(
     var selectedJobId by mutableStateOf<Int?>(null)
         private set
     
+    var currencies by mutableStateOf<List<com.sanship.repositories.Currency>>(emptyList())
+        private set
+    
+    var selectedCurrency by mutableStateOf("INR")
+        private set
+    
     var jobFieldsLocked by mutableStateOf(false)
         private set
     
@@ -94,6 +100,7 @@ class InvoiceFormViewModel(
         loadCustomers()
         loadJobs()
         loadCharges()
+        loadCurrencies()
     }
     
     // ========================================
@@ -195,6 +202,19 @@ class InvoiceFormViewModel(
                 charges = ChargeRepository.listCharges()
             } catch (e: Exception) {
                 errorMessage = "Failed to load charges: ${e.message}"
+                showErrorDialog = true
+            }
+        }
+    }
+
+    fun loadCurrencies() {
+        GlobalScope.launch {
+            try {
+                com.sanship.repositories.CurrencyRepository.getAllCurrencies().collect { list ->
+                    currencies = list
+                }
+            } catch (e: Exception) {
+                errorMessage = "Failed to load currencies: ${e.message}"
                 showErrorDialog = true
             }
         }
@@ -352,7 +372,7 @@ class InvoiceFormViewModel(
             igmNo = "",
             igmDate = "",
             itemNo = "",
-            exchangeRate = "",
+            exchangeRate = 1.0,
             refNo = "",
             otherRefNo = ""
         )
@@ -381,7 +401,14 @@ class InvoiceFormViewModel(
             "igmNo" -> invoiceHeader.copy(igmNo = value)
             "igmDate" -> invoiceHeader.copy(igmDate = value)
             "itemNo" -> invoiceHeader.copy(itemNo = value)
-            "exchangeRate" -> invoiceHeader.copy(exchangeRate = value)
+            "exchangeRate" -> {
+                val rate = value.toDoubleOrNull() ?: 1.0
+                invoiceHeader = invoiceHeader.copy(exchangeRate = rate)
+                // Recalculate ALL items whenever rate changes
+                items = items.map { calculateItemAmounts(it) }
+                recalculateTotals()
+                invoiceHeader
+            }
             "refNo" -> invoiceHeader.copy(refNo = value)
             "otherRefNo" -> invoiceHeader.copy(otherRefNo = value)
             "pan" -> invoiceHeader.copy(pan = value)
@@ -396,6 +423,19 @@ class InvoiceFormViewModel(
             "shipperInvoiceNo" -> invoiceHeader.copy(shipperInvoiceNo = value)
             "shipperInvoiceDate" -> invoiceHeader.copy(shipperInvoiceDate = value)
             else -> invoiceHeader
+        }
+    }
+
+    fun onCurrencyChange(currency: String) {
+        selectedCurrency = currency
+        // Fetch rate from master
+        GlobalScope.launch {
+            val rate = com.sanship.repositories.CurrencyRepository.getRateForCurrency(currency)
+            invoiceHeader = invoiceHeader.copy(
+                currency = currency,
+                exchangeRate = rate
+            )
+            recalculateTotals()
         }
     }
     
@@ -435,7 +475,7 @@ class InvoiceFormViewModel(
     
     fun updateItem(index: Int, updatedItem: InvoiceItem) {
         if (index in items.indices) {
-            val recalculated = recalculateItem(updatedItem)
+            val recalculated = calculateItemAmounts(updatedItem)
             items = items.toMutableList().apply { set(index, recalculated) }
             recalculateTotals()
         }
@@ -465,21 +505,21 @@ class InvoiceFormViewModel(
     // CALCULATIONS
     // ========================================
     
-    private fun recalculateItem(item: InvoiceItem): InvoiceItem {
-        val amount = item.rate * item.qty
-        val taxable = amount
-        val cgst = taxable * (item.cgstRate / 100.0)
-        val sgst = taxable * (item.sgstRate / 100.0)
-        val igst = taxable * (item.igstRate / 100.0)
-        val total = taxable + cgst + sgst + igst
+    private fun calculateItemAmounts(item: InvoiceItem): InvoiceItem {
+        val amountFcy = item.rate * item.qty
+        val taxableBase = amountFcy * invoiceHeader.exchangeRate
+        val cgst = taxableBase * (item.cgstRate / 100.0)
+        val sgst = taxableBase * (item.sgstRate / 100.0)
+        val igst = taxableBase * (item.igstRate / 100.0)
+        val totalBase = taxableBase + cgst + sgst + igst
         
         return item.copy(
-            amount = amount,
-            taxableAmount = taxable,
+            amount = amountFcy,
+            taxableAmount = taxableBase,
             cgstAmt = cgst,
             sgstAmt = sgst,
             igstAmt = igst,
-            totalAmt = total
+            totalAmt = totalBase
         )
     }
     

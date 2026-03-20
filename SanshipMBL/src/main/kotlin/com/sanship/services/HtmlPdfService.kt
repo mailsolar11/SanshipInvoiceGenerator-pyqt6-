@@ -100,7 +100,7 @@ object HtmlPdfService {
         textPlaceholders["igm_no"] = header.igmNo
         textPlaceholders["igm_date"] = header.igmDate
         textPlaceholders["item_no"] = header.itemNo
-        textPlaceholders["exchange_rate"] = header.exchangeRate
+        textPlaceholders["exchange_rate"] = "%.4f".format(header.exchangeRate)
         textPlaceholders["ref_no"] = header.refNo
         textPlaceholders["other_ref_no"] = header.otherRefNo
         

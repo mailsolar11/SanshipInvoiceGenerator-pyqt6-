@@ -275,37 +275,13 @@ fun <T> DropdownField(
     modifier: Modifier = Modifier,
     enabled: Boolean = true
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    val selectedText = items.find { it.first == selectedValue }?.second ?: items.firstOrNull()?.second ?: ""
-    
-    Box(modifier = modifier) {
-        OutlinedTextField(
-            value = selectedText,
-            onValueChange = {},
-            label = { Text(label) },
-            readOnly = true,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = enabled,
-            trailingIcon = {
-                IconButton(onClick = { if (enabled) expanded = !expanded }) {
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-                }
-            }
-        )
-        
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items.forEach { (value, text) ->
-                DropdownMenuItem(onClick = {
-                    onValueChange(value)
-                    expanded = false
-                }) {
-                    Text(text)
-                }
-            }
-        }
-    }
+    com.sanship.ui.components.SearchableDropdown(
+        label = label,
+        items = items,
+        selectedItem = items.find { it.first == selectedValue },
+        itemToString = { it.second },
+        onItemSelected = { onValueChange(it?.first) },
+        modifier = modifier,
+        enabled = enabled
+    )
 }

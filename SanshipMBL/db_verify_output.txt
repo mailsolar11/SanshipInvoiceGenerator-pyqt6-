@@ -1,0 +1,367 @@
+> Task :checkKotlinGradlePluginConfigurationErrors
+> Task :processResources UP-TO-DATE
+> Task :prepareAppResources NO-SOURCE
+> Task :compileKotlin
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/data/ClientRepository.kt:45:50 'select(SqlExpressionBuilder.() -> Op<Boolean>): Query' is deprecated. As part of SELECT DSL design changes, this will be removed in future releases.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/data/DatabaseManager.kt:93:42 'select(SqlExpressionBuilder.() -> Op<Boolean>): Query' is deprecated. As part of SELECT DSL design changes, this will be removed in future releases.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/data/DatabaseManager.kt:102:41 'select(SqlExpressionBuilder.() -> Op<Boolean>): Query' is deprecated. As part of SELECT DSL design changes, this will be removed in future releases.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/data/VendorRepository.kt:47:50 'select(SqlExpressionBuilder.() -> Op<Boolean>): Query' is deprecated. As part of SELECT DSL design changes, this will be removed in future releases.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/repositories/BLRepository.kt:14:13 Variable 'upsert' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/repositories/JobRepository.kt:20:23 'select(SqlExpressionBuilder.() -> Op<Boolean>): Query' is deprecated. As part of SELECT DSL design changes, this will be removed in future releases.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/repositories/JobRepository.kt:38:23 'select(SqlExpressionBuilder.() -> Op<Boolean>): Query' is deprecated. As part of SELECT DSL design changes, this will be removed in future releases.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/repositories/JobRepository.kt:47:23 'select(SqlExpressionBuilder.() -> Op<Boolean>): Query' is deprecated. As part of SELECT DSL design changes, this will be removed in future releases.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/repositories/UserRepository.kt:12:24 'select(SqlExpressionBuilder.() -> Op<Boolean>): Query' is deprecated. As part of SELECT DSL design changes, this will be removed in future releases.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/repositories/UserRepository.kt:20:24 'select(SqlExpressionBuilder.() -> Op<Boolean>): Query' is deprecated. As part of SELECT DSL design changes, this will be removed in future releases.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/services/DocumentPdfGenerator.kt:90:17 Variable 'contentWidth' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/services/EInvoiceService.kt:53:13 Variable 'jsonBody' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/services/EInvoiceService.kt:112:48 Elvis operator (?:) always returns the left operand of non-nullable type String
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/services/EInvoiceService.kt:116:49 Elvis operator (?:) always returns the left operand of non-nullable type String
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/services/GstReportService.kt:219:51 Elvis operator (?:) always returns the left operand of non-nullable type String
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/services/HtmlPdfService.kt:179:13 Variable 'totalPages' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/services/InvoicePDFGenerator.kt:106:131 Parameter 'title' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/services/InvoiceService.kt:151:21 Variable 'cgstAmount' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/services/InvoiceService.kt:152:21 Variable 'sgstAmount' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/services/InvoiceService.kt:153:21 Variable 'igstAmount' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/services/InvoiceService.kt:154:21 Variable 'grandTotal' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/services/TransactionManager.kt:41:41 Condition 'accountingConn == null' is always 'false'
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/services/TransactionManager.kt:101:41 Condition 'accountingConn == null' is always 'false'
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/services/TransactionManager.kt:155:41 Condition 'accountingConn == null' is always 'false'
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/test/DbVerify.kt:13:21 Variable 'query' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/components/DatePicker.kt:89:9 Variable 'primaryColor' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/components/DatePicker.kt:90:9 Variable 'todayColor' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/components/DatePicker.kt:324:5 Parameter 'selectedYear' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/creditnote/CreditNoteScreen.kt:73:20 Parameter 'idx' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/dashboard/DashboardScreen.kt:216:70 'constructor Locale(String!, String!)' is deprecated. Deprecated in Java
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/ewaybill/EWayBillScreen.kt:191:51 Elvis operator (?:) always returns the left operand of non-nullable type String
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/invoice/EnhancedInvoiceViewModel.kt:75:28 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/invoice/EnhancedInvoiceViewModel.kt:220:28 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/invoice/EnhancedInvoiceViewModel.kt:259:21 Variable 'invoiceId' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/invoice/InvoiceFormScreen.kt:27:5 Parameter 'onNavigateBack' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/job/JobScreen.kt:26:9 Variable 'scope' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/purchase/PurchaseInvoiceScreen.kt:29:70 'constructor Locale(String!, String!)' is deprecated. Deprecated in Java
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/purchase/PurchaseRegisterScreen.kt:33:70 'constructor Locale(String!, String!)' is deprecated. Deprecated in Java
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/reports/CashBankBookScreen.kt:86:53 Elvis operator (?:) always returns the left operand of non-nullable type String
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/ui/reports/ReportScreen.kt:35:9 Variable 'scope' is never used
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/viewmodels/InvoiceFormViewModel.kt:161:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/viewmodels/InvoiceFormViewModel.kt:189:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/viewmodels/InvoiceFormViewModel.kt:200:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/viewmodels/InvoiceFormViewModel.kt:211:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/viewmodels/InvoiceFormViewModel.kt:232:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/viewmodels/InvoiceFormViewModel.kt:432:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/viewmodels/InvoiceFormViewModel.kt:561:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/deepa/OneDrive/Documents/project/Sanship/SanshipMBL/src/main/kotlin/com/sanship/viewmodels/InvoiceFormViewModel.kt:718:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+
+> Task :compileJava NO-SOURCE
+> Task :classes UP-TO-DATE
+> Task :jar
+
+> Task :run
+Migration: Harmonized currency and exchange_rate columns across all tables.
+? Database migration completed successfully
+? Accounting database initialized successfully
+Exception in thread "DefaultDispatcher-worker-2" Exception in thread "DefaultDispatcher-worker-4" Exception in thread "DefaultDispatcher-worker-3" Exception in thread "DefaultDispatcher-worker-1" java.lang.IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
+	at androidx.compose.runtime.snapshots.SnapshotKt.readError(Snapshot.kt:1926)
+	at androidx.compose.runtime.snapshots.SnapshotKt.current(Snapshot.kt:2271)
+	at androidx.compose.runtime.SnapshotMutableStateImpl.setValue(SnapshotState.kt:308)
+	at com.sanship.viewmodels.InvoiceFormViewModel.setErrorMessage(InvoiceFormViewModel.kt:866)
+	at com.sanship.viewmodels.InvoiceFormViewModel.access$setErrorMessage(InvoiceFormViewModel.kt:25)
+	at com.sanship.viewmodels.InvoiceFormViewModel$loadJobs$1.invokeSuspend(InvoiceFormViewModel.kt:193)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@6a157512, Dispatchers.Default]
+java.lang.IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
+	at androidx.compose.runtime.snapshots.SnapshotKt.readError(Snapshot.kt:1926)
+	at androidx.compose.runtime.snapshots.SnapshotKt.current(Snapshot.kt:2271)
+	at androidx.compose.runtime.SnapshotMutableStateImpl.setValue(SnapshotState.kt:308)
+	at com.sanship.viewmodels.InvoiceFormViewModel.setErrorMessage(InvoiceFormViewModel.kt:866)
+	at com.sanship.viewmodels.InvoiceFormViewModel.access$setErrorMessage(InvoiceFormViewModel.kt:25)
+	at com.sanship.viewmodels.InvoiceFormViewModel$loadCustomers$1.invokeSuspend(InvoiceFormViewModel.kt:182)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@1686251e, Dispatchers.Default]
+java.lang.IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
+	at androidx.compose.runtime.snapshots.SnapshotKt.readError(Snapshot.kt:1926)
+	at androidx.compose.runtime.snapshots.SnapshotKt.current(Snapshot.kt:2271)
+	at androidx.compose.runtime.SnapshotMutableStateImpl.setValue(SnapshotState.kt:308)
+	at com.sanship.viewmodels.InvoiceFormViewModel.setErrorMessage(InvoiceFormViewModel.kt:866)
+	at com.sanship.viewmodels.InvoiceFormViewModel.access$setErrorMessage(InvoiceFormViewModel.kt:25)
+	at com.sanship.viewmodels.InvoiceFormViewModel$loadCharges$1.invokeSuspend(InvoiceFormViewModel.kt:204)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@26c6b7ad, Dispatchers.Default]
+java.lang.IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
+	at androidx.compose.runtime.snapshots.SnapshotKt.readError(Snapshot.kt:1926)
+	at androidx.compose.runtime.snapshots.SnapshotKt.current(Snapshot.kt:2271)
+	at androidx.compose.runtime.SnapshotMutableStateImpl.setValue(SnapshotState.kt:308)
+	at com.sanship.viewmodels.InvoiceFormViewModel.setErrorMessage(InvoiceFormViewModel.kt:866)
+	at com.sanship.viewmodels.InvoiceFormViewModel.access$setErrorMessage(InvoiceFormViewModel.kt:25)
+	at com.sanship.viewmodels.InvoiceFormViewModel$loadCurrencies$1.invokeSuspend(InvoiceFormViewModel.kt:217)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@61c258ca, Dispatchers.Default]
+Exception in thread "DefaultDispatcher-worker-2" java.lang.IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
+	at androidx.compose.runtime.snapshots.SnapshotKt.readError(Snapshot.kt:1926)
+	at androidx.compose.runtime.snapshots.SnapshotKt.current(Snapshot.kt:2271)
+	at androidx.compose.runtime.SnapshotMutableStateImpl.setValue(SnapshotState.kt:308)
+	at com.sanship.viewmodels.InvoiceFormViewModel.setErrorMessage(InvoiceFormViewModel.kt:866)
+	at com.sanship.viewmodels.InvoiceFormViewModel.access$setErrorMessage(InvoiceFormViewModel.kt:25)
+	at com.sanship.viewmodels.InvoiceFormViewModel$loadCharges$1.invokeSuspend(InvoiceFormViewModel.kt:204)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@3160df94, Dispatchers.Default]
+Exception in thread "DefaultDispatcher-worker-3" java.lang.IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
+	at androidx.compose.runtime.snapshots.SnapshotKt.readError(Snapshot.kt:1926)
+	at androidx.compose.runtime.snapshots.SnapshotKt.current(Snapshot.kt:2271)
+	at androidx.compose.runtime.SnapshotMutableStateImpl.setValue(SnapshotState.kt:308)
+	at com.sanship.viewmodels.InvoiceFormViewModel.setErrorMessage(InvoiceFormViewModel.kt:866)
+	at com.sanship.viewmodels.InvoiceFormViewModel.access$setErrorMessage(InvoiceFormViewModel.kt:25)
+	at com.sanship.viewmodels.InvoiceFormViewModel$loadCurrencies$1.invokeSuspend(InvoiceFormViewModel.kt:217)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@3ad48493, Dispatchers.Default]
+Exception in thread "DefaultDispatcher-worker-1" java.lang.IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
+	at androidx.compose.runtime.snapshots.SnapshotKt.readError(Snapshot.kt:1926)
+	at androidx.compose.runtime.snapshots.SnapshotKt.current(Snapshot.kt:2271)
+	at androidx.compose.runtime.SnapshotMutableStateImpl.setValue(SnapshotState.kt:308)
+	at com.sanship.viewmodels.InvoiceFormViewModel.setErrorMessage(InvoiceFormViewModel.kt:866)
+	at com.sanship.viewmodels.InvoiceFormViewModel.access$setErrorMessage(InvoiceFormViewModel.kt:25)
+	at com.sanship.viewmodels.InvoiceFormViewModel$loadCustomers$1.invokeSuspend(InvoiceFormViewModel.kt:182)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@4f7b297c, Dispatchers.Default]
+Exception in thread "DefaultDispatcher-worker-4" java.lang.IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
+	at androidx.compose.runtime.snapshots.SnapshotKt.readError(Snapshot.kt:1926)
+	at androidx.compose.runtime.snapshots.SnapshotKt.current(Snapshot.kt:2271)
+	at androidx.compose.runtime.SnapshotMutableStateImpl.setValue(SnapshotState.kt:308)
+	at com.sanship.viewmodels.InvoiceFormViewModel.setErrorMessage(InvoiceFormViewModel.kt:866)
+	at com.sanship.viewmodels.InvoiceFormViewModel.access$setErrorMessage(InvoiceFormViewModel.kt:25)
+	at com.sanship.viewmodels.InvoiceFormViewModel$loadJobs$1.invokeSuspend(InvoiceFormViewModel.kt:193)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@730e5e58, Dispatchers.Default]
+org.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (no such table: currency_master)
+	at org.sqlite.core.DB.newSQLException(DB.java:1179)
+	at org.sqlite.core.DB.newSQLException(DB.java:1190)
+	at org.sqlite.core.DB.throwex(DB.java:1150)
+	at org.sqlite.core.NativeDB.prepare_utf8(Native Method)
+	at org.sqlite.core.NativeDB.prepare(NativeDB.java:132)
+	at org.sqlite.core.DB.prepare(DB.java:264)
+	at org.sqlite.core.CorePreparedStatement.<init>(CorePreparedStatement.java:46)
+	at org.sqlite.jdbc3.JDBC3PreparedStatement.<init>(JDBC3PreparedStatement.java:32)
+	at org.sqlite.jdbc4.JDBC4PreparedStatement.<init>(JDBC4PreparedStatement.java:25)
+	at org.sqlite.jdbc4.JDBC4Connection.prepareStatement(JDBC4Connection.java:34)
+	at org.sqlite.jdbc3.JDBC3Connection.prepareStatement(JDBC3Connection.java:225)
+	at org.sqlite.jdbc3.JDBC3Connection.prepareStatement(JDBC3Connection.java:205)
+	at com.sanship.repositories.CurrencyRepository$getAllCurrencies$1.invokeSuspend(CurrencyRepository.kt:22)
+	at com.sanship.repositories.CurrencyRepository$getAllCurrencies$1.invoke(CurrencyRepository.kt)
+	at com.sanship.repositories.CurrencyRepository$getAllCurrencies$1.invoke(CurrencyRepository.kt)
+	at kotlinx.coroutines.flow.SafeFlow.collectSafely(Builders.kt:57)
+	at kotlinx.coroutines.flow.AbstractFlow.collect(Flow.kt:226)
+	at com.sanship.ui.purchase.PurchaseInvoiceViewModel$loadInitialData$3.invokeSuspend(PurchaseInvoiceViewModel.kt:77)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.internal.LimitedDispatcher$Worker.run(LimitedDispatcher.kt:111)
+	at kotlinx.coroutines.scheduling.TaskImpl.run(Tasks.kt:99)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+org.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (no such table: currency_master)
+	at org.sqlite.core.DB.newSQLException(DB.java:1179)
+	at org.sqlite.core.DB.newSQLException(DB.java:1190)
+	at org.sqlite.core.DB.throwex(DB.java:1150)
+	at org.sqlite.core.NativeDB.prepare_utf8(Native Method)
+	at org.sqlite.core.NativeDB.prepare(NativeDB.java:132)
+	at org.sqlite.core.DB.prepare(DB.java:264)
+	at org.sqlite.core.CorePreparedStatement.<init>(CorePreparedStatement.java:46)
+	at org.sqlite.jdbc3.JDBC3PreparedStatement.<init>(JDBC3PreparedStatement.java:32)
+	at org.sqlite.jdbc4.JDBC4PreparedStatement.<init>(JDBC4PreparedStatement.java:25)
+	at org.sqlite.jdbc4.JDBC4Connection.prepareStatement(JDBC4Connection.java:34)
+	at org.sqlite.jdbc3.JDBC3Connection.prepareStatement(JDBC3Connection.java:225)
+	at org.sqlite.jdbc3.JDBC3Connection.prepareStatement(JDBC3Connection.java:205)
+	at com.sanship.repositories.CurrencyRepository$getAllCurrencies$1.invokeSuspend(CurrencyRepository.kt:22)
+	at com.sanship.repositories.CurrencyRepository$getAllCurrencies$1.invoke(CurrencyRepository.kt)
+	at com.sanship.repositories.CurrencyRepository$getAllCurrencies$1.invoke(CurrencyRepository.kt)
+	at kotlinx.coroutines.flow.SafeFlow.collectSafely(Builders.kt:57)
+	at kotlinx.coroutines.flow.AbstractFlow.collect(Flow.kt:226)
+	at com.sanship.ui.purchase.PurchaseInvoiceViewModel$loadInitialData$3.invokeSuspend(PurchaseInvoiceViewModel.kt:77)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.internal.LimitedDispatcher$Worker.run(LimitedDispatcher.kt:111)
+	at kotlinx.coroutines.scheduling.TaskImpl.run(Tasks.kt:99)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+Exception in thread "DefaultDispatcher-worker-4" Exception in thread "DefaultDispatcher-worker-6" java.lang.IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
+	at androidx.compose.runtime.snapshots.SnapshotKt.readError(Snapshot.kt:1926)
+	at androidx.compose.runtime.snapshots.SnapshotKt.current(Snapshot.kt:2271)
+	at androidx.compose.runtime.SnapshotMutableStateImpl.setValue(SnapshotState.kt:308)
+	at com.sanship.viewmodels.InvoiceFormViewModel.setErrorMessage(InvoiceFormViewModel.kt:866)
+	at com.sanship.viewmodels.InvoiceFormViewModel.access$setErrorMessage(InvoiceFormViewModel.kt:25)
+	at com.sanship.viewmodels.InvoiceFormViewModel$loadCustomers$1.invokeSuspend(InvoiceFormViewModel.kt:182)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@17182905, Dispatchers.Default]
+Exception in thread "DefaultDispatcher-worker-3" java.lang.IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
+	at androidx.compose.runtime.snapshots.SnapshotKt.readError(Snapshot.kt:1926)
+	at androidx.compose.runtime.snapshots.SnapshotKt.current(Snapshot.kt:2271)
+	at androidx.compose.runtime.SnapshotMutableStateImpl.setValue(SnapshotState.kt:308)
+	at com.sanship.viewmodels.InvoiceFormViewModel.setErrorMessage(InvoiceFormViewModel.kt:866)
+	at com.sanship.viewmodels.InvoiceFormViewModel.access$setErrorMessage(InvoiceFormViewModel.kt:25)
+	at com.sanship.viewmodels.InvoiceFormViewModel$loadCharges$1.invokeSuspend(InvoiceFormViewModel.kt:204)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@c591fd4, Dispatchers.Default]
+Exception in thread "DefaultDispatcher-worker-1" java.lang.IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
+	at androidx.compose.runtime.snapshots.SnapshotKt.readError(Snapshot.kt:1926)
+	at androidx.compose.runtime.snapshots.SnapshotKt.current(Snapshot.kt:2271)
+	at androidx.compose.runtime.SnapshotMutableStateImpl.setValue(SnapshotState.kt:308)
+	at com.sanship.viewmodels.InvoiceFormViewModel.setErrorMessage(InvoiceFormViewModel.kt:866)
+	at com.sanship.viewmodels.InvoiceFormViewModel.access$setErrorMessage(InvoiceFormViewModel.kt:25)
+	at com.sanship.viewmodels.InvoiceFormViewModel$loadCurrencies$1.invokeSuspend(InvoiceFormViewModel.kt:217)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@498e9d6d, Dispatchers.Default]
+java.lang.IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
+	at androidx.compose.runtime.snapshots.SnapshotKt.readError(Snapshot.kt:1926)
+	at androidx.compose.runtime.snapshots.SnapshotKt.current(Snapshot.kt:2271)
+	at androidx.compose.runtime.SnapshotMutableStateImpl.setValue(SnapshotState.kt:308)
+	at com.sanship.viewmodels.InvoiceFormViewModel.setErrorMessage(InvoiceFormViewModel.kt:866)
+	at com.sanship.viewmodels.InvoiceFormViewModel.access$setErrorMessage(InvoiceFormViewModel.kt:25)
+	at com.sanship.viewmodels.InvoiceFormViewModel$loadJobs$1.invokeSuspend(InvoiceFormViewModel.kt:193)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@18419933, Dispatchers.Default]
+Exception in thread "DefaultDispatcher-worker-3" java.lang.IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
+	at androidx.compose.runtime.snapshots.SnapshotKt.readError(Snapshot.kt:1926)
+	at androidx.compose.runtime.snapshots.SnapshotKt.current(Snapshot.kt:2271)
+	at androidx.compose.runtime.SnapshotMutableStateImpl.setValue(SnapshotState.kt:308)
+	at com.sanship.viewmodels.InvoiceFormViewModel.setErrorMessage(InvoiceFormViewModel.kt:866)
+	at com.sanship.viewmodels.InvoiceFormViewModel.access$setErrorMessage(InvoiceFormViewModel.kt:25)
+	at com.sanship.viewmodels.InvoiceFormViewModel$loadCharges$1.invokeSuspend(InvoiceFormViewModel.kt:204)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@63c1c5fb, Dispatchers.Default]
+Exception in thread "DefaultDispatcher-worker-1" java.lang.IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
+	at androidx.compose.runtime.snapshots.SnapshotKt.readError(Snapshot.kt:1926)
+	at androidx.compose.runtime.snapshots.SnapshotKt.current(Snapshot.kt:2271)
+	at androidx.compose.runtime.SnapshotMutableStateImpl.setValue(SnapshotState.kt:308)
+	at com.sanship.viewmodels.InvoiceFormViewModel.setErrorMessage(InvoiceFormViewModel.kt:866)
+	at com.sanship.viewmodels.InvoiceFormViewModel.access$setErrorMessage(InvoiceFormViewModel.kt:25)
+	at com.sanship.viewmodels.InvoiceFormViewModel$loadJobs$1.invokeSuspend(InvoiceFormViewModel.kt:193)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@43b75f95, Dispatchers.Default]
+Exception in thread "DefaultDispatcher-worker-6" java.lang.IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
+	at androidx.compose.runtime.snapshots.SnapshotKt.readError(Snapshot.kt:1926)
+	at androidx.compose.runtime.snapshots.SnapshotKt.current(Snapshot.kt:2271)
+	at androidx.compose.runtime.SnapshotMutableStateImpl.setValue(SnapshotState.kt:308)
+	at com.sanship.viewmodels.InvoiceFormViewModel.setErrorMessage(InvoiceFormViewModel.kt:866)
+	at com.sanship.viewmodels.InvoiceFormViewModel.access$setErrorMessage(InvoiceFormViewModel.kt:25)
+	at com.sanship.viewmodels.InvoiceFormViewModel$loadCurrencies$1.invokeSuspend(InvoiceFormViewModel.kt:217)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@1aae0c5d, Dispatchers.Default]
+Exception in thread "DefaultDispatcher-worker-4" java.lang.IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
+	at androidx.compose.runtime.snapshots.SnapshotKt.readError(Snapshot.kt:1926)
+	at androidx.compose.runtime.snapshots.SnapshotKt.current(Snapshot.kt:2271)
+	at androidx.compose.runtime.SnapshotMutableStateImpl.setValue(SnapshotState.kt:308)
+	at com.sanship.viewmodels.InvoiceFormViewModel.setErrorMessage(InvoiceFormViewModel.kt:866)
+	at com.sanship.viewmodels.InvoiceFormViewModel.access$setErrorMessage(InvoiceFormViewModel.kt:25)
+	at com.sanship.viewmodels.InvoiceFormViewModel$loadCustomers$1.invokeSuspend(InvoiceFormViewModel.kt:182)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@2b98d8f1, Dispatchers.Default]
+org.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (no such table: currency_master)
+	at org.sqlite.core.DB.newSQLException(DB.java:1179)
+	at org.sqlite.core.DB.newSQLException(DB.java:1190)
+	at org.sqlite.core.DB.throwex(DB.java:1150)
+	at org.sqlite.core.NativeDB.prepare_utf8(Native Method)
+	at org.sqlite.core.NativeDB.prepare(NativeDB.java:132)
+	at org.sqlite.core.DB.prepare(DB.java:264)
+	at org.sqlite.core.CorePreparedStatement.<init>(CorePreparedStatement.java:46)
+	at org.sqlite.jdbc3.JDBC3PreparedStatement.<init>(JDBC3PreparedStatement.java:32)
+	at org.sqlite.jdbc4.JDBC4PreparedStatement.<init>(JDBC4PreparedStatement.java:25)
+	at org.sqlite.jdbc4.JDBC4Connection.prepareStatement(JDBC4Connection.java:34)
+	at org.sqlite.jdbc3.JDBC3Connection.prepareStatement(JDBC3Connection.java:225)
+	at org.sqlite.jdbc3.JDBC3Connection.prepareStatement(JDBC3Connection.java:205)
+	at com.sanship.repositories.CurrencyRepository$getAllCurrencies$1.invokeSuspend(CurrencyRepository.kt:22)
+	at com.sanship.repositories.CurrencyRepository$getAllCurrencies$1.invoke(CurrencyRepository.kt)
+	at com.sanship.repositories.CurrencyRepository$getAllCurrencies$1.invoke(CurrencyRepository.kt)
+	at kotlinx.coroutines.flow.SafeFlow.collectSafely(Builders.kt:57)
+	at kotlinx.coroutines.flow.AbstractFlow.collect(Flow.kt:226)
+	at com.sanship.ui.purchase.PurchaseInvoiceViewModel$loadInitialData$3.invokeSuspend(PurchaseInvoiceViewModel.kt:77)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.internal.LimitedDispatcher$Worker.run(LimitedDispatcher.kt:111)
+	at kotlinx.coroutines.scheduling.TaskImpl.run(Tasks.kt:99)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)
+^C

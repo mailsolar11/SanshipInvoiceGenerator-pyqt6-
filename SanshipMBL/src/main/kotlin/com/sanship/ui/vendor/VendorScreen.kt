@@ -123,21 +123,14 @@ fun VendorDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 // Type Dropdown
-                Box {
-                    OutlinedButton(
-                        onClick = { typeExpanded = true },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Type: $type")
-                    }
-                    DropdownMenu(expanded = typeExpanded, onDismissRequest = { typeExpanded = false }) {
-                        types.forEach { t ->
-                            DropdownMenuItem(onClick = { type = t; typeExpanded = false }) {
-                                Text(t)
-                            }
-                        }
-                    }
-                }
+                com.sanship.ui.components.SearchableDropdown(
+                    label = "Vendor Type",
+                    items = types,
+                    selectedItem = type,
+                    itemToString = { it },
+                    onItemSelected = { if (it != null) type = it },
+                    modifier = Modifier.fillMaxWidth()
+                )
                 
                 OutlinedTextField(value = short, onValueChange = { short = it }, label = { Text("Short Name") })
                 OutlinedTextField(value = full, onValueChange = { full = it }, label = { Text("Full Name") })
