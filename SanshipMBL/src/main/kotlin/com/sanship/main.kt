@@ -258,7 +258,7 @@ fun MainApp(isAdmin: Boolean) {
                 Screen.BL -> com.sanship.ui.bl.BLScreen()
                 Screen.PURCHASE_INVOICE -> PurchaseInvoiceScreen()
                 Screen.PURCHASE_REGISTER -> PurchaseRegisterScreen()
-                Screen.INVOICE_SEARCH -> Box(Modifier.fillMaxSize().padding(24.dp)) { Text("Invoice Search — Coming Soon", style = MaterialTheme.typography.h5) }
+                Screen.INVOICE_SEARCH -> com.sanship.ui.invoice.InvoiceSearchScreen()
             }
         }
     }

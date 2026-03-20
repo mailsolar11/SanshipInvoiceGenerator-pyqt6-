@@ -155,6 +155,9 @@ fun PaymentVoucherScreen() {
                         onClick = {
                             scope.launch {
                                 try {
+                                    successMsg = ""
+                                    errorMsg = ""
+                                    
                                     if (selectedPayToLedgerId == null || amount.toDoubleOrNull() == null) {
                                         errorMsg = "Please select a payee and enter a valid amount."
                                         return@launch

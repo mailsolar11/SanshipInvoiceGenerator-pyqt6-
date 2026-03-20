@@ -1,4 +1,4 @@
-package com.sanship.ui.purchase
+package com.sanship.ui.invoice
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,8 +16,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sanship.data.PurchaseHeader
-import com.sanship.data.PurchaseRepository
+import com.sanship.data.InvoiceModels
+import com.sanship.data.InvoiceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -25,25 +25,24 @@ import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
-fun PurchaseRegisterScreen() {
+fun InvoiceSearchScreen() {
     val scope = rememberCoroutineScope()
-    var purchases by remember { mutableStateOf(emptyList<PurchaseHeader>()) }
+    var invoices by remember { mutableStateOf(emptyList<InvoiceModels.InvoiceHeader>()) }
     var isLoading by remember { mutableStateOf(true) }
-    var searchQuery by remember { mutableStateOf("") }
+    var selectedInvoice by remember { mutableStateOf<InvoiceModels.InvoiceHeader?>(null) }
     val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale("en", "IN")) }
 
     LaunchedEffect(Unit) {
         scope.launch(Dispatchers.IO) {
-            val list = PurchaseRepository.getAllPurchases()
+            val list = InvoiceRepository.getAllInvoices()
             withContext(Dispatchers.Main) {
-                purchases = list
+                invoices = list
                 isLoading = false
             }
         }
     }
 
-    var selectedPurchase by remember { mutableStateOf<PurchaseHeader?>(null) }
-    val filteredPurchases = if (selectedPurchase != null) listOf(selectedPurchase!!) else purchases
+    val filteredInvoices = if (selectedInvoice != null) listOf(selectedInvoice!!) else invoices
 
     Column(
         modifier = Modifier
@@ -57,16 +56,16 @@ fun PurchaseRegisterScreen() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text("Purchase Register", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A2E))
-                Text("History of all inward invoices", fontSize = 14.sp, color = Color.Gray)
+                Text("Sales Register & Invoice Search", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A2E))
+                Text("History of all sales documents (Tax Invoice, Debit/Credit Notes)", fontSize = 14.sp, color = Color.Gray)
             }
 
             com.sanship.ui.components.SearchableDropdown(
-                label = "Search by No, Vendor, Job...",
-                items = purchases,
-                selectedItem = selectedPurchase,
-                itemToString = { "${it.purchaseNo} | ${it.vendorName} | ${it.jobNo}" },
-                onItemSelected = { selectedPurchase = it },
+                label = "Search by Inv No, Type, Customer...",
+                items = invoices,
+                selectedItem = selectedInvoice,
+                itemToString = { "${it.invoiceNo} | ${it.documentType} | ${it.customerName.take(15)}" },
+                onItemSelected = { selectedInvoice = it },
                 modifier = Modifier.width(350.dp)
             )
         }
@@ -77,9 +76,9 @@ fun PurchaseRegisterScreen() {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = Color(0xFF6C5CE7))
             }
-        } else if (filteredPurchases.isEmpty()) {
+        } else if (filteredInvoices.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("No purchase invoices found.", color = Color.Gray)
+                Text("No sales invoices found.", color = Color.Gray)
             }
         } else {
             Card(elevation = 2.dp, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
@@ -91,25 +90,27 @@ fun PurchaseRegisterScreen() {
                     ) {
                         Text("Date", Modifier.weight(1f), fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.Gray)
                         Text("Invoice No", Modifier.weight(1.2f), fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.Gray)
-                        Text("Vendor", Modifier.weight(2f), fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.Gray)
+                        Text("Type", Modifier.weight(1f), fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.Gray)
+                        Text("Customer", Modifier.weight(2f), fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.Gray)
                         Text("Job No", Modifier.weight(1f), fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.Gray)
                         Text("Amount", Modifier.weight(1.2f), fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.Gray)
                         Spacer(Modifier.width(48.dp)) // Action button space
                     }
 
-                    filteredPurchases.forEach { p ->
+                    filteredInvoices.forEach { inv ->
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(p.date, Modifier.weight(1f), fontSize = 14.sp)
-                            Text(p.purchaseNo, Modifier.weight(1.2f), fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                            Text(p.vendorName, Modifier.weight(2f), fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Text(p.jobNo.ifEmpty { "—" }, Modifier.weight(1f), fontSize = 14.sp)
-                            Text(currencyFormat.format(p.grandTotal), Modifier.weight(1.2f), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A2E))
+                            Text(inv.invoiceDate, Modifier.weight(1f), fontSize = 14.sp)
+                            Text(inv.invoiceNo, Modifier.weight(1.2f), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF6C5CE7))
+                            Text(inv.documentType, Modifier.weight(1f), fontSize = 12.sp)
+                            Text(inv.customerName.ifEmpty { "—" }, Modifier.weight(2f), fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(inv.jobNo.ifEmpty { "—" }, Modifier.weight(1f), fontSize = 14.sp)
+                            Text(currencyFormat.format(inv.grandTotal), Modifier.weight(1.2f), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A2E))
                             
                             IconButton(onClick = { /* TODO: View/Edit Details */ }) {
-                                Icon(Icons.Default.Visibility, null, tint = Color(0xFF6C5CE7), modifier = Modifier.size(20.dp))
+                                Icon(Icons.Default.Visibility, null, tint = Color.Gray, modifier = Modifier.size(20.dp))
                             }
                         }
                         Divider(color = Color(0xFFF0F0F0))

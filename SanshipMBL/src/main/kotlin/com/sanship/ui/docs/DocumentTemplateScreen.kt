@@ -24,40 +24,41 @@ fun DocumentTemplateScreen() {
     
     var errorMsg by remember { mutableStateOf("") }
     var successMsg by remember { mutableStateOf("") }
+    
+    var jobs by remember { mutableStateOf(emptyList<com.sanship.models.Job>()) }
+    var selectedJob by remember { mutableStateOf<com.sanship.models.Job?>(null) }
 
-    fun searchJob() {
+    LaunchedEffect(Unit) {
+        jobs = JobRepository.listOpenJobs()
+    }
+
+    fun searchJob(job: com.sanship.models.Job?) {
         errorMsg = ""
         successMsg = ""
-        if (jobNo.isBlank()) {
-            errorMsg = "Please enter a Job No."
+        if (job == null) {
+            loadedJobData = null
             return
         }
         
         try {
-            val job = JobRepository.getJobByNo(jobNo)
-            if (job != null) {
-                // Map the Job object to a Map<String, String> for the generator
-                val map = mapOf(
-                    "job_no" to job.jobNo,
-                    "consignee" to job.consignee,
-                    "mbl_no" to job.mblNo,
-                    "vessel_flight" to job.vesselFlight,
-                    "pol" to job.pol,
-                    "pod" to job.pod,
-                    "eta" to job.eta,
-                    "gross_weight" to job.grossWeight,
-                    "net_weight" to job.netWeight,
-                    "volume_cbm" to job.volumeCbm,
-                    "packages" to job.packages
-                )
-                loadedJobData = map
-                successMsg = "Job Found: ${job.consignee}"
-            } else {
-                loadedJobData = null
-                errorMsg = "Job not found."
-            }
+            // Map the Job object to a Map<String, String> for the generator
+            val map = mapOf(
+                "job_no" to job.jobNo,
+                "consignee" to job.consignee,
+                "mbl_no" to job.mblNo,
+                "vessel_flight" to job.vesselFlight,
+                "pol" to job.pol,
+                "pod" to job.pod,
+                "eta" to job.eta,
+                "gross_weight" to job.grossWeight,
+                "net_weight" to job.netWeight,
+                "volume_cbm" to job.volumeCbm,
+                "packages" to job.packages
+            )
+            loadedJobData = map
+            successMsg = "Job Selected: ${job.consignee}"
         } catch (e: Exception) {
-            errorMsg = "Error searching job: ${e.message}"
+            errorMsg = "Error mapping job: ${e.message}"
         }
     }
 
@@ -100,21 +101,20 @@ fun DocumentTemplateScreen() {
         Card(elevation = 2.dp, modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 
-                Text("Search Job", fontWeight = FontWeight.Bold)
+                Text("Select Job", fontWeight = FontWeight.Bold)
                 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedTextField(
-                        value = jobNo,
-                        onValueChange = { jobNo = it },
-                        label = { Text("Job No.") },
-                        modifier = Modifier.weight(1f)
-                    )
-                    Button(onClick = { searchJob() }, modifier = Modifier.padding(top = 8.dp)) {
-                        Icon(Icons.Default.Search, null)
-                        Spacer(Modifier.width(8.dp))
-                        Text("Search")
-                    }
-                }
+                com.sanship.ui.components.SearchableDropdown(
+                    label = "Job No.",
+                    items = jobs,
+                    selectedItem = selectedJob,
+                    itemToString = { "${it.jobNo} - ${it.consignee.take(20)}" },
+                    onItemSelected = { 
+                        selectedJob = it
+                        if (it != null) jobNo = it.jobNo
+                        searchJob(it)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
                 
                 if (successMsg.isNotBlank()) {
                     Text(successMsg, color = Color(0xFF2E7D32), fontWeight = FontWeight.SemiBold)

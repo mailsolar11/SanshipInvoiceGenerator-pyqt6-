@@ -9,13 +9,21 @@ import java.sql.DriverManager
  */
 object AccountingDb {
     
-    // Use same database as business data (Python uses data.db for both)
+    // Use legacy data.db for accounting as requested by user
     private val DB_PATH = "data.db"
     
     fun getConnection(): Connection {
         val conn = DriverManager.getConnection("jdbc:sqlite:$DB_PATH")
         // Enable foreign keys
         conn.createStatement().execute("PRAGMA foreign_keys = ON")
+        
+        // Patch migration: ensure vouchers table has job_id without recreating DB
+        try {
+            conn.createStatement().execute("ALTER TABLE vouchers ADD COLUMN job_id INTEGER")
+        } catch (e: Exception) {
+            // Column exists, safe to ignore
+        }
+        
         return conn
     }
 }

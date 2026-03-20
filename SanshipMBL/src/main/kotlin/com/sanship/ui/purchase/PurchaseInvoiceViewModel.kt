@@ -77,17 +77,37 @@ class PurchaseInvoiceViewModel(private val scope: CoroutineScope) {
                 CurrencyRepository.getAllCurrencies().collect { list ->
                     withContext(Dispatchers.Main) {
                         currencies.clear()
-                        currencies.addAll(list)
+                        if (list.isEmpty()) {
+                            // Fallback if DB fetch fails or is empty
+                            currencies.add(com.sanship.repositories.Currency(1, "INR", "Indian Rupee", 1.0))
+                            currencies.add(com.sanship.repositories.Currency(2, "USD", "US Dollar", 83.5))
+                            currencies.add(com.sanship.repositories.Currency(3, "EUR", "Euro", 90.0))
+                            currencies.add(com.sanship.repositories.Currency(4, "GBP", "British Pound", 105.0))
+                            currencies.add(com.sanship.repositories.Currency(5, "AED", "UAE Dirham", 22.7))
+                        } else {
+                            currencies.addAll(list)
+                        }
                     }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                // Fallback on error
+                withContext(Dispatchers.Main) {
+                    currencies.clear()
+                    currencies.add(com.sanship.repositories.Currency(1, "INR", "Indian Rupee", 1.0))
+                    currencies.add(com.sanship.repositories.Currency(2, "USD", "US Dollar", 83.5))
+                }
             }
         }
     }
 
     fun onCurrencyChange(currencyCode: String) {
         selectedCurrency = currencyCode
+        if (currencyCode == "INR") {
+            exchangeRate = 1.0
+            recalculateItems()
+            return
+        }
         scope.launch(Dispatchers.IO) {
             val rate = CurrencyRepository.getRateForCurrency(currencyCode)
             withContext(Dispatchers.Main) {

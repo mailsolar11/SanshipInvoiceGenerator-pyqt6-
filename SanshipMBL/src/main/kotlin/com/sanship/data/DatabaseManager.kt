@@ -187,6 +187,22 @@ object DatabaseManager {
                 );
             """.trimIndent()
             stmt.execute(createGroups)
+            
+            // Re-seed exact accounting legacy groups needed by Ledgers.kt
+            try {
+                stmt.execute("""
+                    INSERT OR IGNORE INTO ledger_groups (id, name, nature) VALUES 
+                    (1, 'ASSET', 'ASSET'),
+                    (2, 'LIABILITY', 'LIABILITY'),
+                    (3, 'INCOME', 'INCOME'),
+                    (4, 'EXPENSE', 'EXPENSE'),
+                    (5, 'Assets', 'ASSET'),
+                    (6, 'Liabilities', 'LIABILITY'),
+                    (7, 'Income', 'INCOME'),
+                    (8, 'Expenses', 'EXPENSE'),
+                    (9, 'Duties & Taxes', 'LIABILITY')
+                """)
+            } catch(e: Exception) {}
 
             // 2. Ledgers
             val createLedgers = """
@@ -348,14 +364,14 @@ object DatabaseManager {
                     amount REAL DEFAULT 0,
                     taxable_amount REAL DEFAULT 0,
                     cgst_rate REAL DEFAULT 0,
-                    cgst_amt REAL DEFAULT 0,
+                    cgst_amount REAL DEFAULT 0,
                     sgst_rate REAL DEFAULT 0,
-                    sgst_amt REAL DEFAULT 0,
+                    sgst_amount REAL DEFAULT 0,
                     igst_rate REAL DEFAULT 0,
-                    igst_amt REAL DEFAULT 0,
+                    igst_amount REAL DEFAULT 0,
                     currency TEXT DEFAULT 'INR',
                     exchange_rate REAL DEFAULT 1.0,
-                    total_amt REAL DEFAULT 0,
+                    total_amount REAL DEFAULT 0,
                     FOREIGN KEY (purchase_id) REFERENCES purchase_invoices(id)
                 );
             """.trimIndent()
@@ -435,6 +451,39 @@ object DatabaseManager {
                 } catch (e: Exception) { /* Column exists */ }
             }
 
+            // ADD MISSING COLUMNS TO AVOID CRASHES ON SAVE
+            try { stmt.execute("ALTER TABLE vouchers ADD COLUMN job_id INTEGER") } catch(e: Exception) {}
+            
+            // CLEANUP & SYNC: Ensure all Vendors and Clients are physically present in the Ledgers table now that we unified to sanship.db
+            try {
+                // Sync Vendors to Liabilities
+                stmt.execute("""
+                    INSERT OR IGNORE INTO ledgers (name, group_id, opening_balance, is_system)
+                    SELECT short_name, (SELECT id FROM ledger_groups WHERE name = 'Liabilities' LIMIT 1), 0, 0
+                    FROM vendors WHERE short_name NOT IN (SELECT name FROM ledgers) AND short_name != ''
+                """)
+                stmt.execute("""
+                    INSERT OR IGNORE INTO ledgers (name, group_id, opening_balance, is_system)
+                    SELECT full_name, (SELECT id FROM ledger_groups WHERE name = 'Liabilities' LIMIT 1), 0, 0
+                    FROM vendors WHERE full_name NOT IN (SELECT name FROM ledgers) AND full_name != ''
+                """)
+                
+                // Sync Clients to Assets
+                stmt.execute("""
+                    INSERT OR IGNORE INTO ledgers (name, group_id, opening_balance, is_system)
+                    SELECT short_name, (SELECT id FROM ledger_groups WHERE name = 'Assets' LIMIT 1), 0, 0
+                    FROM clients WHERE short_name NOT IN (SELECT name FROM ledgers) AND short_name != ''
+                """)
+                stmt.execute("""
+                    INSERT OR IGNORE INTO ledgers (name, group_id, opening_balance, is_system)
+                    SELECT full_name, (SELECT id FROM ledger_groups WHERE name = 'Assets' LIMIT 1), 0, 0
+                    FROM clients WHERE full_name NOT IN (SELECT name FROM ledgers) AND full_name != ''
+                """)
+                
+                // Fix incorrectly categorized Cash/Bank ledgers that were assigned Liability nature via Expense vouchers
+                stmt.execute("UPDATE ledgers SET group_id = COALESCE((SELECT id FROM ledger_groups WHERE nature = 'ASSET' AND name = 'ASSET' LIMIT 1), (SELECT id FROM ledger_groups WHERE nature = 'ASSET' LIMIT 1)) WHERE (name LIKE '%Cash%' OR name LIKE '%Bank%' OR name LIKE '%HDFC%' OR name LIKE '%ICICI%') AND group_id IN (SELECT id FROM ledger_groups WHERE nature = 'LIABILITY')") 
+            } catch(e: Exception) {}
+
             // CLEANUP: Ensure exchangeRate and exchange_rate are NEVER empty string or NULL
             try {
                 stmt.execute("UPDATE jobs SET exchange_rate = 1.0 WHERE exchange_rate IS NULL OR exchange_rate = ''")
@@ -443,11 +492,16 @@ object DatabaseManager {
                 try { stmt.execute("ALTER TABLE invoices ADD COLUMN currency TEXT DEFAULT 'INR'") } catch(e: Exception) {}
                 stmt.execute("UPDATE invoices SET currency = 'INR' WHERE currency IS NULL OR currency = ''")
                 
-                // Add columns to purchase invoices if missing
                 try { stmt.execute("ALTER TABLE purchase_invoices ADD COLUMN currency TEXT DEFAULT 'INR'") } catch(e: Exception) {}
                 try { stmt.execute("ALTER TABLE purchase_invoices ADD COLUMN exchange_rate REAL DEFAULT 1.0") } catch(e: Exception) {}
                 try { stmt.execute("ALTER TABLE purchase_invoice_items ADD COLUMN currency TEXT DEFAULT 'INR'") } catch(e: Exception) {}
                 try { stmt.execute("ALTER TABLE purchase_invoice_items ADD COLUMN exchange_rate REAL DEFAULT 1.0") } catch(e: Exception) {}
+                
+                // Migrations to fix cgst_amt -> cgst_amount
+                try { stmt.execute("ALTER TABLE purchase_invoice_items ADD COLUMN cgst_amount REAL DEFAULT 0") } catch(e: Exception) {}
+                try { stmt.execute("ALTER TABLE purchase_invoice_items ADD COLUMN sgst_amount REAL DEFAULT 0") } catch(e: Exception) {}
+                try { stmt.execute("ALTER TABLE purchase_invoice_items ADD COLUMN igst_amount REAL DEFAULT 0") } catch(e: Exception) {}
+                try { stmt.execute("ALTER TABLE purchase_invoice_items ADD COLUMN total_amount REAL DEFAULT 0") } catch(e: Exception) {}
                 
                 stmt.execute("UPDATE purchase_invoices SET exchange_rate = 1.0 WHERE exchange_rate IS NULL OR exchange_rate = ''")
                 stmt.execute("UPDATE purchase_invoices SET currency = 'INR' WHERE currency IS NULL OR currency = ''")

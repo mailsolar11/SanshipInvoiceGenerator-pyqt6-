@@ -110,50 +110,7 @@ object InvoiceRepository {
                 ps.setInt(1, id)
                 val rs = ps.executeQuery()
                 if (rs.next()) {
-                    InvoiceModels.InvoiceHeader(
-                        id = rs.getInt("id"),
-                        invoiceNo = rs.getString("invoice_no") ?: "",
-                        invoiceDate = rs.getString("date") ?: "",
-                        documentType = rs.getString("type") ?: "INVOICE",
-                        customerId = rs.getInt("customer_id"),
-                        customerName = "",
-                        billingAddress = rs.getString("bill_to") ?: "",
-                        consigneeAddress = rs.getString("consignee_preview") ?: "",
-                        placeOfSupply = "",
-                        pan = try { rs.getString("pan") ?: "" } catch (_: Exception) { "" },
-                        stateCode = try { rs.getString("state_code") ?: "" } catch (_: Exception) { "" },
-                        gstin = "",
-                        jobId = rs.getInt("job_id"),
-                        jobNo = rs.getString("job_no") ?: "",
-                        shipper = rs.getString("shipper") ?: "",
-                        consignee = rs.getString("consignee") ?: "",
-                        pol = rs.getString("pol") ?: "",
-                        pod = rs.getString("pod") ?: "",
-                        vesselFlight = rs.getString("vessel_flight") ?: "",
-                        etd = rs.getString("etd") ?: "",
-                        eta = rs.getString("eta") ?: "",
-                        mblNo = rs.getString("mbl_no") ?: "",
-                        grossWeight = rs.getString("gross_weight") ?: "",
-                        netWeight = rs.getString("net_weight") ?: "",
-                        netWeightUnit = try { rs.getString("net_weight_unit") ?: "" } catch (_: Exception) { "" },
-                        volumeCbm = rs.getString("volume_cbm") ?: "",
-                        packages = rs.getString("packages") ?: "",
-                        beNo = rs.getString("be_no") ?: "",
-                        beDate = rs.getString("be_date") ?: "",
-                        igmNo = rs.getString("igm_no") ?: "",
-                        igmDate = rs.getString("igm_date") ?: "",
-                        itemNo = rs.getString("item_no") ?: "",
-                        currency = rs.getString("currency") ?: "INR",
-                        exchangeRate = rs.getDouble("exchange_rate"),
-                        refNo = rs.getString("ref_no") ?: "",
-                        otherRefNo = try { rs.getString("other_ref_no") ?: "" } catch (_: Exception) { "" },
-                        taxableAmount = 0.0,
-                        cgstAmount = 0.0,
-                        sgstAmount = 0.0,
-                        igstAmount = 0.0,
-                        grandTotal = rs.getDouble("grand_total"),
-                        narration = rs.getString("narration") ?: ""
-                    )
+                    extractHeader(rs)
                 } else null
             } ?: return null
             
@@ -191,5 +148,66 @@ object InvoiceRepository {
             return Pair(header, items)
         }
         return null
+    }
+
+    fun getAllInvoices(): List<InvoiceModels.InvoiceHeader> {
+        val list = mutableListOf<InvoiceModels.InvoiceHeader>()
+        DatabaseManager.connect()?.use { conn ->
+            val sql = "SELECT * FROM invoices ORDER BY date DESC, id DESC"
+            conn.createStatement().use { stmt ->
+                val rs = stmt.executeQuery(sql)
+                while (rs.next()) {
+                    list.add(extractHeader(rs))
+                }
+            }
+        }
+        return list
+    }
+
+    private fun extractHeader(rs: java.sql.ResultSet): InvoiceModels.InvoiceHeader {
+        return InvoiceModels.InvoiceHeader(
+            id = rs.getInt("id"),
+            invoiceNo = rs.getString("invoiceNo") ?: "",
+            invoiceDate = rs.getString("date") ?: "",
+            documentType = rs.getString("type") ?: "INVOICE",
+            customerId = rs.getInt("customerId"),
+            customerName = rs.getString("customerName") ?: "",
+            billingAddress = rs.getString("billingAddress") ?: "",
+            consigneeAddress = rs.getString("consignee") ?: "", // Legacy mapping fallback
+            placeOfSupply = rs.getString("placeOfSupply") ?: "",
+            pan = try { rs.getString("pan") ?: "" } catch (_: Exception) { "" },
+            stateCode = try { rs.getString("stateCode") ?: "" } catch (_: Exception) { "" },
+            gstin = try { rs.getString("gstin") ?: "" } catch (_: Exception) { "" },
+            jobId = try { rs.getString("jobId")?.toIntOrNull() ?: 0 } catch (_: Exception) { 0 },
+            jobNo = rs.getString("jobNo") ?: "",
+            shipper = rs.getString("shipper") ?: "",
+            consignee = rs.getString("consignee") ?: "",
+            pol = rs.getString("pol") ?: "",
+            pod = rs.getString("pod") ?: "",
+            vesselFlight = rs.getString("vessel") ?: "",
+            etd = rs.getString("etd") ?: "",
+            eta = rs.getString("eta") ?: "",
+            mblNo = rs.getString("mblNo") ?: "",
+            grossWeight = rs.getString("grossWeight") ?: "",
+            netWeight = rs.getString("netWeight") ?: "",
+            netWeightUnit = try { rs.getString("netWeightUnit") ?: "" } catch (_: Exception) { "" },
+            volumeCbm = rs.getString("volumeCbm") ?: "",
+            packages = rs.getString("packages") ?: "",
+            beNo = rs.getString("beNo") ?: "",
+            beDate = rs.getString("beDate") ?: "",
+            igmNo = rs.getString("igmNo") ?: "",
+            igmDate = rs.getString("igmDate") ?: "",
+            itemNo = rs.getString("itemNo") ?: "",
+            currency = rs.getString("currency") ?: "INR",
+            exchangeRate = rs.getDouble("exchangeRate"),
+            refNo = rs.getString("refNo") ?: "",
+            otherRefNo = try { rs.getString("otherRefNo") ?: "" } catch (_: Exception) { "" },
+            taxableAmount = try { rs.getDouble("taxableAmount") } catch (_: Exception) { 0.0 },
+            cgstAmount = try { rs.getDouble("cgstAmount") } catch (_: Exception) { 0.0 },
+            sgstAmount = try { rs.getDouble("sgstAmount") } catch (_: Exception) { 0.0 },
+            igstAmount = try { rs.getDouble("igstAmount") } catch (_: Exception) { 0.0 },
+            grandTotal = rs.getDouble("grandTotal"),
+            narration = rs.getString("narration") ?: ""
+        )
     }
 }

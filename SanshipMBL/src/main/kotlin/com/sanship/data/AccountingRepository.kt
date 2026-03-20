@@ -6,7 +6,7 @@ object AccountingRepository {
 
     // --- INIT ---
     fun ensureSystemLedgers() {
-        DatabaseManager.connect()?.use { updateConn ->
+        com.sanship.accounting.AccountingDb.getConnection().use { updateConn ->
             // 1. Groups
             val groups = listOf(
                 "ASSET", "LIABILITY", "INCOME", "EXPENSE", "DUTIES & TAXES"
@@ -93,7 +93,7 @@ object AccountingRepository {
     fun getOrCreatePartyLedger(partyName: String, gstin: String? = ""): Int {
         if (partyName.isBlank()) return -1
         
-        DatabaseManager.connect()?.use { conn ->
+        com.sanship.accounting.AccountingDb.getConnection().use { conn ->
             val existingId = getLedgerId(conn, partyName)
             if (existingId != -1) return existingId
 
@@ -125,7 +125,7 @@ fun saveExpenseVoucher(
     narration: String,
     jobId: Int
 ) {
-    DatabaseManager.connect()?.use { conn ->
+        com.sanship.accounting.AccountingDb.getConnection().use { conn ->
         conn.autoCommit = false
         try {
             // 1. Get the expense ledger name from accounting database
@@ -210,8 +210,8 @@ fun saveExpenseVoucher(
 
             // 4. Create Voucher
             val insertVoucher = """
-                INSERT INTO vouchers (voucher_no, voucher_type, voucher_date, narration, job_id)
-                VALUES (?, 'EXPENSE', ?, ?, ?)
+                INSERT INTO vouchers (voucher_no, voucher_type_id, voucher_type, voucher_date, narration, job_id)
+                VALUES (?, COALESCE((SELECT id FROM voucher_types WHERE name = 'EXPENSE'), 1), 'EXPENSE', ?, ?, ?)
             """
             var voucherId = -1
             conn.prepareStatement(insertVoucher, Statement.RETURN_GENERATED_KEYS).use { ps ->
@@ -252,7 +252,7 @@ fun saveExpenseVoucher(
         narration: String,
         jobId: Int // Optional Link
     ) {
-        DatabaseManager.connect()?.use { conn ->
+        com.sanship.accounting.AccountingDb.getConnection().use { conn ->
             conn.autoCommit = false
             try {
                 // 1. Resolve Deposit Ledger (Debit)
@@ -274,8 +274,8 @@ fun saveExpenseVoucher(
 
                 // 2. Create Voucher
                 val insertVoucher = """
-                    INSERT INTO vouchers (voucher_no, voucher_type, voucher_date, narration, job_id)
-                    VALUES (?, 'RECEIPT', ?, ?, ?)
+                    INSERT INTO vouchers (voucher_no, voucher_type_id, voucher_type, voucher_date, narration, job_id)
+                    VALUES (?, COALESCE((SELECT id FROM voucher_types WHERE name = 'RECEIPT'), 1), 'RECEIPT', ?, ?, ?)
                 """
                 var voucherId = -1
                 conn.prepareStatement(insertVoucher, Statement.RETURN_GENERATED_KEYS).use { ps ->
@@ -369,7 +369,7 @@ fun saveExpenseVoucher(
         narration: String,
         voucherType: String = "SALES"
     ) {
-        DatabaseManager.connect()?.use { conn ->
+        com.sanship.accounting.AccountingDb.getConnection().use { conn ->
             conn.autoCommit = false
             try {
                 // 1. Resolve IDs
@@ -396,15 +396,16 @@ fun saveExpenseVoucher(
 
                 // 2. Create Voucher
                 val insertVoucher = """
-                    INSERT INTO vouchers (voucher_no, voucher_type, voucher_date, narration)
-                    VALUES (?, ?, ?, ?)
+                    INSERT INTO vouchers (voucher_no, voucher_type_id, voucher_type, voucher_date, narration)
+                    VALUES (?, COALESCE((SELECT id FROM voucher_types WHERE name = ?), 1), ?, ?, ?)
                 """
                 var voucherId = -1
                 conn.prepareStatement(insertVoucher, Statement.RETURN_GENERATED_KEYS).use { ps ->
                     ps.setString(1, voucherNo)
                     ps.setString(2, voucherType)
-                    ps.setString(3, date)
-                    ps.setString(4, narration)
+                    ps.setString(3, voucherType)
+                    ps.setString(4, date)
+                    ps.setString(5, narration)
                     ps.executeUpdate()
                     val rs = ps.generatedKeys
                     if (rs.next()) voucherId = rs.getInt(1)
@@ -454,7 +455,7 @@ fun saveExpenseVoucher(
 
     fun getLedgerEntries(ledgerId: Int): List<LedgerReportItem> {
         val list = mutableListOf<LedgerReportItem>()
-        DatabaseManager.connect()?.use { conn ->
+        com.sanship.accounting.AccountingDb.getConnection().use { conn ->
             val q = """
                 SELECT v.voucher_date, v.voucher_no, v.narration, le.dr_amount, le.cr_amount
                 FROM ledger_entries le
@@ -481,7 +482,7 @@ fun saveExpenseVoucher(
 
     fun getAllLedgers(): Map<Int, String> {
         val map = mutableMapOf<Int, String>()
-        DatabaseManager.connect()?.use { conn ->
+        com.sanship.accounting.AccountingDb.getConnection().use { conn ->
             val q = "SELECT id, name FROM ledgers ORDER BY name"
             val rs = conn.prepareStatement(q).executeQuery()
             while(rs.next()) {
@@ -499,7 +500,8 @@ fun saveExpenseVoucher(
                 SELECT l.id, l.name 
                 FROM ledgers l
                 JOIN ledger_groups lg ON l.group_id = lg.id
-                WHERE lg.nature = 'ASSET'
+                WHERE lg.nature = 'ASSET' 
+                  AND (l.name LIKE '%Cash%' OR l.name LIKE '%Bank%' OR l.name LIKE '%HDFC%' OR l.name LIKE '%ICICI%')
                 ORDER BY l.name
             """.trimIndent()
             val rs = conn.prepareStatement(q).executeQuery()
@@ -518,7 +520,7 @@ fun saveExpenseVoucher(
 
     fun getChartOfAccounts(): List<ChartOfAccountItem> {
         val list = mutableListOf<ChartOfAccountItem>()
-        DatabaseManager.connect()?.use { conn ->
+        com.sanship.accounting.AccountingDb.getConnection().use { conn ->
             val q = """
                 SELECT 
                     lg.name as group_name, 
@@ -552,7 +554,7 @@ fun saveExpenseVoucher(
 
     fun getSalesRegister(): List<SalesRegisterItem> {
         val list = mutableListOf<SalesRegisterItem>()
-        DatabaseManager.connect()?.use { conn ->
+        com.sanship.accounting.AccountingDb.getConnection().use { conn ->
             val q = """
                 SELECT v.voucher_date, v.voucher_no, v.narration, SUM(le.cr_amount) as total
                 FROM vouchers v
@@ -588,7 +590,7 @@ fun saveExpenseVoucher(
 
     fun getTrialBalanceReport(): List<TrialBalanceItem> {
         val list = mutableListOf<TrialBalanceItem>()
-        DatabaseManager.connect()?.use { conn ->
+        com.sanship.accounting.AccountingDb.getConnection().use { conn ->
             // Query to fetch all ledgers and their balances
             // We left join entries to get sums
             val sql = """
@@ -655,8 +657,8 @@ fun saveExpenseVoucher(
 
                 // 2. Create Voucher
                 val insertVoucher = """
-                    INSERT INTO vouchers (voucher_no, voucher_type, voucher_date, narration, job_id)
-                    VALUES (?, 'PAYMENT', ?, ?, ?)
+                    INSERT INTO vouchers (voucher_no, voucher_type_id, voucher_type, voucher_date, narration, job_id)
+                    VALUES (?, COALESCE((SELECT id FROM voucher_types WHERE name = 'PAYMENT'), 1), 'PAYMENT', ?, ?, ?)
                 """
                 var voucherId = -1
                 conn.prepareStatement(insertVoucher, Statement.RETURN_GENERATED_KEYS).use { ps ->
@@ -742,7 +744,12 @@ fun saveExpenseVoucher(
                 JOIN ledgers l ON le.ledger_id = l.id
                 JOIN ledger_groups lg ON l.group_id = lg.id
                 JOIN vouchers v ON le.voucher_id = v.id
-                WHERE lg.name = 'SUNDRY DEBTORS'
+                WHERE (lg.nature = 'ASSET' OR lg.name = 'Assets')
+                  AND l.name NOT LIKE '%Cash%' 
+                  AND l.name NOT LIKE '%Bank%'
+                  AND l.name NOT LIKE '%HDFC%'
+                  AND l.name NOT LIKE '%ICICI%'
+                  AND l.is_system = 0
                 GROUP BY l.name
                 HAVING balance > 0.01
                 ORDER BY balance DESC
@@ -775,7 +782,9 @@ fun saveExpenseVoucher(
                 JOIN ledgers l ON le.ledger_id = l.id
                 JOIN ledger_groups lg ON l.group_id = lg.id
                 JOIN vouchers v ON le.voucher_id = v.id
-                WHERE lg.name = 'SUNDRY CREDITORS'
+                WHERE (lg.nature = 'LIABILITY' OR lg.name = 'Liabilities')
+                  AND l.name NOT IN ('CGST OUTPUT', 'SGST OUTPUT', 'IGST OUTPUT')
+                  AND l.is_system = 0
                 GROUP BY l.name
                 HAVING balance > 0.01
                 ORDER BY balance DESC
