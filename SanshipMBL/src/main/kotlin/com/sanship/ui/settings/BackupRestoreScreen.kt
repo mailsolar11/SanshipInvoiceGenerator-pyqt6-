@@ -29,9 +29,9 @@ fun BackupRestoreScreen() {
     fun backupDatabase() {
         scope.launch {
             try {
-                val dbFile = File("data.db")
+                val dbFile = File("sanship.db")
                 if (!dbFile.exists()) {
-                    showMessage("Database file 'data.db' not found!", true)
+                    showMessage("Database file 'sanship.db' not found!", true)
                     return@launch
                 }
 
@@ -39,7 +39,7 @@ fun BackupRestoreScreen() {
                 if (!dir.exists()) dir.mkdirs()
 
                 val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-                val destFile = File(dir, "data_backup_$timestamp.db")
+                val destFile = File(dir, "sanship_backup_$timestamp.db")
                 
                 dbFile.copyTo(destFile, overwrite = true)
                 showMessage("Backup successful: ${destFile.absolutePath}", false)
@@ -58,7 +58,7 @@ fun BackupRestoreScreen() {
                     return@launch
                 }
 
-                val destFile = File("data.db")
+                val destFile = File("sanship.db")
                 srcFile.copyTo(destFile, overwrite = true)
                 
                 showMessage("Restore successful from: ${srcFile.name}. Please restart the application.", false)
