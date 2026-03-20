@@ -22,122 +22,82 @@ object TransactionManager {
     }
 
     /**
-     * Coordinate Save Invoice to both databases
+     * Coordinate Save Invoice — UNIFIED single database
      */
     fun saveInvoice(header: InvoiceHeader, items: List<InvoiceItem>): Int {
         val transactionId = UUID.randomUUID().toString()
         val payload = gson.toJson(mapOf("header" to header, "items" to items))
         
-        // 1. Log Pending Transaction
         logTransaction(transactionId, EntityType.INVOICE, TransactionStatus.PENDING, payload)
         
-        var businessConn: Connection? = null
-        var accountingConn: Connection? = null
+        val conn = DatabaseManager.connect()
+            ?: throw RuntimeException("Failed to connect to database")
         
         try {
-            businessConn = DatabaseManager.connect()
-            accountingConn = AccountingDb.getConnection()
+            conn.autoCommit = false
             
-            if (businessConn == null || accountingConn == null) {
-                throw RuntimeException("Failed to connect to databases")
-            }
+            // Business DB write
+            val businessInvoiceId = InvoiceService.saveInvoiceInternal(conn, header, items)
+            updateTransactionStatus(transactionId, TransactionStatus.COMMITTED_BUSINESS, conn)
             
-            businessConn.autoCommit = false
-            accountingConn.autoCommit = false
+            // Accounting write (same DB now)
+            val currentHeader = header.copy(id = businessInvoiceId)
+            AccountingEngine.postInvoiceInternal(conn, currentHeader, items)
+            updateTransactionStatus(transactionId, TransactionStatus.COMMITTED_ACCOUNTING, conn)
             
-            // 2. Write to Business DB
-            // --- BUSINESS DB WRITE START ---
-            val businessInvoiceId = InvoiceService.saveInvoiceInternal(businessConn, header, items)
-            // --- BUSINESS DB WRITE END ---
-            
-            updateTransactionStatus(transactionId, TransactionStatus.COMMITTED_BUSINESS, businessConn)
-            
-            // 3. Write to Accounting DB
-            // --- ACCOUNTING DB WRITE START ---
-            // Ensure ID sync: The business ID is the source of truth for linking? 
-            // Actually, we usually link via Invoice No.
-            val currentHeader = header.copy(id = businessInvoiceId) 
-            AccountingEngine.postInvoiceInternal(accountingConn, currentHeader, items)
-            // --- ACCOUNTING DB WRITE END ---
-            
-            updateTransactionStatus(transactionId, TransactionStatus.COMMITTED_ACCOUNTING, businessConn)
-            
-            // 4. Commit Both
-            businessConn.commit()
-            accountingConn.commit()
-            
-            updateTransactionStatus(transactionId, TransactionStatus.COMPLETED, businessConn)
+            // Single atomic commit
+            conn.commit()
+            updateTransactionStatus(transactionId, TransactionStatus.COMPLETED, conn)
             return businessInvoiceId
             
         } catch (e: Exception) {
             e.printStackTrace()
-            try { businessConn?.rollback() } catch (e2: Exception) {}
-            try { accountingConn?.rollback() } catch (e2: Exception) {}
+            try { conn.rollback() } catch (e2: Exception) {}
             updateTransactionStatus(transactionId, TransactionStatus.FAILED)
             throw e
         } finally {
-            try { businessConn?.close() } catch (e: Exception) {}
-            try { accountingConn?.close() } catch (e: Exception) {}
+            try { conn.close() } catch (e: Exception) {}
         }
     }
 
     /**
-     * Coordinate Save Debit Note to both databases
+     * Coordinate Save Debit Note — UNIFIED single database
      */
     fun saveDebitNote(header: InvoiceHeader, items: List<InvoiceItem>): Int {
         val transactionId = UUID.randomUUID().toString()
         val payload = gson.toJson(mapOf("header" to header, "items" to items, "type" to "DEBIT_NOTE"))
         
-        // 1. Log Pending Transaction
         logTransaction(transactionId, EntityType.INVOICE, TransactionStatus.PENDING, payload)
         
-        var businessConn: Connection? = null
-        var accountingConn: Connection? = null
+        val conn = DatabaseManager.connect()
+            ?: throw RuntimeException("Failed to connect to database")
         
         try {
-            businessConn = DatabaseManager.connect()
-            accountingConn = AccountingDb.getConnection()
+            conn.autoCommit = false
             
-            if (businessConn == null || accountingConn == null) {
-                throw RuntimeException("Failed to connect to databases")
-            }
+            val businessInvoiceId = InvoiceService.saveInvoiceInternal(conn, header, items)
+            updateTransactionStatus(transactionId, TransactionStatus.COMMITTED_BUSINESS, conn)
             
-            businessConn.autoCommit = false
-            accountingConn.autoCommit = false
-            
-            // 2. Write to Business DB
-            // reuse saveInvoiceInternal as it saves to invoices table regardless of type
-            val businessInvoiceId = InvoiceService.saveInvoiceInternal(businessConn, header, items)
-            
-            updateTransactionStatus(transactionId, TransactionStatus.COMMITTED_BUSINESS, businessConn)
-            
-            // 3. Write to Accounting DB
             val currentHeader = header.copy(id = businessInvoiceId) 
-            AccountingEngine.postDebitNoteInternal(accountingConn, currentHeader, items)
+            AccountingEngine.postDebitNoteInternal(conn, currentHeader, items)
+            updateTransactionStatus(transactionId, TransactionStatus.COMMITTED_ACCOUNTING, conn)
             
-            updateTransactionStatus(transactionId, TransactionStatus.COMMITTED_ACCOUNTING, businessConn)
-            
-            // 4. Commit Both
-            businessConn.commit()
-            accountingConn.commit()
-            
-            updateTransactionStatus(transactionId, TransactionStatus.COMPLETED, businessConn)
+            conn.commit()
+            updateTransactionStatus(transactionId, TransactionStatus.COMPLETED, conn)
             return businessInvoiceId
             
         } catch (e: Exception) {
             e.printStackTrace()
-            try { businessConn?.rollback() } catch (e2: Exception) {}
-            try { accountingConn?.rollback() } catch (e2: Exception) {}
+            try { conn.rollback() } catch (e2: Exception) {}
             updateTransactionStatus(transactionId, TransactionStatus.FAILED)
             throw e
         } finally {
-            try { businessConn?.close() } catch (e: Exception) {}
-            try { accountingConn?.close() } catch (e: Exception) {}
+            try { conn.close() } catch (e: Exception) {}
         }
     }
 
     /**
-     * Coordinate Save Credit Note to both databases
+     * Coordinate Save Credit Note — UNIFIED single database
      */
     fun saveCreditNote(header: InvoiceHeader, items: List<InvoiceItem>): Int {
         val transactionId = UUID.randomUUID().toString()
@@ -145,51 +105,34 @@ object TransactionManager {
         
         logTransaction(transactionId, EntityType.INVOICE, TransactionStatus.PENDING, payload)
         
-        var businessConn: Connection? = null
-        var accountingConn: Connection? = null
+        val conn = DatabaseManager.connect()
+            ?: throw RuntimeException("Failed to connect to database")
         
         try {
-            businessConn = DatabaseManager.connect()
-            accountingConn = AccountingDb.getConnection()
+            conn.autoCommit = false
             
-            if (businessConn == null || accountingConn == null) {
-                throw RuntimeException("Failed to connect to databases")
-            }
+            val businessInvoiceId = InvoiceService.saveInvoiceInternal(conn, header, items)
+            updateTransactionStatus(transactionId, TransactionStatus.COMMITTED_BUSINESS, conn)
             
-            businessConn.autoCommit = false
-            accountingConn.autoCommit = false
-            
-            // 2. Write to Business DB
-            val businessInvoiceId = InvoiceService.saveInvoiceInternal(businessConn, header, items)
-            
-            updateTransactionStatus(transactionId, TransactionStatus.COMMITTED_BUSINESS, businessConn)
-            
-            // 3. Write to Accounting DB (reversed entries)
             val currentHeader = header.copy(id = businessInvoiceId) 
-            AccountingEngine.postCreditNoteInternal(accountingConn, currentHeader, items)
+            AccountingEngine.postCreditNoteInternal(conn, currentHeader, items)
+            updateTransactionStatus(transactionId, TransactionStatus.COMMITTED_ACCOUNTING, conn)
             
-            updateTransactionStatus(transactionId, TransactionStatus.COMMITTED_ACCOUNTING, businessConn)
-            
-            // 4. Commit Both
-            businessConn.commit()
-            accountingConn.commit()
-            
-            updateTransactionStatus(transactionId, TransactionStatus.COMPLETED, businessConn)
+            conn.commit()
+            updateTransactionStatus(transactionId, TransactionStatus.COMPLETED, conn)
             return businessInvoiceId
             
         } catch (e: Exception) {
             e.printStackTrace()
-            try { businessConn?.rollback() } catch (e2: Exception) {}
-            try { accountingConn?.rollback() } catch (e2: Exception) {}
+            try { conn.rollback() } catch (e2: Exception) {}
             updateTransactionStatus(transactionId, TransactionStatus.FAILED)
             throw e
         } finally {
-            try { businessConn?.close() } catch (e: Exception) {}
-            try { accountingConn?.close() } catch (e: Exception) {}
+            try { conn.close() } catch (e: Exception) {}
         }
     }
 
-    // Coordinate Save Quotation (ONLY Business DB, NO Accounting)
+    // Coordinate Save Quotation (Business DB only, no accounting)
     fun saveQuotation(header: InvoiceHeader, items: List<InvoiceItem>): Int {
         val businessConn = DatabaseManager.connect() ?: return -1
 

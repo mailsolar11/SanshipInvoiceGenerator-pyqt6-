@@ -1,0 +1,509 @@
+
+======================================
+=== sanship.db SCHEMA & ROW COUNTS ===
+======================================
+
+--- SCHEMA ---
+
+Table: mbl_headers
+CREATE TABLE mbl_headers (
+                mtdNumber TEXT PRIMARY KEY,
+                refNumber TEXT,
+                consignor TEXT,
+                consignee TEXT,
+                notifyAddress TEXT,
+                preCarriage TEXT,
+                placeReceipt TEXT,
+                deliveryAgent TEXT,
+                vessel TEXT,
+                voyNumber TEXT,
+                portLoading TEXT,
+                portDischarge TEXT,
+                placeDelivery TEXT,
+                mode TEXT,
+                route TEXT,
+                mainCustomsSeal TEXT,
+                mainAgentSeal TEXT,
+                goodsDescription TEXT,
+                freightAmount TEXT,
+                freightPayableAt TEXT,
+                originalMtds TEXT,
+                placeDateIssue TEXT,
+                otherParticulars TEXT
+            , marksNumbers TEXT)
+
+Table: cargo_items
+CREATE TABLE cargo_items (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                mtdNumber TEXT,
+                containerNo TEXT,
+                marks TEXT,
+                grossWeight TEXT,
+                measurement TEXT,
+                pkgCount TEXT,
+                netWeight TEXT,
+                agentSeal TEXT,
+                customsSeal TEXT,
+                sbNumber TEXT,
+                sbDate TEXT,
+                FOREIGN KEY(mtdNumber) REFERENCES mbl_headers(mtdNumber)
+            )
+
+Table: sqlite_sequence
+CREATE TABLE sqlite_sequence(name,seq)
+
+Table: client_master
+CREATE TABLE client_master (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                shortName TEXT,
+                fullName TEXT,
+                fullAddress TEXT
+            , gstin TEXT, stateCode TEXT, email TEXT)
+
+Table: invoices
+CREATE TABLE invoices (
+                invoiceNo TEXT PRIMARY KEY,
+                date TEXT,
+                customerName TEXT,
+                billingAddress TEXT,
+                gstin TEXT,
+                placeOfSupply TEXT,
+                reverseCharge INTEGER,
+                jobId TEXT,
+                shipper TEXT,
+                consignee TEXT,
+                vessel TEXT,
+                pol TEXT,
+                pod TEXT,
+                taxableAmount REAL,
+                cgstAmount REAL,
+                sgstAmount REAL,
+                igstAmount REAL,
+                grandTotal REAL
+            , be_no TEXT, be_date TEXT, igm_no TEXT, igm_date TEXT, item_no TEXT, type TEXT DEFAULT 'INVOICE', jobNo TEXT, etd TEXT, eta TEXT, mblNo TEXT, grossWeight TEXT, netWeight TEXT, volumeCbm TEXT, packages TEXT, beNo TEXT, igmNo TEXT, itemNo TEXT, exchangeRate TEXT, refNo TEXT, narration TEXT, place_of_supply TEXT, invoice_number TEXT, beDate TEXT, igmDate TEXT, irn TEXT, ackNo TEXT, ackDate TEXT, signedQr TEXT, signedInvoice TEXT, netWeightUnit TEXT, otherRefNo TEXT, pan TEXT, stateCode TEXT, category TEXT, hblNo TEXT, containerNos TEXT, shipperInvoiceNo TEXT, shipperInvoiceDate TEXT, customerId INTEGER, currency TEXT DEFAULT 'INR')
+
+Table: invoice_items
+CREATE TABLE invoice_items (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                invoiceNo TEXT,
+                description TEXT,
+                hsnSac TEXT,
+                qty REAL,
+                rate REAL,
+                per TEXT,
+                amount REAL,
+                gstRate REAL,
+                cgstAmount REAL,
+                sgstAmount REAL,
+                igstAmount REAL,
+                total REAL, srNo INTEGER, currency TEXT DEFAULT 'INR', taxableAmount REAL DEFAULT 0, cgstRate REAL DEFAULT 0, sgstRate REAL DEFAULT 0, igstRate REAL DEFAULT 0, invoice_id INTEGER, sr_no INTEGER, taxable_amount REAL DEFAULT 0, cgst_amt REAL DEFAULT 0, sgst_amt REAL DEFAULT 0, igst_amt REAL DEFAULT 0, total_amt REAL DEFAULT 0, cgst_rate REAL DEFAULT 0, sgst_rate REAL DEFAULT 0, igst_rate REAL DEFAULT 0, hsn_sac TEXT,
+                FOREIGN KEY(invoiceNo) REFERENCES invoices(invoiceNo)
+            )
+
+Table: jobs
+CREATE TABLE jobs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    job_no TEXT NOT NULL UNIQUE,
+    customer_id INTEGER,
+    shipper TEXT,
+    consignee TEXT,
+    pol TEXT,
+    pod TEXT,
+    mbl_no TEXT,
+    gross_weight TEXT,
+    etd TEXT,
+    eta TEXT,
+    status TEXT DEFAULT 'OPEN',
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+, vessel_flight TEXT, net_weight TEXT, volume_cbm TEXT, packages TEXT, exchange_rate TEXT, ref_no TEXT)
+
+Table: ledger_groups
+CREATE TABLE ledger_groups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    nature TEXT CHECK ( nature IN ('ASSET', 'LIABILITY', 'INCOME', 'EXPENSE') ) NOT NULL,
+    parent_id INTEGER
+)
+
+Table: ledgers
+CREATE TABLE ledgers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    group_id INTEGER NOT NULL,
+    opening_balance REAL DEFAULT 0,
+    opening_type TEXT CHECK (opening_type IN ('DR','CR')),
+    gstin TEXT,
+    party_id INTEGER, -- Link to ClientMaster
+    is_system INTEGER DEFAULT 0,
+    FOREIGN KEY (group_id) REFERENCES ledger_groups(id)
+)
+
+Table: vouchers
+CREATE TABLE vouchers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    voucher_no TEXT NOT NULL UNIQUE,
+    voucher_type TEXT NOT NULL, -- SALES, RECEIPT, CONTRA, JOURNAL
+    voucher_date TEXT NOT NULL,
+    narration TEXT,
+    job_id INTEGER,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+)
+
+Table: ledger_entries
+CREATE TABLE ledger_entries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    voucher_id INTEGER NOT NULL,
+    ledger_id INTEGER NOT NULL,
+    dr_amount REAL DEFAULT 0,
+    cr_amount REAL DEFAULT 0, container_number TEXT, bank_date TEXT,
+    FOREIGN KEY (voucher_id) REFERENCES vouchers(id),
+    FOREIGN KEY (ledger_id) REFERENCES ledgers(id)
+)
+
+Table: charges
+CREATE TABLE charges (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    charge_name TEXT NOT NULL,
+    hsn_sac TEXT,
+    currency TEXT DEFAULT 'INR',
+    cgst_rate REAL DEFAULT 0,
+    sgst_rate REAL DEFAULT 0,
+    igst_rate REAL DEFAULT 0,
+    default_rate REAL DEFAULT 0,
+    description TEXT
+)
+
+Table: settings
+CREATE TABLE settings (
+                                key TEXT PRIMARY KEY,
+                                value INTEGER
+                            )
+
+Table: hbl_instructions
+CREATE TABLE hbl_instructions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    job_id INTEGER NOT NULL,
+    hbl_no TEXT NOT NULL UNIQUE,
+    mbl_no TEXT,
+    shipper_text TEXT,
+    consignee_text TEXT,
+    notify_party_text TEXT,
+    delivery_agent_text TEXT,
+    marks_and_numbers TEXT,
+    description_of_goods TEXT,
+    bl_type TEXT DEFAULT 'ORIGINAL', -- ORIGINAL, TELEX, SEAWAY
+    freight_terms TEXT DEFAULT 'PREPAID', -- PREPAID, COLLECT
+    place_of_receipt TEXT,
+    port_of_loading TEXT,
+    port_of_discharge TEXT,
+    place_of_delivery TEXT,
+    shipped_on_board_date TEXT,
+    no_of_originals INTEGER DEFAULT 3,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(job_id) REFERENCES jobs(id)
+)
+
+Table: containers
+CREATE TABLE containers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    job_id INTEGER NOT NULL,
+    container_no TEXT NOT NULL,
+    seal_no TEXT,
+    container_type TEXT,
+    packages INTEGER DEFAULT 0,
+    package_type TEXT,
+    gross_weight REAL DEFAULT 0,
+    net_weight REAL DEFAULT 0,
+    volume_cbm REAL DEFAULT 0,
+    vgm_weight REAL DEFAULT 0,
+    description TEXT, -- Specific cargo description per container if needed
+    FOREIGN KEY(job_id) REFERENCES jobs(id)
+)
+
+Table: charges_master
+CREATE TABLE charges_master (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    charge_name TEXT NOT NULL,
+    hsn_sac TEXT,
+    currency TEXT DEFAULT 'INR',
+    cgst_rate REAL DEFAULT 0,
+    sgst_rate REAL DEFAULT 0,
+    igst_rate REAL DEFAULT 0,
+    default_rate REAL DEFAULT 0,
+    description TEXT
+)
+
+Table: consignee_addresses
+CREATE TABLE consignee_addresses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    consignee_id INTEGER NOT NULL,
+    label TEXT,
+    address TEXT,
+    state TEXT,
+    pincode TEXT,
+    country TEXT DEFAULT 'India',
+    is_default INTEGER DEFAULT 0,
+    FOREIGN KEY(consignee_id) REFERENCES client_master(id)
+)
+
+Table: transaction_audit_log
+CREATE TABLE transaction_audit_log (
+    id TEXT PRIMARY KEY,
+    entity_type TEXT NOT NULL,
+    status TEXT NOT NULL,
+    payload TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+)
+
+Table: vendor_master
+CREATE TABLE vendor_master (id INTEGER PRIMARY KEY AUTOINCREMENT, shortName VARCHAR(100) NOT NULL, fullName VARCHAR(200) NOT NULL, fullAddress TEXT NOT NULL, gstin VARCHAR(15) NULL, stateCode VARCHAR(50) NULL, email VARCHAR(100) NULL, "type" VARCHAR(50) NULL)
+
+Table: users
+CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(50) NOT NULL, password VARCHAR(255) NOT NULL, "role" VARCHAR(20) NOT NULL, created_at VARCHAR(50) DEFAULT '2026-02-27T13:57:23.8068325' NOT NULL)
+
+Table: quotations
+CREATE TABLE quotations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    quotation_no TEXT NOT NULL UNIQUE,
+    date         TEXT NOT NULL,
+    valid_until  TEXT,
+    customer_id  INTEGER,
+    customer_name TEXT,
+    billing_address TEXT,
+    job_id       INTEGER,
+    job_no       TEXT,
+    shipper      TEXT,
+    consignee    TEXT,
+    pol          TEXT,
+    pod          TEXT,
+    mode         TEXT,
+    container_type TEXT,
+    vessel_flight TEXT,
+    etd          TEXT,
+    eta          TEXT,
+    terms        TEXT,
+    notes        TEXT,
+    total_amount REAL DEFAULT 0,
+    status       TEXT DEFAULT 'DRAFT',
+    created_at   TEXT DEFAULT CURRENT_TIMESTAMP
+)
+
+Table: quotation_items
+CREATE TABLE quotation_items (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    quotation_id   INTEGER NOT NULL,
+    sr_no          INTEGER,
+    description    TEXT NOT NULL,
+    currency       TEXT DEFAULT 'INR',
+    qty            REAL DEFAULT 1,
+    unit           TEXT DEFAULT 'Lumpsum',
+    rate           REAL DEFAULT 0,
+    amount         REAL DEFAULT 0,
+    remarks        TEXT,
+    FOREIGN KEY(quotation_id) REFERENCES quotations(id) ON DELETE CASCADE
+)
+
+Table: credit_notes
+CREATE TABLE credit_notes (
+    id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+    credit_note_no       TEXT NOT NULL UNIQUE,
+    date                 TEXT NOT NULL,
+    original_invoice_no  TEXT NOT NULL,
+    original_invoice_date TEXT,
+    reason               TEXT,
+    customer_id          INTEGER,
+    customer_name        TEXT,
+    billing_address      TEXT,
+    gstin                TEXT,
+    place_of_supply      TEXT,
+    state_code           TEXT,
+    job_id               INTEGER,
+    job_no               TEXT,
+    shipper              TEXT,
+    consignee            TEXT,
+    pol                  TEXT,
+    pod                  TEXT,
+    vessel_flight        TEXT,
+    mbl_no               TEXT,
+    hbl_no               TEXT,
+    container_nos        TEXT,
+    taxable_amount       REAL DEFAULT 0,
+    cgst_amount          REAL DEFAULT 0,
+    sgst_amount          REAL DEFAULT 0,
+    igst_amount          REAL DEFAULT 0,
+    grand_total          REAL DEFAULT 0,
+    created_at           TEXT DEFAULT CURRENT_TIMESTAMP
+)
+
+Table: credit_note_items
+CREATE TABLE credit_note_items (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    credit_note_id  INTEGER NOT NULL,
+    sr_no           INTEGER,
+    description     TEXT NOT NULL,
+    hsn_sac         TEXT,
+    currency        TEXT DEFAULT 'INR',
+    qty             REAL DEFAULT 1,
+    rate            REAL DEFAULT 0,
+    amount          REAL DEFAULT 0,
+    taxable_amount  REAL DEFAULT 0,
+    cgst_rate       REAL DEFAULT 0,
+    cgst_amt        REAL DEFAULT 0,
+    sgst_rate       REAL DEFAULT 0,
+    sgst_amt        REAL DEFAULT 0,
+    igst_rate       REAL DEFAULT 0,
+    igst_amt        REAL DEFAULT 0,
+    total_amt       REAL DEFAULT 0,
+    FOREIGN KEY(credit_note_id) REFERENCES credit_notes(id) ON DELETE CASCADE
+)
+
+Table: purchase_invoices
+CREATE TABLE purchase_invoices (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    purchase_no TEXT NOT NULL UNIQUE,
+    date TEXT NOT NULL,
+    vendor_id INTEGER,
+    vendor_name TEXT,
+    vendor_gstin TEXT,
+    vendor_address TEXT,
+    place_of_supply TEXT,
+    reverse_charge INTEGER DEFAULT 0,
+    job_id INTEGER,
+    job_no TEXT,
+    taxable_amount REAL DEFAULT 0,
+    cgst_amount REAL DEFAULT 0,
+    sgst_amount REAL DEFAULT 0,
+    igst_amount REAL DEFAULT 0,
+    grand_total REAL DEFAULT 0,
+    narration TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+, currency TEXT DEFAULT 'INR', exchange_rate REAL DEFAULT 1.0)
+
+Table: purchase_invoice_items
+CREATE TABLE purchase_invoice_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    purchase_id INTEGER NOT NULL,
+    sr_no INTEGER,
+    description TEXT,
+    hsn_sac TEXT,
+    qty REAL DEFAULT 0,
+    rate REAL DEFAULT 0,
+    amount REAL DEFAULT 0,
+    taxable_amount REAL DEFAULT 0,
+    cgst_rate REAL DEFAULT 0,
+    cgst_amt REAL DEFAULT 0,
+    sgst_rate REAL DEFAULT 0,
+    sgst_amt REAL DEFAULT 0,
+    igst_rate REAL DEFAULT 0,
+    igst_amt REAL DEFAULT 0,
+    total_amt REAL DEFAULT 0, currency TEXT DEFAULT 'INR', exchange_rate REAL DEFAULT 1.0, cgst_amount REAL DEFAULT 0, sgst_amount REAL DEFAULT 0, igst_amount REAL DEFAULT 0, total_amount REAL DEFAULT 0,
+    FOREIGN KEY (purchase_id) REFERENCES purchase_invoices(id)
+)
+
+Table: voucher_types
+CREATE TABLE voucher_types (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL,
+    affects_inventory INTEGER DEFAULT 0,
+    is_system INTEGER DEFAULT 1
+)
+
+--- ROW COUNTS ---
+mbl_headers: 3 rows
+cargo_items: 5 rows
+client_master: 4 rows
+invoices: 5 rows
+invoice_items: 17 rows
+jobs: 5 rows
+ledger_groups: 6 rows
+ledgers: 20 rows
+vouchers: 6 rows
+ledger_entries: 10 rows
+charges: 0 rows
+settings: 1 rows
+hbl_instructions: 0 rows
+containers: 0 rows
+charges_master: 0 rows
+consignee_addresses: 0 rows
+transaction_audit_log: 11 rows
+vendor_master: 2 rows
+users: 2 rows
+quotations: 1 rows
+quotation_items: 1 rows
+credit_notes: 0 rows
+credit_note_items: 0 rows
+purchase_invoices: 0 rows
+purchase_invoice_items: 0 rows
+voucher_types: 5 rows
+
+======================================
+=== data.db SCHEMA & ROW COUNTS ===
+======================================
+
+--- SCHEMA ---
+
+Table: ledger_groups
+CREATE TABLE ledger_groups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    nature TEXT CHECK (
+        nature IN ('ASSET', 'LIABILITY', 'INCOME', 'EXPENSE')
+    ) NOT NULL,
+    parent_id INTEGER,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+)
+
+Table: sqlite_sequence
+CREATE TABLE sqlite_sequence(name,seq)
+
+Table: ledgers
+CREATE TABLE ledgers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    group_id INTEGER NOT NULL,
+    opening_balance REAL DEFAULT 0,
+    opening_type TEXT CHECK (opening_type IN ('DR','CR')),
+    gstin TEXT,
+    is_system INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (group_id) REFERENCES ledger_groups(id)
+)
+
+Table: voucher_types
+CREATE TABLE voucher_types (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL,
+    affects_inventory INTEGER DEFAULT 0,
+    is_system INTEGER DEFAULT 1
+)
+
+Table: vouchers
+CREATE TABLE vouchers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    voucher_no TEXT UNIQUE NOT NULL,
+    voucher_type_id INTEGER NOT NULL,
+    voucher_date TEXT NOT NULL,
+    narration TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP, voucher_type TEXT, job_id INTEGER,
+    FOREIGN KEY (voucher_type_id) REFERENCES voucher_types(id)
+)
+
+Table: ledger_entries
+CREATE TABLE ledger_entries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    voucher_id INTEGER NOT NULL,
+    ledger_id INTEGER NOT NULL,
+    dr_amount REAL DEFAULT 0,
+    cr_amount REAL DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP, bank_date TEXT,
+    FOREIGN KEY (voucher_id) REFERENCES vouchers(id),
+    FOREIGN KEY (ledger_id) REFERENCES ledgers(id)
+)
+
+--- ROW COUNTS ---
+ledger_groups: 5 rows
+ledgers: 27 rows
+voucher_types: 5 rows
+vouchers: 10 rows
+ledger_entries: 28 rows

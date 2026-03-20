@@ -1,0 +1,81 @@
+--- STEP 1: SCHEMA ALIGNMENT ---
+  voucher_type_id already exists in vouchers
+  created_at already exists in ledger_groups
+  created_at already exists in ledgers
+  created_at already exists in ledger_entries
+
+--- STEP 2: MIGRATE LEDGER_GROUPS ---
+  Source columns: ['id', 'name', 'nature', 'parent_id', 'created_at']
+  Source data.db ledger_groups: 5 rows
+  Group 'Assets' exists (dst_id=4)
+  Group 'Liabilities' exists (dst_id=3)
+  Group 'Income' exists (dst_id=6)
+  Group 'Expenses' exists (dst_id=2)
+  Group 'Duties & Taxes' exists (dst_id=8)
+
+--- STEP 3: MIGRATE LEDGERS ---
+  Source columns: ['id', 'name', 'group_id', 'opening_balance', 'opening_type', 'gstin', 'is_system', 'created_at']
+  Source data.db ledgers: 27 rows
+  Ledger 'SALES' exists (dst_id=1), synced group
+  Ledger 'CGST OUTPUT' exists (dst_id=6), synced group
+  Ledger 'SGST OUTPUT' exists (dst_id=7), synced group
+  Ledger 'IGST OUTPUT' exists (dst_id=8), synced group
+  Ledger 'ROUND OFF' exists (dst_id=4), synced group
+  Ledger 'ABC Exports Pvt Ltd' INSERTED (dst_id=21)
+  Ledger 'Freight Charges' exists (dst_id=12), synced group
+  Ledger 'Liner Agency' exists (dst_id=13), synced group
+  Ledger 'Customs Duty' exists (dst_id=2), synced group
+  Ledger 'Documentation Charges' exists (dst_id=14), synced group
+  Ledger 'Port Charges' exists (dst_id=15), synced group
+  Ledger 'Handling Charges' exists (dst_id=16), synced group
+  Ledger 'Transportation' exists (dst_id=17), synced group
+  Ledger 'Miscellaneous Expenses' exists (dst_id=18), synced group
+  Ledger 'Global Logistics Inc' INSERTED (dst_id=22)
+  Ledger 'Global Logistics Pvt Ltd' INSERTED (dst_id=23)
+  Ledger 'Depreciation Account' exists (dst_id=19), synced group
+  Ledger 'Computer Equipment' exists (dst_id=20), synced group
+  Ledger 'Maersk Shipping Express' INSERTED (dst_id=24)
+  Ledger 'PURCHASES' exists (dst_id=5), synced group
+  Ledger 'CGST INPUT' exists (dst_id=9), synced group
+  Ledger 'SGST INPUT' exists (dst_id=10), synced group
+  Ledger 'IGST INPUT' exists (dst_id=11), synced group
+  Ledger 'Maersk Line India' INSERTED (dst_id=25)
+  Ledger 'VRL Logistics Ltd' INSERTED (dst_id=26)
+  Ledger 'Global Exports Pvt Ltd' INSERTED (dst_id=27)
+  Ledger 'Bank HDFC' INSERTED (dst_id=28)
+
+--- STEP 4: MIGRATE VOUCHER_TYPES ---
+  Source data.db voucher_types: 5 rows
+  VoucherType 'SALES' exists (dst_id=1)
+  VoucherType 'DEBIT_NOTE' exists (dst_id=2)
+  VoucherType 'RECEIPT' exists (dst_id=3)
+  VoucherType 'PAYMENT' exists (dst_id=4)
+  VoucherType 'JOURNAL' exists (dst_id=5)
+
+--- STEP 5: MIGRATE VOUCHERS ---
+  Source columns: ['id', 'voucher_no', 'voucher_type_id', 'voucher_date', 'narration', 'created_at', 'voucher_type', 'job_id']
+  Source data.db vouchers: 10 rows
+  Voucher 'SANSHIP/2026/1' INSERTED (dst_id=7)
+  Voucher 'SANSHIP/2026/2' exists (dst_id=1), updated
+  Voucher 'SANSHIP/2026/3' INSERTED (dst_id=8)
+  Voucher 'SANSHIP/2026/4' exists (dst_id=3), updated
+  Voucher 'SANSHIP/2026/5' INSERTED (dst_id=9)
+  Voucher 'JV/2026/001' INSERTED (dst_id=10)
+  Voucher 'JV/2026/545' INSERTED (dst_id=11)
+  Voucher 'PMT/2026/712' INSERTED (dst_id=12)
+  Voucher 'PMT/2026/931' INSERTED (dst_id=13)
+  Voucher 'PMT/2026/730' INSERTED (dst_id=14)
+
+--- STEP 6: MIGRATE LEDGER_ENTRIES ---
+  Source columns: ['id', 'voucher_id', 'ledger_id', 'dr_amount', 'cr_amount', 'created_at', 'bank_date']
+  Source data.db ledger_entries: 28 rows
+  Migrated: 26, Skipped: 2
+
+--- VALIDATION ---
+  ledger_groups: data.db=5, sanship.db=6 [OK]
+  ledgers: data.db=27, sanship.db=28 [OK]
+  voucher_types: data.db=5, sanship.db=5 [OK]
+  vouchers: data.db=10, sanship.db=14 [OK]
+  ledger_entries: data.db=28, sanship.db=36 [OK]
+
+=== MIGRATION COMPLETE ===
