@@ -1,0 +1,49 @@
+=== UNIFIED sanship.db SCHEMA ===
+
+Table: ledger_groups (6 rows)
+  Columns: id, name, nature, parent_id
+
+Table: ledgers (28 rows)
+  Columns: id, name, group_id, opening_balance, opening_type, gstin, party_id, is_system
+
+Table: voucher_types (5 rows)
+  Columns: id, name, affects_inventory, is_system
+
+Table: vouchers (14 rows)
+  Columns: id, voucher_no, voucher_type, voucher_date, narration, job_id, created_at, voucher_type_id
+
+Table: ledger_entries (36 rows)
+  Columns: id, voucher_id, ledger_id, dr_amount, cr_amount, container_number, bank_date
+
+
+=== CRITICAL COLUMN CHECKS ===
+
+  PASS vouchers.voucher_type_id
+  PASS vouchers.voucher_type
+  PASS vouchers.voucher_date
+  PASS vouchers.narration
+  PASS vouchers.job_id
+  PASS vouchers.created_at
+  PASS ledgers.party_id
+  FAIL ledgers.created_at
+  PASS ledgers.gstin
+  PASS ledgers.opening_balance
+  PASS ledgers.opening_type
+  PASS ledgers.is_system
+  PASS ledger_groups.nature
+  PASS ledger_groups.parent_id
+  FAIL ledger_groups.created_at
+  PASS ledger_entries.dr_amount
+  PASS ledger_entries.cr_amount
+  PASS ledger_entries.bank_date
+  PASS ledger_entries.container_number
+  FAIL ledger_entries.created_at
+
+=== SAMPLE DATA ===
+
+Bank HDFC: [(28, 'Bank HDFC', 4)]
+Maersk Line India: [(25, 'Maersk Line India')]
+Voucher Types: [(1, 'SALES'), (2, 'DEBIT_NOTE'), (3, 'RECEIPT'), (4, 'PAYMENT'), (5, 'JOURNAL')]
+Recent Vouchers: [('PMT/2026/730', 'PAYMENT', 4), ('PMT/2026/931', 'PAYMENT', 4), ('PMT/2026/712', 'PAYMENT', 4), ('JV/2026/545', 'JOURNAL', 5), ('JV/2026/001', 'JOURNAL', 5)]
+
+FAILURES: ['ledgers.created_at', 'ledger_groups.created_at', 'ledger_entries.created_at']

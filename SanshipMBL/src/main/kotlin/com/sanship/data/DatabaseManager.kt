@@ -183,7 +183,8 @@ object DatabaseManager {
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name TEXT NOT NULL UNIQUE,
                     nature TEXT CHECK ( nature IN ('ASSET', 'LIABILITY', 'INCOME', 'EXPENSE') ) NOT NULL,
-                    parent_id INTEGER
+                    parent_id INTEGER,
+                    created_at TEXT
                 );
             """.trimIndent()
             stmt.execute(createGroups)
@@ -213,8 +214,9 @@ object DatabaseManager {
                     opening_balance REAL DEFAULT 0,
                     opening_type TEXT CHECK (opening_type IN ('DR','CR')),
                     gstin TEXT,
-                    party_id INTEGER, -- Link to ClientMaster
+                    party_id INTEGER,
                     is_system INTEGER DEFAULT 0,
+                    created_at TEXT,
                     FOREIGN KEY (group_id) REFERENCES ledger_groups(id)
                 );
             """.trimIndent()
@@ -225,7 +227,8 @@ object DatabaseManager {
                 CREATE TABLE IF NOT EXISTS vouchers (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     voucher_no TEXT NOT NULL UNIQUE,
-                    voucher_type TEXT NOT NULL, -- SALES, RECEIPT, CONTRA, JOURNAL
+                    voucher_type_id INTEGER,
+                    voucher_type TEXT NOT NULL,
                     voucher_date TEXT NOT NULL,
                     narration TEXT,
                     job_id INTEGER,
@@ -233,6 +236,9 @@ object DatabaseManager {
                 );
             """.trimIndent()
             stmt.execute(createVouchers)
+
+            // Migration: add voucher_type_id if missing (existing DBs)
+            try { stmt.execute("ALTER TABLE vouchers ADD COLUMN voucher_type_id INTEGER") } catch (e: Exception) {}
 
             // 4. Ledger Entries
             val createEntries = """
@@ -243,11 +249,24 @@ object DatabaseManager {
                     dr_amount REAL DEFAULT 0,
                     cr_amount REAL DEFAULT 0,
                     container_number TEXT,
+                    bank_date TEXT,
+                    created_at TEXT,
                     FOREIGN KEY (voucher_id) REFERENCES vouchers(id),
                     FOREIGN KEY (ledger_id) REFERENCES ledgers(id)
                 );
             """.trimIndent()
             stmt.execute(createEntries)
+
+            // Migrations: add columns for existing databases
+            val accountingMigrations = listOf(
+                "ledger_groups" to "created_at" to "TEXT",
+                "ledgers" to "created_at" to "TEXT",
+                "ledger_entries" to "created_at" to "TEXT",
+                "ledger_entries" to "bank_date" to "TEXT"
+            )
+            accountingMigrations.forEach { (tableCol, type) ->
+                try { stmt.execute("ALTER TABLE ${tableCol.first} ADD COLUMN ${tableCol.second} $type") } catch (e: Exception) {}
+            }
             
             // --- CHARGE MASTER ---
             val createCharges = """
