@@ -67,9 +67,9 @@ class ClientRepository {
                     }
                 }
             }
-            // Add to or update in Ledger Engine as a Debtor (Asset)
-            com.sanship.accounting.Ledgers.getOrCreatePartyLedger(client.fullName, client.gstin, "Assets")
         }
+        // Add to or update in Ledger Engine as a Debtor (Asset) OUTSIDE the transaction lock
+        com.sanship.accounting.Ledgers.getOrCreatePartyLedger(client.fullName, client.gstin, "Assets")
     }
 
     // 3. Delete Client

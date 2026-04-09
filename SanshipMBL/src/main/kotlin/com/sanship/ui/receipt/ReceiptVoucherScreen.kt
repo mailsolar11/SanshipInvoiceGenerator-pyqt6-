@@ -179,21 +179,20 @@ fun ReceiptVoucherScreen() {
                                     )
                                     
                                     // Auto-Generate PDF
-                                    val pdfPath = "receipts/${voucherNo.replace("/","_")}.pdf"
+                                    val pdfPath = com.sanship.utils.DocumentPaths.getReceiptPath("${voucherNo.replace("/","_")}.pdf")
                                     try {
-                                        java.io.File("receipts").mkdirs()
-                                        com.sanship.services.ReceiptPDFGenerator.generateReceiptPDF(
-                                            com.sanship.services.ReceiptPDFGenerator.ReceiptData(
-                                                receiptNo = voucherNo,
-                                                date = voucherDate,
-                                                receivedFrom = clientName,
-                                                amount = amount.toDouble(),
-                                                mode = selectedMode,
-                                                narration = narration,
-                                                jobNo = if(selectedJobId != null) jobs.find { it.id == selectedJobId }?.jobNo else null
-                                            ),
-                                            pdfPath
+                                        val data = com.sanship.services.AccountingVoucherPdfService.VoucherData(
+                                            title = "RECEIPT VOUCHER",
+                                            voucherNo = voucherNo,
+                                            date = voucherDate,
+                                            mainLabel = "Received With Thanks From:",
+                                            mainValue = clientName,
+                                            amount = amount.toDouble(),
+                                            mode = selectedMode,
+                                            narration = narration,
+                                            jobNo = if (selectedJobId != null) jobs.find { it.id == selectedJobId }?.jobNo else null
                                         )
+                                        com.sanship.services.AccountingVoucherPdfService.generateVoucherPDF(data, pdfPath)
                                         successMsg = "Receipt Saved & PDF Generated: $pdfPath"
                                     } catch (e: Exception) {
                                         e.printStackTrace()

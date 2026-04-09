@@ -1,0 +1,32 @@
+INVOICES COLUMNS:
+['invoiceNo', 'date', 'customerName', 'billingAddress', 'gstin', 'placeOfSupply', 'reverseCharge', 'jobId', 'shipper', 'consignee', 'vessel', 'pol', 'pod', 'taxableAmount', 'cgstAmount', 'sgstAmount', 'igstAmount', 'grandTotal', 'be_no', 'be_date', 'igm_no', 'igm_date', 'item_no', 'type', 'jobNo', 'etd', 'eta', 'mblNo', 'grossWeight', 'netWeight', 'volumeCbm', 'packages', 'beNo', 'igmNo', 'itemNo', 'exchangeRate', 'refNo', 'narration', 'place_of_supply', 'invoice_number', 'beDate', 'igmDate', 'irn', 'ackNo', 'ackDate', 'signedQr', 'signedInvoice', 'netWeightUnit', 'otherRefNo', 'pan', 'stateCode', 'category', 'hblNo', 'containerNos', 'shipperInvoiceNo', 'shipperInvoiceDate', 'customerId', 'currency']
+
+INVOICES ROWS: 5
+
+INVOICES DDL:
+CREATE TABLE invoices (
+                invoiceNo TEXT PRIMARY KEY,
+                date TEXT,
+                customerName TEXT,
+                billingAddress TEXT,
+                gstin TEXT,
+                placeOfSupply TEXT,
+                reverseCharge INTEGER,
+                jobId TEXT,
+                shipper TEXT,
+                consignee TEXT,
+                vessel TEXT,
+                pol TEXT,
+                pod TEXT,
+                taxableAmount REAL,
+                cgstAmount REAL,
+                sgstAmount REAL,
+                igstAmount REAL,
+                grandTotal REAL
+            , be_no TEXT, be_date TEXT, igm_no TEXT, igm_date TEXT, item_no TEXT, type TEXT DEFAULT 'INVOICE', jobNo TEXT, etd TEXT, eta TEXT, mblNo TEXT, grossWeight TEXT, netWeight TEXT, volumeCbm TEXT, packages TEXT, beNo TEXT, igmNo TEXT, itemNo TEXT, exchangeRate TEXT, refNo TEXT, narration TEXT, place_of_supply TEXT, invoice_number TEXT, beDate TEXT, igmDate TEXT, irn TEXT, ackNo TEXT, ackDate TEXT, signedQr TEXT, signedInvoice TEXT, netWeightUnit TEXT, otherRefNo TEXT, pan TEXT, stateCode TEXT, category TEXT, hblNo TEXT, containerNos TEXT, shipperInvoiceNo TEXT, shipperInvoiceDate TEXT, customerId INTEGER, currency TEXT DEFAULT 'INR')
+
+INVOICE_ITEMS COLUMNS:
+['id', 'invoiceNo', 'description', 'hsnSac', 'qty', 'rate', 'per', 'amount', 'gstRate', 'cgstAmount', 'sgstAmount', 'igstAmount', 'total', 'srNo', 'currency', 'taxableAmount', 'cgstRate', 'sgstRate', 'igstRate', 'invoice_id', 'sr_no', 'taxable_amount', 'cgst_amt', 'sgst_amt', 'igst_amt', 'total_amt', 'cgst_rate', 'sgst_rate', 'igst_rate', 'hsn_sac']
+
+INVOICE_ITEMS ROWS: 18
+

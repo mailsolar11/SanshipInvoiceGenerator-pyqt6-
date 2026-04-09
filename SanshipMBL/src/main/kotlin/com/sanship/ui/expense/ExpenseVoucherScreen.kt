@@ -170,7 +170,27 @@ fun ExpenseVoucherScreen() {
                                         jobId = selectedJobId ?: 0
                                     )
                                     
-                                    successMsg = "Voucher Saved Successfully!"
+                                    // Auto-Generate PDF
+                                    val pdfPath = com.sanship.utils.DocumentPaths.getExpenseVoucherPath("${voucherNo.replace("/","_")}.pdf")
+                                    try {
+                                        val data = com.sanship.services.AccountingVoucherPdfService.VoucherData(
+                                            title = "EXPENSE VOUCHER",
+                                            voucherNo = voucherNo,
+                                            date = voucherDate,
+                                            mainLabel = "Paid To (Party Name):",
+                                            mainValue = partyName,
+                                            amount = amount.toDouble(),
+                                            mode = "N/A",
+                                            narration = narration,
+                                            jobNo = if (selectedJobId != null) jobs.find { it.id == selectedJobId }?.jobNo else null
+                                        )
+                                        com.sanship.services.AccountingVoucherPdfService.generateVoucherPDF(data, pdfPath)
+                                        successMsg = "Voucher Saved & PDF Generated: $pdfPath"
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                        successMsg = "Voucher Saved but PDF Failed: ${e.message}"
+                                    }
+                                    
                                     errorMsg = ""
                                     
                                     // Reset

@@ -10,7 +10,8 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object DatabaseManager {
-    private const val DB_URL = "jdbc:sqlite:sanship.db"
+    private val DB_URL: String
+        get() = "jdbc:sqlite:${com.sanship.utils.DocumentPaths.getAppDatabasePath()}"
 
     fun initDatabase() {
         try {

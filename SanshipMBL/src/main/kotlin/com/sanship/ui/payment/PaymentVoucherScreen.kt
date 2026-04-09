@@ -173,7 +173,29 @@ fun PaymentVoucherScreen() {
                                         jobId = selectedJobId ?: 0
                                     )
                                     
-                                    successMsg = "Payment Voucher Saved: $voucherNo"
+                                    val payeeName = allLedgers.find { it.first == selectedPayToLedgerId }?.second ?: "Unknown"
+                                    
+                                    // Auto-Generate PDF
+                                    val pdfPath = com.sanship.utils.DocumentPaths.getPaymentVoucherPath("${voucherNo.replace("/","_")}.pdf")
+                                    try {
+                                        val data = com.sanship.services.AccountingVoucherPdfService.VoucherData(
+                                            title = "PAYMENT VOUCHER",
+                                            voucherNo = voucherNo,
+                                            date = voucherDate,
+                                            mainLabel = "Paid To (Payee):",
+                                            mainValue = payeeName,
+                                            amount = amount.toDouble(),
+                                            mode = selectedMode,
+                                            narration = narration,
+                                            jobNo = if (selectedJobId != null) jobs.find { it.id == selectedJobId }?.jobNo else null
+                                        )
+                                        com.sanship.services.AccountingVoucherPdfService.generateVoucherPDF(data, pdfPath)
+                                        successMsg = "Payment Saved & PDF Generated: $pdfPath"
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                        successMsg = "Payment Saved but PDF Failed: ${e.message}"
+                                    }
+                                    
                                     errorMsg = ""
                                     
                                     // Reset

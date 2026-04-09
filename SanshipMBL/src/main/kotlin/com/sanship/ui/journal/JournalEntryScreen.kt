@@ -254,7 +254,37 @@ fun JournalEntryScreen() {
                                         entries = entries
                                     )
                                     
-                                    successMsg = "Journal Entry Saved: $voucherNo"
+                                    // Auto-Generate PDF
+                                    val pdfPath = com.sanship.utils.DocumentPaths.getJournalVoucherPath("${voucherNo.replace("/","_")}.pdf")
+                                    try {
+                                        val debitsList = entries.filter { it.second > 0 }.map { entry ->
+                                            Pair(allLedgers.find { l -> l.first == entry.first }?.second ?: "Unknown", entry.second)
+                                        }
+                                        val creditsList = entries.filter { it.third > 0 }.map { entry ->
+                                            Pair(allLedgers.find { l -> l.first == entry.first }?.second ?: "Unknown", entry.third)
+                                        }
+                                        val totalAmt = entries.sumOf { it.second }
+                                        
+                                        val data = com.sanship.services.AccountingVoucherPdfService.VoucherData(
+                                            title = "JOURNAL VOUCHER",
+                                            voucherNo = voucherNo,
+                                            date = voucherDate,
+                                            mainLabel = "",
+                                            mainValue = "",
+                                            amount = totalAmt,
+                                            mode = "Journal",
+                                            narration = narration,
+                                            isJournal = true,
+                                            debits = debitsList,
+                                            credits = creditsList
+                                        )
+                                        com.sanship.services.AccountingVoucherPdfService.generateVoucherPDF(data, pdfPath)
+                                        successMsg = "Journal Saved & PDF Generated: $pdfPath"
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                        successMsg = "Journal Saved but PDF Failed: ${e.message}"
+                                    }
+                                    
                                     errorMsg = ""
                                     
                                     // Reset

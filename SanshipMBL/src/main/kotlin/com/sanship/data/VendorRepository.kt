@@ -71,9 +71,9 @@ class VendorRepository {
                     }
                 }
             }
-            // Add to or update in Ledger Engine as a Creditor (Liability)
-            com.sanship.accounting.Ledgers.getOrCreatePartyLedger(vendor.fullName, vendor.gstin, "Liabilities")
         }
+        // Add to or update in Ledger Engine as a Creditor (Liability) OUTSIDE the transaction lock
+        com.sanship.accounting.Ledgers.getOrCreatePartyLedger(vendor.fullName, vendor.gstin, "Liabilities")
     }
 
     // 3. Delete Vendor

@@ -9,74 +9,86 @@ object InvoiceRepository {
         DatabaseManager.connect()?.use { conn ->
             conn.autoCommit = false
             try {
-                // 1. Insert Header
+                // 1. Insert Header using camelCase legacy schema
                 val headerSql = """
                     INSERT INTO invoices (
-                        invoice_no, date, document_type, customer_id, job_id, job_no, billing_address, consignee_address,
-                        shipper, consignee, pol, pod, vessel_flight, etd, eta,
-                        mbl_no, gross_weight, net_weight, net_weight_unit, volume_cbm, packages,
-                        be_no, be_date, igm_no, igm_date, item_no,
-                        currency, exchange_rate, ref_no, other_ref_no, pan, state_code, grand_total, narration
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        invoiceNo, date, type, customerId, customerName, billingAddress, consignee,
+                        shipper, pol, pod, vessel, etd, eta,
+                        mblNo, grossWeight, netWeight, netWeightUnit, volumeCbm, packages,
+                        beNo, beDate, igmNo, igmDate, itemNo,
+                        currency, exchangeRate, refNo, otherRefNo, pan, stateCode, grandTotal, narration,
+                        taxableAmount, cgstAmount, sgstAmount, igstAmount, jobNo, category
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """
                 conn.prepareStatement(headerSql, Statement.RETURN_GENERATED_KEYS).use { ps ->
                     ps.setString(1, header.invoiceNo)
                     ps.setString(2, header.invoiceDate)
                     ps.setString(3, header.documentType)
                     ps.setInt(4, header.customerId)
-                    ps.setInt(5, header.jobId)
-                    ps.setString(6, header.jobNo)
-                    ps.setString(7, header.billingAddress)
-                    ps.setString(8, header.consigneeAddress)
-                    ps.setString(9, header.shipper)
-                    ps.setString(10, header.consignee)
-                    ps.setString(11, header.pol)
-                    ps.setString(12, header.pod)
-                    ps.setString(13, header.vesselFlight)
-                    ps.setString(14, header.etd)
-                    ps.setString(15, header.eta)
-                    ps.setString(16, header.mblNo)
-                    ps.setString(17, header.grossWeight)
-                    ps.setString(18, header.netWeight)
-                    ps.setString(19, header.netWeightUnit)
-                    ps.setString(20, header.volumeCbm)
-                    ps.setString(21, header.packages)
-                    ps.setString(22, header.beNo)
-                    ps.setString(23, header.beDate)
-                    ps.setString(24, header.igmNo)
-                    ps.setString(25, header.igmDate)
-                    ps.setString(26, header.itemNo)
-                    ps.setString(27, header.currency)
-                    ps.setDouble(28, header.exchangeRate)
-                    ps.setString(29, header.refNo)
-                    ps.setString(30, header.otherRefNo)
-                    ps.setString(31, header.pan)
-                    ps.setString(32, header.stateCode)
-                    ps.setDouble(33, header.grandTotal)
-                    ps.setString(34, header.narration)
+                    ps.setString(5, header.customerName)
+                    ps.setString(6, header.billingAddress)
+                    ps.setString(7, header.consigneeAddress) // Maps consignee address
+                    ps.setString(8, header.shipper)
+                    ps.setString(9, header.pol)
+                    ps.setString(10, header.pod)
+                    ps.setString(11, header.vesselFlight)
+                    ps.setString(12, header.etd)
+                    ps.setString(13, header.eta)
+                    ps.setString(14, header.mblNo)
+                    ps.setString(15, header.grossWeight)
+                    ps.setString(16, header.netWeight)
+                    ps.setString(17, header.netWeightUnit)
+                    ps.setString(18, header.volumeCbm)
+                    ps.setString(19, header.packages)
+                    ps.setString(20, header.beNo)
+                    ps.setString(21, header.beDate)
+                    ps.setString(22, header.igmNo)
+                    ps.setString(23, header.igmDate)
+                    ps.setString(24, header.itemNo)
+                    ps.setString(25, header.currency)
+                    ps.setDouble(26, header.exchangeRate)
+                    ps.setString(27, header.refNo)
+                    ps.setString(28, header.otherRefNo)
+                    ps.setString(29, header.pan)
+                    ps.setString(30, header.stateCode)
+                    ps.setDouble(31, header.grandTotal)
+                    ps.setString(32, header.narration)
+                    ps.setDouble(33, header.taxableAmount)
+                    ps.setDouble(34, header.cgstAmount)
+                    ps.setDouble(35, header.sgstAmount)
+                    ps.setDouble(36, header.igstAmount)
+                    ps.setString(37, header.jobNo)
+                    ps.setString(38, header.category)
                     ps.executeUpdate()
                     
                     val rs = ps.generatedKeys
                     if (rs.next()) {
                         invoiceId = rs.getInt(1)
+                    } else {
+                        // Fallback using last_insert_rowid() if driver doesn't support generated keys on TEXT PK
+                        conn.createStatement().use { st ->
+                            val rs2 = st.executeQuery("SELECT last_insert_rowid()")
+                            if (rs2.next()) invoiceId = rs2.getInt(1)
+                        }
                     }
                 }
                 
-                // 2. Insert Items
+                // 2. Insert Items (Handling legacy columns too vs Phase 19 fix)
+                // We'll use the snake_case columns as that was added by ALTER TABLE, but also set the legacy `invoiceNo` string!
                 val itemSql = """
                     INSERT INTO invoice_items (
-                        invoice_id, sr_no, description, hsn_sac, currency, exchange_rate, rate, qty, amount, taxable_amount,
-                        cgst_rate, cgst_amt, sgst_rate, sgst_amt, igst_rate, igst_amt, total_amt
+                        invoice_id, invoiceNo, sr_no, description, hsn_sac, currency, rate, qty,
+                        amount, taxable_amount, cgst_rate, cgst_amt, sgst_rate, sgst_amt, igst_rate, igst_amt, total_amt
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """
                 conn.prepareStatement(itemSql).use { ps ->
                     items.forEach { item ->
                         ps.setInt(1, invoiceId)
-                        ps.setInt(2, item.srNo)
-                        ps.setString(3, item.description)
-                        ps.setString(4, item.hsnSac)
-                        ps.setString(5, item.currency)
-                        ps.setDouble(6, item.exchangeRate)
+                        ps.setString(2, header.invoiceNo) // Legacy foreign key support
+                        ps.setInt(3, item.srNo)
+                        ps.setString(4, item.description)
+                        ps.setString(5, item.hsnSac)
+                        ps.setString(6, item.currency)
                         ps.setDouble(7, item.rate)
                         ps.setDouble(8, item.qty)
                         ps.setDouble(9, item.amount)
@@ -104,8 +116,8 @@ object InvoiceRepository {
 
     fun getInvoiceById(id: Int): Pair<InvoiceModels.InvoiceHeader, List<InvoiceModels.InvoiceItem>>? {
         DatabaseManager.connect()?.use { conn ->
-            // Get Header
-            val headerSql = "SELECT * FROM invoices WHERE id = ?"
+            // Get Header using rowid since `id` column doesn't exist for legacy tables
+            val headerSql = "SELECT *, rowid as id FROM invoices WHERE rowid = ?"
             val header = conn.prepareStatement(headerSql).use { ps ->
                 ps.setInt(1, id)
                 val rs = ps.executeQuery()
@@ -115,31 +127,32 @@ object InvoiceRepository {
             } ?: return null
             
             // Get Items
-            val itemsSql = "SELECT * FROM invoice_items WHERE invoice_id = ? ORDER BY sr_no"
+            val itemsSql = "SELECT * FROM invoice_items WHERE invoice_id = ? OR invoiceNo = ? ORDER BY sr_no"
             val items = conn.prepareStatement(itemsSql).use { ps ->
                 ps.setInt(1, id)
+                ps.setString(2, header.invoiceNo)
                 val rs = ps.executeQuery()
                 val list = mutableListOf<InvoiceModels.InvoiceItem>()
                 while (rs.next()) {
                     list.add(InvoiceModels.InvoiceItem(
-                        id = rs.getInt("id"),
-                        invoiceId = rs.getInt("invoice_id"),
-                        srNo = rs.getInt("sr_no"),
+                        id = try { rs.getInt("id") } catch (_: Exception) { 0 },
+                        invoiceId = try { rs.getInt("invoice_id") } catch (_: Exception) { id },
+                        srNo = try { rs.getInt("sr_no") } catch (_: Exception) { try { rs.getInt("srNo") } catch (_: Exception) { 1 } },
                         description = rs.getString("description") ?: "",
-                        hsnSac = rs.getString("hsn_sac") ?: "",
+                        hsnSac = try { rs.getString("hsn_sac") } catch (_: Exception) { try { rs.getString("hsnSac") } catch (_: Exception) { "" } } ?: "",
                         currency = rs.getString("currency") ?: "INR",
-                        exchangeRate = rs.getDouble("exchange_rate"),
+                        exchangeRate = 1.0,
                         rate = rs.getDouble("rate"),
                         qty = rs.getDouble("qty"),
                         amount = rs.getDouble("amount"),
-                        taxableAmount = rs.getDouble("taxable_amount"),
-                        cgstRate = rs.getDouble("cgst_rate"),
-                        cgstAmt = rs.getDouble("cgst_amt"),
-                        sgstRate = rs.getDouble("sgst_rate"),
-                        sgstAmt = rs.getDouble("sgst_amt"),
-                        igstRate = rs.getDouble("igst_rate"),
-                        igstAmt = rs.getDouble("igst_amt"),
-                        totalAmt = rs.getDouble("total_amt")
+                        taxableAmount = try { rs.getDouble("taxable_amount") } catch (_: Exception) { try { rs.getDouble("taxableAmount") } catch (_: Exception) { 0.0 } },
+                        cgstRate = try { rs.getDouble("cgst_rate") } catch (_: Exception) { 0.0 },
+                        cgstAmt = try { rs.getDouble("cgst_amt") } catch (_: Exception) { try { rs.getDouble("cgstAmount") } catch (_: Exception) { 0.0 } },
+                        sgstRate = try { rs.getDouble("sgst_rate") } catch (_: Exception) { 0.0 },
+                        sgstAmt = try { rs.getDouble("sgst_amt") } catch (_: Exception) { try { rs.getDouble("sgstAmount") } catch (_: Exception) { 0.0 } },
+                        igstRate = try { rs.getDouble("igst_rate") } catch (_: Exception) { 0.0 },
+                        igstAmt = try { rs.getDouble("igst_amt") } catch (_: Exception) { try { rs.getDouble("igstAmount") } catch (_: Exception) { 0.0 } },
+                        totalAmt = try { rs.getDouble("total_amt") } catch (_: Exception) { try { rs.getDouble("total") } catch (_: Exception) { 0.0 } }
                     ))
                 }
                 list
@@ -153,7 +166,7 @@ object InvoiceRepository {
     fun getAllInvoices(): List<InvoiceModels.InvoiceHeader> {
         val list = mutableListOf<InvoiceModels.InvoiceHeader>()
         DatabaseManager.connect()?.use { conn ->
-            val sql = "SELECT * FROM invoices ORDER BY date DESC, id DESC"
+            val sql = "SELECT *, rowid as id FROM invoices ORDER BY date DESC, rowid DESC"
             conn.createStatement().use { stmt ->
                 val rs = stmt.executeQuery(sql)
                 while (rs.next()) {
@@ -166,7 +179,7 @@ object InvoiceRepository {
 
     private fun extractHeader(rs: java.sql.ResultSet): InvoiceModels.InvoiceHeader {
         return InvoiceModels.InvoiceHeader(
-            id = rs.getInt("id"),
+            id = try { rs.getInt("rowid") } catch (_: Exception) { try { rs.getInt("id") } catch (_: Exception) { 0 } },
             invoiceNo = rs.getString("invoiceNo") ?: "",
             invoiceDate = rs.getString("date") ?: "",
             documentType = rs.getString("type") ?: "INVOICE",

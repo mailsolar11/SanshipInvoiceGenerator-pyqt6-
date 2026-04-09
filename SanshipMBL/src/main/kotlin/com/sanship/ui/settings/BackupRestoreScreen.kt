@@ -29,7 +29,7 @@ fun BackupRestoreScreen() {
     fun backupDatabase() {
         scope.launch {
             try {
-                val dbFile = File("sanship.db")
+                val dbFile = File(com.sanship.utils.DocumentPaths.getAppDatabasePath())
                 if (!dbFile.exists()) {
                     showMessage("Database file 'sanship.db' not found!", true)
                     return@launch
@@ -58,7 +58,7 @@ fun BackupRestoreScreen() {
                     return@launch
                 }
 
-                val destFile = File("sanship.db")
+                val destFile = File(com.sanship.utils.DocumentPaths.getAppDatabasePath())
                 srcFile.copyTo(destFile, overwrite = true)
                 
                 showMessage("Restore successful from: ${srcFile.name}. Please restart the application.", false)

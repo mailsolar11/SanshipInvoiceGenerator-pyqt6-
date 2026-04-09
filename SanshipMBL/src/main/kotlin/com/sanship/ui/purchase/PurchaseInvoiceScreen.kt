@@ -152,12 +152,16 @@ fun PurchaseInvoiceScreen() {
                 Text("Voucher Line Items", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
                 
                 Row(modifier = Modifier.fillMaxWidth().background(Color(0xFFEEEEEE)).padding(8.dp)) {
-                    Text("Description", modifier = Modifier.weight(3f), fontWeight = FontWeight.Bold)
-                    Text("HSN", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold)
-                    Text("Qty", modifier = Modifier.weight(0.8f), fontWeight = FontWeight.Bold, textAlign = TextAlign.End)
-                    Text("Rate (${viewModel.selectedCurrency})", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold, textAlign = TextAlign.End)
-                    Text("Taxable (INR)", modifier = Modifier.weight(1.2f), fontWeight = FontWeight.Bold, textAlign = TextAlign.End)
-                    Text("Total (INR)", modifier = Modifier.weight(1.4f), fontWeight = FontWeight.Bold, textAlign = TextAlign.End)
+                    Text("Description", modifier = Modifier.weight(2.5f), fontWeight = FontWeight.Bold)
+                    Text("HSN", modifier = Modifier.weight(0.8f), fontWeight = FontWeight.Bold)
+                    Text("Qty", modifier = Modifier.weight(0.6f), fontWeight = FontWeight.Bold, textAlign = TextAlign.End)
+                    Text("Rate (${viewModel.selectedCurrency})", modifier = Modifier.weight(0.9f), fontWeight = FontWeight.Bold, textAlign = TextAlign.End)
+                    Text("Taxable", modifier = Modifier.weight(0.9f), fontWeight = FontWeight.Bold, textAlign = TextAlign.End)
+                    Text("CGST %", modifier = Modifier.weight(0.6f), fontWeight = FontWeight.Bold, textAlign = TextAlign.End)
+                    Text("SGST %", modifier = Modifier.weight(0.6f), fontWeight = FontWeight.Bold, textAlign = TextAlign.End)
+                    Text("IGST %", modifier = Modifier.weight(0.6f), fontWeight = FontWeight.Bold, textAlign = TextAlign.End)
+                    Text("GST Amt", modifier = Modifier.weight(0.9f), fontWeight = FontWeight.Bold, textAlign = TextAlign.End)
+                    Text("Total (INR)", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold, textAlign = TextAlign.End)
                     Spacer(Modifier.width(40.dp))
                 }
 
@@ -165,34 +169,58 @@ fun PurchaseInvoiceScreen() {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         OutlinedTextField(
                             value = item.description,
                             onValueChange = { s: String -> viewModel.updateItem(index, item.copy(description = s)) },
-                            modifier = Modifier.weight(3f),
+                            modifier = Modifier.weight(2.5f),
                             singleLine = true
                         )
                         OutlinedTextField(
                             value = item.hsnSac,
                             onValueChange = { s: String -> viewModel.updateItem(index, item.copy(hsnSac = s)) },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(0.8f),
                             singleLine = true
                         )
                         OutlinedTextField(
                             value = if (item.qty == 0.0) "" else item.qty.toString(),
                             onValueChange = { s: String -> viewModel.updateItem(index, item.copy(qty = s.toDoubleOrNull() ?: 1.0)) },
-                            modifier = Modifier.weight(0.8f),
+                            modifier = Modifier.weight(0.6f),
                             singleLine = true
                         )
                         OutlinedTextField(
                             value = if (item.rate == 0.0) "" else item.rate.toString(),
                             onValueChange = { s: String -> viewModel.updateItem(index, item.copy(rate = s.toDoubleOrNull() ?: 0.0)) },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(0.9f),
                             singleLine = true
                         )
-                        Text(currencyFormat.format(item.taxableAmount), Modifier.weight(1.2f), textAlign = TextAlign.End, fontSize = 14.sp)
-                        Text(currencyFormat.format(item.totalAmount), Modifier.weight(1.4f), textAlign = TextAlign.End, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(currencyFormat.format(item.taxableAmount), Modifier.weight(0.9f), textAlign = TextAlign.End, fontSize = 12.sp)
+                        
+                        // CGST Rate
+                        Text(
+                            if (item.cgstRate > 0) "${item.cgstRate}%" else "—",
+                            Modifier.weight(0.6f), textAlign = TextAlign.End, fontSize = 12.sp,
+                            color = if (item.cgstRate > 0) Color(0xFF2E7D32) else Color.Gray
+                        )
+                        // SGST Rate
+                        Text(
+                            if (item.sgstRate > 0) "${item.sgstRate}%" else "—",
+                            Modifier.weight(0.6f), textAlign = TextAlign.End, fontSize = 12.sp,
+                            color = if (item.sgstRate > 0) Color(0xFF2E7D32) else Color.Gray
+                        )
+                        // IGST Rate
+                        Text(
+                            if (item.igstRate > 0) "${item.igstRate}%" else "—",
+                            Modifier.weight(0.6f), textAlign = TextAlign.End, fontSize = 12.sp,
+                            color = if (item.igstRate > 0) Color(0xFFE65100) else Color.Gray
+                        )
+                        // GST Amount
+                        Text(
+                            currencyFormat.format(item.cgstAmount + item.sgstAmount + item.igstAmount),
+                            Modifier.weight(0.9f), textAlign = TextAlign.End, fontSize = 12.sp
+                        )
+                        Text(currencyFormat.format(item.totalAmount), Modifier.weight(1f), textAlign = TextAlign.End, fontWeight = FontWeight.Bold, fontSize = 12.sp)
 
                         IconButton(onClick = { viewModel.removeItem(index) }) {
                             Icon(Icons.Default.Delete, "Delete", tint = Color.Red.copy(alpha = 0.6f))

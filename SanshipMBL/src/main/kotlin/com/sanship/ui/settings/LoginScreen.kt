@@ -10,13 +10,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.input.key.*
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
 import com.sanship.repositories.UserRepository
 
 @Composable
 fun LoginScreen(onLoginSuccess: (String, String) -> Unit) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var errorMsg by remember { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
+
+    val attemptLogin = {
+        if (UserRepository.authenticate(username, password)) {
+            errorMsg = ""
+            val role = UserRepository.getRole(username)
+            onLoginSuccess(username, role)
+        } else {
+            errorMsg = "Invalid credentials"
+        }
+    }
 
     Box(
         modifier = Modifier.fillMaxSize().background(Color(0xFFEEEEEE)),
@@ -33,8 +52,17 @@ fun LoginScreen(onLoginSuccess: (String, String) -> Unit) {
                 OutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
+                    onValueChange = { username = it },
                     label = { Text("Username") },
-                    modifier = Modifier.fillMaxWidth()
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().onKeyEvent { 
+                        if (it.key == Key.Enter && it.type == KeyEventType.KeyUp) {
+                            focusManager.moveFocus(FocusDirection.Down)
+                            true
+                        } else false
+                    }
                 )
 
                 Spacer(Modifier.height(16.dp))
@@ -44,7 +72,15 @@ fun LoginScreen(onLoginSuccess: (String, String) -> Unit) {
                     onValueChange = { password = it },
                     label = { Text("Password") },
                     visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth()
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { attemptLogin() }),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().onKeyEvent {
+                        if (it.key == Key.Enter && it.type == KeyEventType.KeyUp) {
+                            attemptLogin()
+                            true
+                        } else false
+                    }
                 )
 
                 Spacer(Modifier.height(24.dp))
@@ -55,15 +91,8 @@ fun LoginScreen(onLoginSuccess: (String, String) -> Unit) {
                 }
 
                 Button(
-                    onClick = {
-                        if (UserRepository.authenticate(username, password)) {
-                            errorMsg = ""
-                            val role = UserRepository.getRole(username)
-                            onLoginSuccess(username, role)
-                        } else {
-                            errorMsg = "Invalid credentials"
-                        }
-                    },
+                Button(
+                    onClick = attemptLogin,
                     modifier = Modifier.fillMaxWidth().height(48.dp)
                 ) {
                     Text("Login")

@@ -10,7 +10,8 @@ import java.sql.DriverManager
 object AccountingDb {
     
     // UNIFIED: All data now lives in sanship.db (migrated from data.db)
-    private val DB_PATH = "sanship.db"
+    private val DB_PATH: String
+        get() = com.sanship.utils.DocumentPaths.getAppDatabasePath()
     
     fun getConnection(): Connection {
         val conn = DriverManager.getConnection("jdbc:sqlite:$DB_PATH")

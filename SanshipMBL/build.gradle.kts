@@ -63,15 +63,15 @@ compose.desktop {
             // and java.naming module (often needed by JDBC drivers).
             modules("java.sql", "java.naming")
 
-            packageName = "SanshipMBL"
+            packageName = "Sanship"
             packageVersion = "1.0.0"
-            description = "Sanship Logistics Software"
+            description = "Sanship ERP Software"
             vendor = "Sanship"
             copyright = "© 2026 Sanship"
 
             windows {
                 // Ensure you have an icon at this path, or comment it out if not
-                // iconFile.set(project.file("src/main/resources/icon.ico"))
+                iconFile.set(project.file("src/main/resources/logo.ico"))
 
                 menu = true
                 shortcut = true

@@ -5,6 +5,15 @@ import java.io.File
 object DocumentPaths {
     private val BASE_DIR = File(System.getProperty("user.home"), "Downloads/Sanship").absolutePath
 
+    fun getAppDatabasePath(): String {
+        val appData = System.getenv("APPDATA") ?: System.getProperty("user.home")
+        val dbDir = File(appData, "SanshipApp")
+        if (!dbDir.exists()) {
+            dbDir.mkdirs()
+        }
+        return File(dbDir, "sanship.db").absolutePath
+    }
+
     fun getPath(folderName: String, fileName: String): String {
         val dir = File(BASE_DIR, folderName)
         if (!dir.exists()) {
@@ -23,4 +32,8 @@ object DocumentPaths {
     fun getGstReportPath(fileName: String) = getPath("GST Reports", fileName)
     fun getMblPath(fileName: String) = getPath("Bill of Lading", fileName)
     fun getQuotationPath(fileName: String) = getPath("Quotations", fileName)
+    fun getReceiptPath(fileName: String) = getPath("Receipts", fileName)
+    fun getPaymentVoucherPath(fileName: String) = getPath("Payment Vouchers", fileName)
+    fun getExpenseVoucherPath(fileName: String) = getPath("Expense Vouchers", fileName)
+    fun getJournalVoucherPath(fileName: String) = getPath("Journal Vouchers", fileName)
 }

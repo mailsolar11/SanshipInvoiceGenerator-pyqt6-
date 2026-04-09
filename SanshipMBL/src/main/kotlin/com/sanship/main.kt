@@ -51,81 +51,10 @@ fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         state = windowState,
-        title = "Sanship - Logistics Software",
-        undecorated = true // Remove system border
+        title = "Sanship - Logistics Software"
     ) {
-        Column(Modifier.fillMaxSize().border(1.dp, Color(0xFF2C3E50))) {
-            // Custom Title Bar
-            WindowDraggableArea {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(32.dp)
-                        .background(Color(0xFF2C3E50))
-                        .padding(start = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Sanship - Logistics Software", color = Color.White, fontSize = androidx.compose.ui.unit.TextUnit.Unspecified)
-                    Spacer(Modifier.weight(1f))
-
-                    val density = androidx.compose.ui.platform.LocalDensity.current
-
-                    // Minimize
-                    TitleBarButton("-") { windowState.isMinimized = true }
-
-                    // Maximize/Restore - Manual implementation to respect Taskbar
-                    TitleBarButton("▢") {
-                        val bounds = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().maximumWindowBounds
-                        val currentHeight = windowState.size.height.value
-                        val maxHeight = bounds.height / density.density
-
-                        // Check if we are roughly at max size (tolerance of 20px)
-                        val isMaximized = kotlin.math.abs(currentHeight - maxHeight) < 20
-
-                        if (isMaximized) {
-                            // Restore to default/smaller size
-                            windowState.placement = androidx.compose.ui.window.WindowPlacement.Floating
-                            windowState.size = androidx.compose.ui.unit.DpSize(1200.dp, 900.dp)
-                            windowState.position = WindowPosition(Alignment.Center)
-                        } else {
-                            // Maximize to Work Area (Taskbar visible)
-                            windowState.placement = androidx.compose.ui.window.WindowPlacement.Floating
-                            windowState.position = WindowPosition(
-                                (bounds.x / density.density).dp,
-                                (bounds.y / density.density).dp
-                            )
-                            windowState.size = androidx.compose.ui.unit.DpSize(
-                                (bounds.width / density.density).dp,
-                                (bounds.height / density.density).dp
-                            )
-                        }
-                    }
-
-                    // Close
-                    TitleBarButton("X", true) { exitApplication() }
-                }
-            }
-
-            // App Content
-            MainAppContainer()
-        }
-    }
-}
-
-@Composable
-fun TitleBarButton(text: String, isClose: Boolean = false, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = if(isClose) Color.Transparent else Color.Transparent,
-            contentColor = Color.White
-        ),
-        elevation = null,
-        shape = RectangleShape,
-        contentPadding = PaddingValues(0.dp),
-        modifier = Modifier.width(45.dp).fillMaxHeight()
-    ) {
-        Text(text)
+        // App Content
+        MainAppContainer()
     }
 }
 

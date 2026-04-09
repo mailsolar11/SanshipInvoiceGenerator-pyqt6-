@@ -164,7 +164,7 @@ fun DashboardScreen() {
                         val invoices = mutableListOf<RecentInvoice>()
                         try {
                             conn.prepareStatement(
-                                "SELECT invoiceNo, date, customerName, grandTotal, type FROM invoices ORDER BY date DESC, id DESC LIMIT 10"
+                                "SELECT invoiceNo, date, customerName, COALESCE(grandTotal, 0.0) as grandTotal, type FROM invoices ORDER BY date DESC, rowid DESC LIMIT 10"
                             ).use { ps ->
                                 val rs = ps.executeQuery()
                                 while (rs.next()) {
